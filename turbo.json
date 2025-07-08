@@ -21,7 +21,8 @@
     "AUTH_SECRET",
     "GITHUB_ID",
     "GITHUB_SECRET",
-    "OPENAI_API_KEY"
+    "OPENAI_API_KEY",
+    "NEON_PROJECT_ID"
   ],
   "ui": "tui",
   "tasks": {
