@@ -21,7 +21,7 @@
 		"check-types": "turbo run check-types",
 		"clean": "turbo run clean && rm -rf node_modules && rm -rf .turbo",
 		"agent": "turbo run agent",
-		"build-sdk": "turbo run build --filter=@cronicorn/sdk"
+		"release-sdk": "turbo build --filter=@cronicorn/sdk && changeset publish"
 	},
 	"devDependencies": {
 		"@changesets/cli": "^2.27.1",
