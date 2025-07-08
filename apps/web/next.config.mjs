@@ -1,3 +1,4 @@
+import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
 import createMDX from "@next/mdx";
 import remarkGFm from "remark-gfm";
 // biome-ignore lint/correctness/noUnusedImports: Importing env for errors on init
@@ -5,35 +6,22 @@ import { env } from "./env.mjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	transpilePackages: ["@cronicorn/ui", "@cronicorn/database"],
+	transpilePackages: ["@cronicorn/ui"],
 	webpack: (config, { isServer }) => {
-		// Exclude Prisma from client bundle
-		if (!isServer) {
-			config.resolve.fallback = {
-				...config.resolve.fallback,
-				fs: false,
-				net: false,
-				tls: false,
-			};
+		if (isServer) {
+			config.plugins = [...config.plugins, new PrismaPlugin()];
 		}
 
 		return config;
-	},
-	serverExternalPackages: ["@prisma/client", "prisma"],
-	eslint: {
-		ignoreDuringBuilds: true,
-	},
-	typescript: {
-		ignoreBuildErrors: true,
-	},
-	images: {
-		unoptimized: true,
 	},
 };
 
 const withMDX = createMDX({
 	options: { remarkPlugins: [remarkGFm] },
 	ignoreBuildErrors: true,
+
+	// Add markdown plugins here, as desired
 });
 
+// Merge MDX config with Next.js config
 export default withMDX(nextConfig);
