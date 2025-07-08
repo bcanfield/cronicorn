@@ -22,15 +22,11 @@ export const env = createEnv({
 
 		ENABLE_DEV_AUTH: z.boolean().optional(),
 	},
-	client: {
-		NEXT_PUBLIC_APP_URL: z.string().min(1),
-	},
 	runtimeEnv: {
 		NEXTAUTH_URL: process.env.NEXTAUTH_URL,
 		AUTH_SECRET: process.env.AUTH_SECRET,
 		GITHUB_ID: process.env.GITHUB_ID,
 		GITHUB_SECRET: process.env.GITHUB_SECRET,
 		DATABASE_URL: process.env.DATABASE_URL,
-		NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 	},
 });
