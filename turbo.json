@@ -51,6 +51,12 @@
       "cache": false,
       "persistent": true
     },
+    "db:reset": {
+      "cache": false
+    },
+    "db:reset:force": {
+      "cache": false
+    },
     "db:migrate": {
       "dependsOn": ["db:generate"],
       "cache": false
