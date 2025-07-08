@@ -1,8 +1,7 @@
 import createMDX from "@next/mdx";
 import remarkGFm from "remark-gfm";
+// biome-ignore lint/correctness/noUnusedImports: Importing env for errors on init
 import { env } from "./env.mjs";
-
-console.log("Environment Variables:", { env });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
