@@ -1,5 +1,6 @@
 {
 	"name": "@cronicorn/database",
+	"private": true,
 	"version": "0.0.0",
 	"scripts": {
 		"db:generate": "dotenv -e ../../.env -- prisma generate",
