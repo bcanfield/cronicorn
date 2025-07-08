@@ -28,9 +28,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Build SDK
-        run: pnpm build-sdk
-
       - name: Create Release Pull Request or Publish
         uses: changesets/action@v1
         with:
