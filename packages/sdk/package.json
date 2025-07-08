@@ -1,0 +1,27 @@
+{
+	"name": "@cronicorn/sdk",
+	"version": "0.0.0",
+	"description": "Cronicorn SDK",
+	"main": "dist/jobClient.js",
+	"types": "dist/jobClient.d.ts",
+	"files": [
+		"dist"
+	],
+
+	"scripts": {
+		"build": "tsc",
+		"clean": "rm -rf node_modules && rm -rf .turbo && rm -rf generated",
+		"publish": "pnpm --filter @cronicorn/sdk publish --no-git-checks "
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"peerDependencies": {
+		"cross-fetch": "^3.1.5"
+	},
+	"devDependencies": {
+		"typescript": "^5.1.6",
+		"@types/node": "^20.4.2",
+		"@cronicorn/typescript-config": "workspace:*"
+	}
+}

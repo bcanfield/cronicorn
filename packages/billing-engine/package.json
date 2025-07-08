@@ -1,0 +1,25 @@
+{
+	"name": "@cronicorn/billing-engine",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"test": "tsx src/send-message-test.ts",
+		"check-types": "tsc --noEmit",
+		"clean": "rm -rf node_modules && rm -rf .turbo"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@cronicorn/database": "workspace:*"
+	},
+	"devDependencies": {
+		"@cronicorn/typescript-config": "workspace:*",
+		"@types/node": "^22.15.3",
+		"tsx": "^4.19.4"
+	}
+}

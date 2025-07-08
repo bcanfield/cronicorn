@@ -1,0 +1,48 @@
+{
+	"name": "turborepo-prisma",
+	"private": true,
+	"version": "1.0.23",
+	"scripts": {
+		"dev:full": "turbo db:up && turbo dev",
+		"build": "turbo run build",
+		"vercel-build": "turbo run vercel-build",
+		"dev": "turbo run dev",
+		"format": "pnpm exec biome format",
+		"format:write": "pnpm exec biome format --write",
+		"db:migrate": "turbo run db:migrate",
+		"db:reset": "turbo run db:reset",
+		"db:reset:force": "turbo run db:reset:force",
+		"db:generate": "turbo run db:generate",
+		"db:seed": "turbo run db:seed",
+		"db:studio": "turbo run db:studio",
+		"db:format": "turbo run db:format",
+		"scrape": "turbo run scrape",
+		"db:up": "turbo run db:up",
+		"check-types": "turbo run check-types",
+		"clean": "turbo run clean && rm -rf node_modules && rm -rf .turbo",
+		"agent": "turbo run agent",
+		"release": "semantic-release",
+		"publish": "turbo run publish --filter=@cronicorn/sdk"
+	},
+	"devDependencies": {
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/commit-analyzer": "^13.0.1",
+		"@semantic-release/git": "^10.0.1",
+		"@semantic-release/github": "^11.0.3",
+		"@semantic-release/release-notes-generator": "^14.0.3",
+		"conventional-changelog-conventionalcommits": "^9.0.0",
+		"prettier": "^3.5.3",
+		"semantic-release": "^24.2.5",
+		"turbo": "^2.5.3",
+		"typescript": "5.8.2"
+	},
+	"packageManager": "pnpm@10.7.0",
+	"engines": {
+		"node": ">=18"
+	},
+	"dependencies": {
+		"@biomejs/biome": "^2.0.5",
+		"@semantic-release/exec": "^7.1.0",
+		"@semantic-release/npm": "^12.0.1"
+	}
+}

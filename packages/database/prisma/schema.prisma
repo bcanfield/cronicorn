@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  apiKeys       ApiKey[]
+
+  // jobs
+  jobs          Job[]     @relation("UserJobs")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model ApiKey {
+  id        String    @id @default(cuid())
+  name      String
+  key       String    @unique
+  userId    String
+  createdAt DateTime  @default(now())
+  lastUsed  DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum JobStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+// Job config
+model Job {
+  id           String     @id @default(cuid())
+  definitionNL String
+  endpoints    Endpoint[] @relation("JobEndpoints")
+  messages     Message[]  @relation("JobMessages")
+  contextEntries ContextEntry[]  @relation("JobContextEntries")
+  nextRunAt    DateTime?
+  status      JobStatus  @default(PAUSED)
+  locked       Boolean    @default(false)
+  userId       String?
+  user         User?       @relation("UserJobs", fields: [userId], references: [id], onDelete: SetNull)
+
+ inputTokens   Int @default(0)
+  outputTokens  Int @default(0)
+  totalTokens   Int @default(0)
+  reasoningTokens Int @default(0)
+  cachedInputTokens Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model ContextEntry {
+  id        String   @id @default(uuid())
+  job       Job      @relation("JobContextEntries", fields: [jobId], references: [id], onDelete: Cascade)
+  jobId     String
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+
+  @@index([jobId])
+}
+model Endpoint {
+  id             String   @id @default(cuid())
+  name           String
+  url            String
+  method         String   @default("GET") // Default to GET, can be overridden
+  bearerToken    String?
+  requestSchema  Json?
+  jobId          String
+  job            Job      @relation("JobEndpoints", fields: [jobId], references: [id], onDelete: Cascade)
+timeoutMs Int? @default(5000) // Default to 30 seconds
+fireAndForget Boolean @default(false) // If true, doesn't wait for response
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  role           String
+  content Json
+  jobId          String
+  job            Job      @relation("JobMessages", fields: [jobId], references: [id], onDelete: Cascade)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

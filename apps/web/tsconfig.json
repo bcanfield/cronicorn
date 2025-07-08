@@ -1,0 +1,18 @@
+{
+	"extends": "@cronicorn/typescript-config/nextjs.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./*"],
+			"@/components/ui/*": ["../../packages/ui/src/components/*"]
+		},
+		"plugins": [
+			{
+				"name": "next"
+			}
+		]
+	},
+
+	"include": ["next-env.d.ts", "next.config.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "env.mjs"],
+	"exclude": ["node_modules"]
+}

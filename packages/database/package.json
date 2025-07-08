@@ -1,0 +1,34 @@
+{
+	"name": "@cronicorn/database",
+	"version": "0.0.0",
+	"scripts": {
+		"db:generate": "dotenv -e ../../.env -- prisma generate",
+		"db:migrate": "dotenv -e ../../.env -- prisma migrate dev --skip-generate",
+		"db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+		"db:reset": "dotenv -e ../../.env -- prisma migrate reset",
+		"db:reset:force": "dotenv -e ../../.env -- prisma migrate reset --force",
+		"db:studio": "prisma studio",
+		"db:format": "prisma format",
+		"db:seed": "dotenv -e ../../.env -- prisma db seed",
+		"db:up": "docker-compose up -d",
+		"clean": "rm -rf node_modules && rm -rf .turbo && rm -rf generated"
+	},
+	"exports": {
+		".": "./src/index.ts",
+		"./dev-user": "./src/dev-user.ts"
+	},
+	"devDependencies": {
+		"dotenv-cli": "^8.0.0",
+		"prisma": "^6.8.2",
+		"ts-node": "^10.9.2"
+	},
+	"prisma": {
+		"seed": "ts-node --transpile-only src/seed.ts"
+	},
+	"dependencies": {
+		"@cronicorn/typescript-config": "workspace:*",
+		"@prisma/client": "^6.8.2",
+		"@types/node": "^22.15.3",
+		"dotenv": "^17.1.0"
+	}
+}

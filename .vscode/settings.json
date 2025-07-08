@@ -1,0 +1,28 @@
+{
+	// Use Biome as the default formatter everywhere
+	"editor.defaultFormatter": "biomejs.biome",
+	"editor.formatOnSave": true,
+
+	// Explicitly disable other formatters:
+	"prettier.enable": false,
+	"eslint.format.enable": false,
+
+	// If you’ve got ESLint auto-fixes on save, turn them off too:
+	"editor.codeActionsOnSave": {
+	  "source.organizeImports.biome": "explicit",
+    "source.suppressRule.inline.biome": "explicit"
+	},
+
+	// And make sure it's the default for common file-types
+	"[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
+	"[javascriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+	"[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
+	"[typescriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+	"[json]": { "editor.defaultFormatter": "biomejs.biome" },
+	"[markdown]": { "editor.defaultFormatter": "biomejs.biome" },
+	"[css]": { "editor.defaultFormatter": "biomejs.biome" },
+	"files.associations": {
+		"turbo.json": "jsonc"
+	},
+	"biome.requireConfiguration": false
+}

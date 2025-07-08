@@ -1,0 +1,96 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "POSTGRES_PRISMA_URL",
+    "POSTGRES_URL",
+    "DATABASE_URL",
+    "DATABASE_URL_UNPOOLED",
+    "NEXTAUTH_URL",
+    "POSTGRES_URL_NO_SSL",
+    "POSTGRES_HOST",
+    "POSTGRES_USER",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_DATABASE",
+    "PGHOST",
+    "PGUSER",
+    "PGPASSWORD",
+    "PGDATABASE",
+    "POSTGRES_URL_NON_POOLING",
+    "POSTGRES_URL_UNPOOLED",
+    "PGHOST_UNPOOLED",
+    "AUTH_SECRET",
+    "GITHUB_ID",
+    "GITHUB_SECRET",
+    "OPENAI_API_KEY"
+  ],
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "^db:generate"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "vercel-build": {
+      "dependsOn": ["build", "^db:generate", "^db:deploy", "^db:seed"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      "cache": false
+    },
+
+    "dev": {
+      "dependsOn": ["^db:ready"],
+      "cache": false,
+      "persistent": true
+    },
+
+    "db:ready": {
+      "dependsOn": ["db:migrate", "db:generate", "db:seed"],
+      "cache": false
+    },
+    "db:up": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:migrate": {
+      "dependsOn": ["db:generate"],
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:seed": {
+      "dependsOn": ["db:migrate"],
+      "cache": false
+    },
+    "db:deploy": {
+      "dependsOn": ["db:generate"],
+      "cache": false
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "check-types": {
+      "dependsOn": ["^check-types", "^db:generate"]
+    },
+    "clean": {
+      "cache": false
+    },
+
+    "db:format": {
+      "cache": false
+    },
+    "publish": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+
+    "db:studio": {
+      "cache": false,
+      "persistent": true
+    },
+    "agent": {
+      "dependsOn": ["^agent"],
+      "cache": false
+    }
+  }
+}

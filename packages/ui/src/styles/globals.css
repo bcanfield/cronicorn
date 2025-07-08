@@ -1,0 +1,207 @@
+@import "tailwindcss";
+@source "../../../apps/**/*.{ts,tsx}";
+@source "../../../components/**/*.{ts,tsx}";
+@source "../**/*.{ts,tsx}";
+@plugin "@tailwindcss/typography";
+@import "tw-animate-css";
+
+:root {
+	/* Core surfaces */
+	--background: #c0c0c0;
+	--foreground: #000000;
+
+	--card: #dcdcdc;
+	--card-foreground: #000000;
+
+	--popover: #f0f0f0;
+	--popover-foreground: #000000;
+
+	/* Primary (Windows blue) */
+	--primary: #000080;
+	--primary-hover: #0000aa;
+	--primary-foreground: #ffffff;
+
+	/* Secondary (system light gray) */
+	--secondary: #c0c0c0;
+	--secondary-hover: #a8a8a8;
+	--secondary-foreground: #000000;
+
+	/* Muted (for subtle backgrounds or disabled) */
+	--muted: #a0a0a0;
+	--muted-hover: #8a8a8a;
+	--muted-foreground: #595959;
+
+	/* Accent (teal, like old Windows hyperlinks or highlights) */
+	--accent: #008080;
+	--accent-hover: #00aaaa;
+	--accent-foreground: #ffffff;
+
+	/* Destructive (error) */
+	--destructive: #800000;
+	--destructive-hover: #aa0000;
+	--destructive-foreground: #ffffff;
+
+	/* Form inputs and borders */
+	--border: #666666;
+	--input: #ffffff;
+	--ring: #000000;
+
+	/* Charts / utilities */
+	--chart-1: #000080;
+	--chart-2: #808080;
+	--chart-3: #a0a0a0;
+	--chart-4: #ffffff;
+	--chart-5: #008080;
+
+	/* Sidebar and layout */
+	--sidebar: #b8b8b8;
+	--sidebar-foreground: #000000;
+
+	--sidebar-primary: #000080;
+	--sidebar-primary-foreground: #ffffff;
+
+	--sidebar-accent: #008080;
+	--sidebar-accent-foreground: #ffffff;
+
+	--sidebar-border: #808080;
+	--sidebar-ring: #000000;
+
+	--radius: 0px;
+
+	--shadow-2xs: 1px 1px 0px 0px rgba(0, 0, 0, 0.15);
+	--shadow-xs: 1px 1px 0px 0px rgba(0, 0, 0, 0.15);
+	--shadow-sm: 1px 1px rgba(0, 0, 0, 0.3), 1px 1px 2px -1px rgba(0, 0, 0, 0.3);
+	--shadow: 1px 1px rgba(0, 0, 0, 0.3), 1px 1px 2px -1px rgba(0, 0, 0, 0.3);
+	--shadow-md: 1px 1px rgba(0, 0, 0, 0.3), 1px 2px 4px -1px rgba(0, 0, 0, 0.3);
+	--shadow-lg: 1px 1px rgba(0, 0, 0, 0.3), 1px 4px 6px -1px rgba(0, 0, 0, 0.3);
+	--shadow-xl: 1px 1px rgba(0, 0, 0, 0.3), 1px 8px 10px -1px rgba(0, 0, 0, 0.3);
+	--shadow-2xl: 1px 1px rgba(0, 0, 0, 0.75);
+
+	--tracking-normal: 0;
+
+	--bevel-light: #e0e0e0;
+	--bevel-dark: var(--color-border);
+}
+
+/* Inherit theme variables */
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-hover: var(--primary-hover);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-hover: var(--secondary-hover);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-hover: var(--accent-hover);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+
+	--font-family-body: var(--font-ibm-plex-sans);
+	--font-family-heading: var(--font-rajdhani);
+	--font-family-input: var(--font-share-tech-mono);
+	--font-family-app-header: var(--font-press-start);
+
+	--radius-sm: 0px;
+	--radius-md: 0px;
+	--radius-lg: 0px;
+	--radius-xl: 0px;
+
+	--shadow-2xs: var(--shadow-2xs);
+	--shadow-xs: var(--shadow-xs);
+	--shadow-sm: var(--shadow-sm);
+	--shadow: var(--shadow);
+	--shadow-md: var(--shadow-md);
+	--shadow-lg: var(--shadow-lg);
+	--shadow-xl: var(--shadow-xl);
+	--shadow-2xl: var(--shadow-2xl);
+
+	--tracking-tighter: -0.05em;
+	--tracking-tight: -0.025em;
+	--tracking-normal: 0;
+	--tracking-wide: 0.025em;
+	--tracking-wider: 0.05em;
+	--tracking-widest: 0.1em;
+}
+
+@utility bevel-in {
+	@apply border-2 border-solid;
+	border-top-color: var(--bevel-dark);
+	border-left-color: var(--bevel-dark);
+	border-right-color: var(--bevel-light);
+	border-bottom-color: var(--bevel-light);
+}
+
+@utility bevel-out {
+	@apply border-2 border-solid;
+	border-top-color: var(--bevel-light);
+	border-left-color: var(--bevel-light);
+	border-right-color: var(--bevel-dark);
+	border-bottom-color: var(--bevel-dark);
+}
+
+@utility bevel-flat {
+	@apply border-2 border-solid border-border;
+}
+
+@layer components {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply font-family-heading;
+	}
+	input,
+	textarea,
+	select {
+		@apply font-family-input;
+	}
+
+	/* input,
+	textarea,
+	select {
+		@apply font-family-input;
+		@apply bevel-in!;
+	}
+
+	button {
+		@apply bevel-out!;
+	} */
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+		font-family: var(--font-ibm-plex-sans);
+		/* letter-spacing: var(--tracking-normal); */
+	}
+}
