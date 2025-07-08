@@ -7,12 +7,5 @@
 	"access": "public",
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",
-	"ignore": [
-		"@cronicorn/agent",
-		"@cronicorn/database",
-		"@cronicorn/web",
-		"@cronicorn/billing-engine",
-		"@cronicorn/ui",
-		"@cronicorn/typescript-config"
-	]
+	"ignore": []
 }
