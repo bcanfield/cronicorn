@@ -1,4 +1,4 @@
-name: Release
+name: Release SDK
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  release:
-    name: Release
+  release-sdk:
+    name: Release SDK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -28,8 +28,8 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Build packages
-        run: pnpm build
+      - name: Build SDK
+        run: turbo run build --filter=@cronicorn/sdk
 
       - name: Create Release Pull Request or Publish
         uses: changesets/action@v1
