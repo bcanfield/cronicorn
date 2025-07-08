@@ -151,6 +151,9 @@ importers:
       '@cronicorn/database':
         specifier: workspace:*
         version: link:../database
+      '@cronicorn/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       ai:
         specifier: 5.0.0-beta.1
         version: 5.0.0-beta.1(zod@3.25.67)
@@ -170,9 +173,6 @@ importers:
         specifier: ^3.25.20
         version: 3.25.67
     devDependencies:
-      '@cronicorn/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/node':
         specifier: ^22.15.3
         version: 22.15.33
