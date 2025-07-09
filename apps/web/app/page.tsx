@@ -83,7 +83,13 @@ export default function Home() {
 							</div>
 						</BevelContainer>
 
-						<div className="flex text-base font-medium items-center gap-2 justify-center text-primary font-family-heading">
+						<Link
+							href={"/case-study"}
+							className={cn(
+								buttonVariants({ variant: "link", size: "xs", className: "decoration-primary" }),
+								"flex text-base font-medium items-center gap-2 justify-center text-primary font-family-heading",
+							)}
+						>
 							WHY DEVELOPERS{" "}
 							<Image
 								className="animate-[pulse_2s_ease-in-out_infinite]"
@@ -94,7 +100,7 @@ export default function Home() {
 								src="/assets/heart.svg"
 							></Image>
 							CRONICORN
-						</div>
+						</Link>
 						<FeatureList
 							header="How it works"
 							items={[

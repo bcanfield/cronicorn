@@ -1,0 +1,34 @@
+## Case Study: CircleOne Fantasy Disc Golf
+
+**Bringing real-world chaos into perfect sync with automated scheduling**
+
+
+<img
+  src="https://www.circleone.app/api/og"
+  alt="Fantasy Disc Golf logo"
+  className="w-full"
+  />
+
+Fantasy Disc Golf runs weekly contests synced to live disc golf events, player availability, and weather conditions. Before, managing the contest schedule required constant developer oversight, manual adjustments, and last-minute patches.
+
+Now, with this scheduling platform:
+
+- **Natural language rules** define contest logic like:  
+  _“Create lineup deadlines 1 hour before tee time, only if the weather looks good and all player data is posted.”_
+
+- **Endpoints integrated**:
+  - `POST /api/check-players` — to verify player data is live  
+  - `GET /api/check-weather` — to ensure conditions are playable  
+  - `POST /api/schedule-contest` — to lock in the contest once ready
+
+- **Real-time adjustments**  
+  The AI agent checks multiple factors daily. If weather looks bad or data is missing, it reschedules automatically — no human needed.
+
+- **Contextual awareness**  
+  A POST to `/api/job/:id` like _“forecast shows storm delay”_ updates the agent instantly, allowing it to defer scheduling without breaking a sweat.
+
+> _“This replaced a patchwork of scripts and Slack alerts. I haven’t thought about ‘when to run things’ in weeks. It just works.”_  
+> — Lead Dev, CircleOne
+
+🎯 **Outcome**:  
+Dynamic, accurate scheduling with zero manual babysitting. New contests launch on time, even as real-world conditions change.

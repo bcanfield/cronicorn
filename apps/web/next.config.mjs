@@ -8,6 +8,7 @@ import { env } from "./env.mjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	transpilePackages: ["@cronicorn/ui"],
+	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 	webpack: (config, { isServer }) => {
 		if (isServer) {
 			config.plugins = [...config.plugins, new PrismaPlugin()];
