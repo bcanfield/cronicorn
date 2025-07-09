@@ -1,13 +1,13 @@
 import "@cronicorn/ui/globals.css";
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, Press_Start_2P, Rajdhani, Share_Tech_Mono } from "next/font/google";
+import { Press_Start_2P, Rajdhani, Share_Tech_Mono, JetBrains_Mono } from "next/font/google";
 import type React from "react";
 
-const ibmPlexSans = IBM_Plex_Sans({
+const jetbrainsMono = JetBrains_Mono({
 	subsets: ["latin"],
 	weight: ["400", "500", "600", "700"],
 	display: "swap",
-	variable: "--font-ibm-plex-sans",
+	variable: "--font-jetbrains-mono",
 });
 
 const pressStart = Press_Start_2P({
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		<html
 			lang="en"
 			suppressHydrationWarning
-			className={`${ibmPlexSans.variable} ${rajdhani.variable} ${shareTechMono.variable} ${pressStart.variable}  font-sans antialiased`}
+			className={`${jetbrainsMono.variable} ${rajdhani.variable} ${shareTechMono.variable} ${pressStart.variable}  font-sans antialiased`}
 		>
 			<body className="font-family-body antialiased">{children}</body>
 		</html>

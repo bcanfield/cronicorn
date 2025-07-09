@@ -10,10 +10,10 @@
 	--background: #c0c0c0;
 	--foreground: #000000;
 
-	--card: #dcdcdc;
+	--card: #e6e6e6;
 	--card-foreground: #000000;
 
-	--popover: #f0f0f0;
+	--popover: #f2f2f2;
 	--popover-foreground: #000000;
 
 	/* Primary (Windows blue) */
@@ -121,7 +121,7 @@
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
 
-	--font-family-body: var(--font-ibm-plex-sans);
+	--font-family-body: var(--font-jetbrains-mono);
 	--font-family-heading: var(--font-rajdhani);
 	--font-family-input: var(--font-share-tech-mono);
 	--font-family-app-header: var(--font-press-start);
@@ -150,6 +150,7 @@
 
 @utility bevel-in {
 	@apply border-2 border-solid;
+	@apply shadow-sm;
 	border-top-color: var(--bevel-dark);
 	border-left-color: var(--bevel-dark);
 	border-right-color: var(--bevel-light);
@@ -158,6 +159,7 @@
 
 @utility bevel-out {
 	@apply border-2 border-solid;
+	@apply shadow-sm;
 	border-top-color: var(--bevel-light);
 	border-left-color: var(--bevel-light);
 	border-right-color: var(--bevel-dark);
@@ -201,7 +203,7 @@
 	}
 	body {
 		@apply bg-background text-foreground;
-		font-family: var(--font-ibm-plex-sans);
+		font-family: var(--font-jetbrains-mono);
 		/* letter-spacing: var(--tracking-normal); */
 	}
 }

@@ -15,6 +15,9 @@ const nextConfig = {
 
 		return config;
 	},
+	experimental: {
+		optimizePackageImports: ["@phosphor-icons/react"],
+	},
 	productionBrowserSourceMaps: true,
 };
 

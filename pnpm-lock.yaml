@@ -54,6 +54,9 @@ importers:
       '@next/mdx':
         specifier: ^15.3.3
         version: 15.3.4(@mdx-js/loader@3.1.0(acorn@8.15.0))(@mdx-js/react@3.1.0(@types/react@19.1.8)(react@19.1.0))
+      '@phosphor-icons/react':
+        specifier: ^2.1.10
+        version: 2.1.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@prisma/nextjs-monorepo-workaround-plugin':
         specifier: ^6.8.2
         version: 6.10.1
@@ -1058,6 +1061,13 @@ packages:
 
   '@panva/hkdf@1.2.1':
     resolution: {integrity: sha512-6oclG6Y3PiDFcoyk8srjLfVKyMfVCKJ27JwNPViuXziFpmdz+MZnZN/aKY0JGXgYuO/VghU0jcOAZgWXZ1Dmrw==}
+
+  '@phosphor-icons/react@2.1.10':
+    resolution: {integrity: sha512-vt8Tvq8GLjheAZZYa+YG/pW7HDbov8El/MANW8pOAz4eGxrwhnbfrQZq0Cp4q8zBEu8NIhHdnr+r8thnfRSNYA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>= 16.8'
+      react-dom: '>= 16.8'
 
   '@prisma/client@6.10.1':
     resolution: {integrity: sha512-Re4pMlcUsQsUTAYMK7EJ4Bw2kg3WfZAAlr8GjORJaK4VOP6LxRQUQ1TuLnxcF42XqGkWQ36q5CQF1yVadANQ6w==}
@@ -4837,6 +4847,11 @@ snapshots:
   '@opentelemetry/api@1.9.0': {}
 
   '@panva/hkdf@1.2.1': {}
+
+  '@phosphor-icons/react@2.1.10(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@prisma/client@6.10.1(prisma@6.10.1(typescript@5.8.2))(typescript@5.8.2)':
     optionalDependencies:
