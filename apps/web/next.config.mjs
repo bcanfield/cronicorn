@@ -15,6 +15,7 @@ const nextConfig = {
 
 		return config;
 	},
+	productionBrowserSourceMaps: true,
 };
 
 const withMDX = createMDX({
