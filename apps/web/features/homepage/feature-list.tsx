@@ -26,7 +26,7 @@ export const FeatureList = ({
 								y: 0,
 							}}
 							transition={{
-								duration: 0.6,
+								duration: 0.3,
 								delay: 0.1,
 								ease: [0.25, 0.4, 0.25, 1], // Custom cubic-bezier for smooth easing
 							}}

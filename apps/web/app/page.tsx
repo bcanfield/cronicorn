@@ -59,7 +59,7 @@ export default function Home() {
 					<div className="space-y-4">
 						<BevelContainer innerClassName="p-2 bg-popover" variant="in">
 							<div className="space-y-4 py-16">
-								<p className="text-popover-foreground text-sm">[ GET STARTED TODAY FREE ]</p>
+								<p className="text-popover-foreground text-sm">[ LAUNCH YOUR FREE PLAN TODAY ]</p>
 								<h1 className=" tracking-wide text-lg font-family-app-header text-center ">{appDetails.appHeader}</h1>
 								<h2 className="text-sm font-family-body">{appDetails.appDescription}</h2>
 								<div className="flex justify-center items-center">
@@ -69,6 +69,7 @@ export default function Home() {
 								</div>
 							</div>
 						</BevelContainer>
+
 						<div className="flex text-base font-medium items-center gap-2 justify-center text-primary font-family-heading">
 							WHY DEVELOPERS{" "}
 							<Image
