@@ -1,4 +1,5 @@
 import { BevelContainer } from "@/components/ui/bevel-container";
+import * as motion from "motion/react-client";
 
 export const FeatureList = ({
 	header,
@@ -13,19 +14,36 @@ export const FeatureList = ({
 				<h2 className="text-popover-foreground text-sm font-family-body text-center uppercase">[ {header} ]</h2>
 				<div className="space-y-8">
 					{items.map((item) => (
-						<div key={item.title}>
+						<motion.div
+							key={item.title}
+							// Initial animation properties
+							initial={{
+								opacity: 0,
+								y: 50,
+							}}
+							whileInView={{
+								opacity: 1,
+								y: 0,
+							}}
+							transition={{
+								duration: 0.6,
+								delay: 0.1,
+								ease: [0.25, 0.4, 0.25, 1], // Custom cubic-bezier for smooth easing
+							}}
+							viewport={{
+								once: true, // Only animate once when entering viewport
+								margin: "-100px", // Trigger animation 100px before element enters viewport
+							}}
+						>
 							<div className="flex items-center gap-1">
 								{item.icon} <h3 className="font-semibold  text-sm font-family-body">{item.title}</h3>
 							</div>
 							<p className="text-xs text-muted-foreground mb-2">{item.subTitle}</p>
-							{/* <div className="flex items-center bg-card border-border/70 border p-2 text-xs">
-								<div className="w-2 h-full bg-red-500"></div>
-								{item.content}
-							</div> */}
+
 							<div className="flex items-center border-l-2 bg-primary/7 border-border/70  p-2 text-xs">
 								{item.content}
 							</div>
-						</div>
+						</motion.div>
 					))}
 				</div>
 			</div>
