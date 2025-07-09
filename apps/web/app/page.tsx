@@ -38,7 +38,18 @@ export default function Home() {
 				}}
 			/>
 
-			<div className=" flex justify-center py-24 sm:py-32">
+			<div className="pt-20 sm:pt-28">
+				<Link
+					href={appDetails.repoUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					className={cn(buttonVariants({ variant: "link", size: "xs" }), "flex items-center gap-2 text-xs")}
+				>
+					<GithubLogoIcon className="size-4" />
+					Open Sourced on Github
+				</Link>
+			</div>
+			<div className=" flex justify-center pb-20 sm:pb-28">
 				<WindowsCard
 					className="max-w-lg text-center"
 					title="Cronicorn.com"
@@ -59,12 +70,14 @@ export default function Home() {
 					<div className="space-y-4">
 						<BevelContainer innerClassName="p-2 bg-popover" variant="in">
 							<div className="space-y-4 py-16">
-								<p className="text-popover-foreground text-sm">[ LAUNCH YOUR FREE PLAN TODAY ]</p>
 								<h1 className=" tracking-wide text-lg font-family-app-header text-center ">{appDetails.appHeader}</h1>
 								<h2 className="text-sm font-family-body">{appDetails.appDescription}</h2>
 								<div className="flex justify-center items-center">
-									<Link href="/dashboard" className={buttonVariants({ variant: "outline" })}>
-										Start Scheduling Free
+									<Link
+										href="/dashboard"
+										className={buttonVariants({ variant: "outline", className: "text-foreground" })}
+									>
+										[ LAUNCH YOUR FREE PLAN TODAY ]
 									</Link>
 								</div>
 							</div>
@@ -90,6 +103,7 @@ export default function Home() {
 									subTitle: "Write a natural-language description of your schedule logic.",
 									icon: <ChatTextIcon className="size-5" />,
 									content: '"Check price volatility every 15 minutes, but slow down if it\'s stable."',
+									animate: false,
 								},
 								{
 									title: "Connect your endpoints",
@@ -102,6 +116,7 @@ export default function Home() {
 											<strong>/api/notify-admins</strong>.
 										</p>
 									),
+									animate: false,
 								},
 								{
 									title: "Let the AI coordinate",
@@ -109,6 +124,7 @@ export default function Home() {
 									icon: <BrainIcon className="size-5" />,
 									content:
 										"Example: After a critical spike, it checks prices every minute — then slows back down when things normalize.",
+									animate: false,
 								},
 								{
 									title: "Post Updates Anytime",
@@ -270,7 +286,7 @@ const jsonLd = {
 	"@context": "https://schema.org",
 	"@type": "SoftwareApplication",
 	name: "Cronicorn - Dynamic cron for modern apps",
-	description: "Describe your rules, attach your endpoints, and let it run — nudge it when you need to.",
+	description: appDetails.appDescription,
 	url: appDetails.appUrl,
 	applicationCategory: "DeveloperApplication",
 
