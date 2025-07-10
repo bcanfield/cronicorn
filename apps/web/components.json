@@ -16,6 +16,6 @@
 		"hooks": "@/hooks",
 		"lib": "@/lib",
 		"utils": "@cronicorn/ui/lib/utils",
-		"ui": "@cronicorn/ui/components"
+		"ui": "@/components/ui"
 	}
 }
