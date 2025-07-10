@@ -1,6 +1,6 @@
 import "@cronicorn/ui/globals.css";
 import type { Metadata } from "next";
-import { Press_Start_2P, Rajdhani, Share_Tech_Mono, JetBrains_Mono } from "next/font/google";
+import { Press_Start_2P, Rajdhani, Source_Code_Pro, JetBrains_Mono, Orbitron } from "next/font/google";
 import type React from "react";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -10,23 +10,23 @@ const jetbrainsMono = JetBrains_Mono({
 	variable: "--font-jetbrains-mono",
 });
 
-const pressStart = Press_Start_2P({
-	subsets: ["latin"],
-	weight: "400",
-	display: "swap",
-	variable: "--font-press-start",
-});
-
 const rajdhani = Rajdhani({
 	subsets: ["latin"],
-	weight: ["400", "500", "700"],
+	weight: ["400", "500", "600", "700"],
 	display: "swap",
 	variable: "--font-rajdhani",
 });
 
-const shareTechMono = Share_Tech_Mono({
+const pressStart = Orbitron({
 	subsets: ["latin"],
-	weight: ["400"],
+	weight: ["400", "500", "600", "700"],
+	display: "swap",
+	variable: "--font-press-start",
+});
+
+const shareTechMono = Source_Code_Pro({
+	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 	display: "swap",
 	variable: "--font-share-tech-mono",
 });

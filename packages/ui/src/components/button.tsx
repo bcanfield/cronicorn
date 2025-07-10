@@ -13,10 +13,10 @@ const buttonVariants = cva(
 					"bg-primary  bevel-out text-primary-foreground shadow-xs hover:bg-primary-hover  active:bevel-in transition-all duration-75",
 				destructive:
 					"bg-destructive  bevel-out text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-				outline: " bevel-out bg-background shadow-xs hover:bg-secondary-hover",
-				secondary: "  bevel-out bg-background shadow-xs hover:bg-secondary-hover",
+				outline: " bevel-out bg-background shadow-xs hover:bg-secondary-hover text-foreground",
+				secondary: "  bevel-out bg-background shadow-xs hover:bg-secondary-hover text-foreground",
 
-				ghost: "  bevel-out bg-background shadow-xs hover:bg-secondary-hover",
+				ghost: "  bevel-out bg-background shadow-xs hover:bg-secondary-hover text-foreground",
 				accent: "  bevel-out bg-accent hover:bg-accent-hover text-accent-foreground ",
 				link: "   decoration-2 decoration-foreground/50 text-foreground  hover:underline",
 			},

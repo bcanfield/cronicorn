@@ -29,7 +29,7 @@ import { cn } from "@cronicorn/ui/lib/utils";
 
 export default function Home() {
 	return (
-		<div className="min-h-vh flex  flex-col light md:px-2 px-4">
+		<div className="min-h-vh flex  flex-col light px-4 space-y-8 items-center">
 			<script
 				type="application/ld+json"
 				// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is safe to use here
@@ -38,195 +38,178 @@ export default function Home() {
 				}}
 			/>
 
-			<div className="pt-20 sm:pt-28">
-				<Link
-					href={appDetails.repoUrl}
-					target="_blank"
-					rel="noopener noreferrer"
-					className={cn(buttonVariants({ variant: "link", size: "xs" }), "flex items-center gap-2 text-xs")}
-				>
-					<GithubLogoIcon className="size-4" />
-					Open Sourced on Github
-				</Link>
-			</div>
-			<div className=" flex justify-center pb-20 sm:pb-28">
+			<div className="min-h-[70vh] flex flex-col justify-end">
 				<WindowsCard
 					className="max-w-lg text-center"
 					title="Cronicorn.com"
+					action={
+						<Link
+							href={appDetails.repoUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className={cn(buttonVariants({ variant: "outline", size: "xxs" }), "")}
+						>
+							<GithubLogoIcon className="size-4" />
+							Github
+						</Link>
+					}
 					footer={
 						<div className="w-full flex items-center justify-center gap-6  py-2">
 							<Link
-								href={appDetails.repoUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								className={cn(buttonVariants({ variant: "outline", size: "sm" }), "flex items-center gap-2 text-sm")}
+								href={"/case-study"}
+								className={cn(
+									buttonVariants({ variant: "link", size: "xs", className: "decoration-primary" }),
+									"flex text-base font-semibold items-center gap-2 justify-center text-primary font-family-heading",
+								)}
 							>
-								<GithubLogoIcon className="size-5" />
-								Open Sourced on Github
+								WHY DEVELOPERS{" "}
+								<Image
+									className="animate-[pulse_2s_ease-in-out_infinite]"
+									alt="Heart Icon"
+									width={12}
+									height={12}
+									unoptimized
+									src="/assets/heart.svg"
+								></Image>
+								CRONICORN
 							</Link>
 						</div>
 					}
 				>
-					<div className="space-y-4">
-						<BevelContainer innerClassName="p-2 bg-popover" variant="in">
-							<div className="space-y-4 py-16">
-								<h1 className=" tracking-wide text-lg font-family-app-header text-center ">{appDetails.appHeader}</h1>
-								<h2 className="text-sm font-family-body">{appDetails.appDescription}</h2>
-								<div className="flex justify-center items-center">
-									<Link
-										href="/dashboard"
-										className={buttonVariants({ variant: "outline", className: "text-foreground" })}
-									>
-										[ LAUNCH YOUR FREE PLAN TODAY ]
-									</Link>
-								</div>
+					<BevelContainer innerClassName="p-2 bg-popover" variant="in">
+						<div className="space-y-4 py-16">
+							<h1 className="  text-2xl tracking-widest font-semibold font-family-app-header text-center ">
+								{appDetails.appHeader}
+							</h1>
+							<h2 className="text-sm font-family-body">{appDetails.appDescription}</h2>
+							<div className="flex justify-center items-center">
+								<Link href="/dashboard" className={buttonVariants({ variant: "outline" })}>
+									[ LAUNCH YOUR FREE PLAN TODAY ]
+								</Link>
 							</div>
-						</BevelContainer>
-
-						<Link
-							href={"/case-study"}
-							className={cn(
-								buttonVariants({ variant: "link", size: "xs", className: "decoration-primary" }),
-								"flex text-base font-medium items-center gap-2 justify-center text-primary font-family-heading",
-							)}
-						>
-							WHY DEVELOPERS{" "}
-							<Image
-								className="animate-[pulse_2s_ease-in-out_infinite]"
-								alt="Heart Icon"
-								width={12}
-								height={12}
-								unoptimized
-								src="/assets/heart.svg"
-							></Image>
-							CRONICORN
-						</Link>
-						<FeatureList
-							header="How it works"
-							items={[
-								{
-									title: "Describe the rules",
-									subTitle: "Write a natural-language description of your schedule logic.",
-									icon: <ChatTextIcon className="size-5" />,
-									content: '"Check price volatility every 15 minutes, but slow down if it\'s stable."',
-									animate: false,
-								},
-								{
-									title: "Connect your endpoints",
-									subTitle:
-										"Define the API routes your job will call (i.e. GETs for data or POSTs to trigger something).",
-									icon: <PlugIcon className="size-5" />,
-									content: (
-										<p>
-											Example: Fetch from <strong>/api/price-feed</strong>, post alerts to{" "}
-											<strong>/api/notify-admins</strong>.
-										</p>
-									),
-									animate: false,
-								},
-								{
-									title: "Let the AI coordinate",
-									subTitle: "The scheduler handles timing based on your rules, recent responses, and posted updates.",
-									icon: <BrainIcon className="size-5" />,
-									content:
-										"Example: After a critical spike, it checks prices every minute — then slows back down when things normalize.",
-									animate: false,
-								},
-								{
-									title: "Post Updates Anytime",
-									subTitle:
-										"Send context from your own service back to the job to influence the schedule or add important messages.",
-									icon: <PaperPlaneTiltIcon className="size-5" />,
-									content:
-										"Example: After a data import finishes, post back: “345 records processed” to influence future runs.",
-								},
-								{
-									title: "Stay hands-off",
-									subTitle:
-										"You stay in control of logic, but the scheduler takes care of when to run next — no micromanaging.",
-									icon: <ClockCounterClockwiseIcon className="size-5" />,
-									content: "Example: No need to hardcode delays or retries — the scheduler reasons through them.",
-								},
-							]}
-						/>
-
-						<div className="flex text-base font-medium items-center gap-2 justify-center text-primary font-family-heading">
-							REAL WORLD WORKFLOWS MADE SMARTER
 						</div>
-
-						<FeatureList
-							header="USE CASES"
-							items={[
-								{
-									title: "Threshold Alerts",
-									subTitle: "Watch metrics like CPU, traffic, or sentiment.",
-									icon: <PulseIcon className="size-5" />,
-									content: "Poll every 10 min → Increase frequency if spike → Notify only if persistent.",
-								},
-								{
-									title: "Course Reminder AI",
-									subTitle: "Check LMS for active students.",
-									icon: <StudentIcon className="size-5" />,
-									content: "Send reminders only if they haven’t completed X module after 3 days.",
-								},
-								{
-									title: "Game Syncing Bot",
-									subTitle: "Poll sports API for kickoff time.",
-									icon: <SoccerBallIcon className="size-5" />,
-									content: "Start pregame sync 10 min before real-time start, even if kickoff moves.",
-								},
-								{
-									title: "Price Watcher",
-									subTitle: "Poll product APIs more frequently during sales events.",
-									icon: <TagIcon className="size-5" />,
-									content: "Post back results once change is detected.",
-								},
-								{
-									title: "AI Agent Orchestration",
-									subTitle:
-										"Schedule retries, handoffs, or long-tail agents based on real-time context or completion callbacks.",
-									icon: <BracketsAngleIcon className="size-5" />,
-									content:
-										"Example: After a data import finishes, post back: “345 records processed” to influence future runs.",
-								},
-							]}
-						/>
-						<div className="flex text-base font-medium items-center gap-2 justify-center text-primary font-family-heading">
-							BUILT FOR HOW YOU ACTUALLY BUILD TODAY
-						</div>
-
-						<FeatureList
-							header="What Makes It Different"
-							items={[
-								{
-									title: "Context-aware",
-									subTitle: "Understands timing in relation to prior events, states, and messages.",
-									icon: <StackIcon className="size-5" />,
-									content:
-										"Example: After a data import finishes, post back: “345 records processed” to influence future runs.",
-								},
-								{
-									title: "No lock-in or complex DSL",
-									subTitle: "Just natural language, standard REST, and a simple job config.",
-									icon: <CodeSimpleIcon className="size-5" />,
-									content: "Example: Describe your rules in plain English.",
-								},
-								{
-									title: "Dynamic scheduling",
-									subTitle: "Change polling frequency or actions based on real-world conditions.",
-									icon: <ArrowsClockwiseIcon className="size-5" />,
-									content: "Example: Poll every 10 min → Increase frequency if spike → Notify only if persistent.",
-								},
-								{
-									title: "Developer-friendly",
-									subTitle: "One endpoint to post updates. One place to configure jobs. Zero orchestration needed.",
-									icon: <TerminalWindowIcon className="size-5" />,
-									content: "Example: No need to hardcode delays or retries — the scheduler reasons through them.",
-								},
-							]}
-						/>
-					</div>
+					</BevelContainer>
 				</WindowsCard>
+			</div>
+
+			<div className="space-y-4 max-w-lg pb-24">
+				<FeatureList
+					header="How it works"
+					items={[
+						{
+							title: "Describe the rules",
+							subTitle: "Use plain English to define your schedule",
+							icon: <ChatTextIcon className="size-5" />,
+							content: `"Check volatility every 15m; slow down when stable."`,
+							animate: false,
+						},
+						{
+							title: "Connect endpoints",
+							subTitle: "Your job’s API routes",
+							icon: <PlugIcon className="size-5" />,
+							content: (
+								<div className="flex flex-col gap-2">
+									<p>
+										GET <strong>/api/price-feed</strong>
+									</p>
+									<p>
+										POST <strong>/api/notify-admins</strong>
+									</p>
+								</div>
+							),
+							animate: false,
+						},
+						{
+							title: "Let the scheduler manage timing",
+							subTitle: "Schedules tasks by rules, feedback, and status",
+							icon: <BrainIcon className="size-5" />,
+							content: "Polls every minute after a spike, then eases off as things stabilize.",
+							animate: false,
+						},
+						{
+							title: "Share updates anytime",
+							subTitle: "Send context to tweak schedule or add notes",
+							icon: <PaperPlaneTiltIcon className="size-5" />,
+							content: `e.g. After import, send "345 records processed" to guide the next run.`,
+						},
+						{
+							title: "Hands-off control",
+							subTitle: "You set logic; it handles timing",
+							icon: <ClockCounterClockwiseIcon className="size-5" />,
+							content: "No hardcoded delays or retries—the scheduler figures them out.",
+						},
+					]}
+				/>
+
+				<div className="flex text-base font-semibold items-center gap-2 justify-center text-primary font-family-heading">
+					REAL WORLD WORKFLOWS MADE SMARTER
+				</div>
+
+				<FeatureList
+					header="Use cases"
+					items={[
+						{
+							title: "Threshold Alerts",
+							subTitle: "Monitor CPU, traffic, or sentiment",
+							icon: <PulseIcon className="size-5" />,
+							content: "Poll every 10m; spike? Poll faster; notify only if persistent.",
+						},
+						{
+							title: "Course Reminders",
+							subTitle: "Monitor student progress in your course platform",
+							icon: <StudentIcon className="size-5" />,
+							content: "Send a reminder if module X isn't completed after 3 days.",
+						},
+						{
+							title: "Game Sync Bot",
+							subTitle: "Track kickoff times via sports API",
+							icon: <SoccerBallIcon className="size-5" />,
+							content: "Begin sync 10m before kickoff, even if start time shifts.",
+						},
+						{
+							title: "Price Watcher",
+							subTitle: "Detect sales events via API polling",
+							icon: <TagIcon className="size-5" />,
+							content: "Report changes as soon as they happen.",
+						},
+						{
+							title: "Agent Orchestration",
+							subTitle: "Auto handle retries, handoffs, and follow-ups",
+							icon: <BracketsAngleIcon className="size-5" />,
+							content: `e.g. After import, post "345 records processed" to shape the next run.`,
+						},
+					]}
+				/>
+
+				<div className="flex text-base font-semibold items-center gap-2 justify-center uppercase text-primary font-family-heading">
+					Built for how you actially build today
+				</div>
+
+				<FeatureList
+					header="Why it stands out"
+					items={[
+						{
+							title: "Context-aware",
+							subTitle: "Learns from past runs, errors, and state",
+							icon: <StackIcon className="size-5" />,
+						},
+						{
+							title: "No lock-in or DSL",
+							subTitle: "Plain English, REST APIs, simple config",
+							icon: <CodeSimpleIcon className="size-5" />,
+						},
+						{
+							title: "Dynamic scheduling",
+							subTitle: "Adapts to real-world conditions",
+							icon: <ArrowsClockwiseIcon className="size-5" />,
+						},
+						{
+							title: "Developer-friendly",
+							subTitle: "One endpoint, one config, no headache",
+							icon: <TerminalWindowIcon className="size-5" />,
+						},
+					]}
+				/>
 			</div>
 		</div>
 	);
