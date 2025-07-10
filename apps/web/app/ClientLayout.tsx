@@ -1,13 +1,15 @@
 "use client";
 
 import type React from "react";
-
-import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
-export function Providers({ children }: { children: React.ReactNode }) {
+
+interface Props {
+	children: React.ReactNode;
+}
+
+export default function ClientLayout({ children }: Props) {
 	const [queryClient] = useState(
 		() =>
 			new QueryClient({
@@ -22,9 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 	return (
 		<QueryClientProvider client={queryClient}>
-			<ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-				<SessionProvider>{children}</SessionProvider>
-			</ThemeProvider>
+			{children}
 			<ReactQueryDevtools initialIsOpen={false} />
 		</QueryClientProvider>
 	);

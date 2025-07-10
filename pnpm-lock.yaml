@@ -67,6 +67,9 @@ importers:
       '@cronicorn/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@hono/zod-validator':
+        specifier: ^0.7.0
+        version: 0.7.0(hono@4.8.4)(zod@3.25.67)
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.1.1(react-hook-form@7.58.1(react@19.1.0))
@@ -95,8 +98,11 @@ importers:
         specifier: ^0.11.1
         version: 0.11.1(typescript@5.8.2)(zod@3.25.67)
       '@tanstack/react-query':
-        specifier: ^5.76.2
+        specifier: ^5.81.2
         version: 5.81.2(react@19.1.0)
+      '@tanstack/react-query-devtools':
+        specifier: ^5.82.0
+        version: 5.82.0(@tanstack/react-query@5.81.2(react@19.1.0))(react@19.1.0)
       '@tanstack/react-virtual':
         specifier: ^3.13.9
         version: 3.13.11(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -118,6 +124,9 @@ importers:
       dotenv:
         specifier: ^17.1.0
         version: 17.1.0
+      hono:
+        specifier: ^4.8.4
+        version: 4.8.4
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@19.1.0)
@@ -1876,6 +1885,15 @@ packages:
 
   '@tanstack/query-core@5.81.2':
     resolution: {integrity: sha512-QLYkPdrudoMATDFa3MiLEwRhNnAlzHWDf0LKaXUqJd0/+QxN8uTPi7bahRlxoAyH0UbLMBdeDbYzWALj7THOtw==}
+
+  '@tanstack/query-devtools@5.81.2':
+    resolution: {integrity: sha512-jCeJcDCwKfoyyBXjXe9+Lo8aTkavygHHsUHAlxQKKaDeyT0qyQNLKl7+UyqYH2dDF6UN/14873IPBHchcsU+Zg==}
+
+  '@tanstack/react-query-devtools@5.82.0':
+    resolution: {integrity: sha512-MC05Zq3zr/59jhgF7dL6JSGPg1krbasDSizmRxjNcvxgh/sUTwRFD9CGN10YYX7LB6jq0ZpFtCjSVGdLiFrKAA==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.82.0
+      react: ^18 || ^19
 
   '@tanstack/react-query@5.81.2':
     resolution: {integrity: sha512-pe8kFlTrL2zFLlcAj2kZk9UaYYHDk9/1hg9EBaoO3cxDhOZf1FRGJeziSXKrVZyxIfs7b3aoOj/bw7Lie0mDUg==}
@@ -4658,6 +4676,11 @@ snapshots:
 
   '@floating-ui/utils@0.2.9': {}
 
+  '@hono/zod-validator@0.7.0(hono@4.8.4)(zod@3.25.67)':
+    dependencies:
+      hono: 4.8.4
+      zod: 3.25.67
+
   '@hono/zod-validator@0.7.0(hono@4.8.4)(zod@4.0.2)':
     dependencies:
       hono: 4.8.4
@@ -5691,6 +5714,14 @@ snapshots:
       tailwindcss: 4.1.11
 
   '@tanstack/query-core@5.81.2': {}
+
+  '@tanstack/query-devtools@5.81.2': {}
+
+  '@tanstack/react-query-devtools@5.82.0(@tanstack/react-query@5.81.2(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@tanstack/query-devtools': 5.81.2
+      '@tanstack/react-query': 5.81.2(react@19.1.0)
+      react: 19.1.0
 
   '@tanstack/react-query@5.81.2(react@19.1.0)':
     dependencies:
