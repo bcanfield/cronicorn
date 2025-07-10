@@ -7,7 +7,7 @@ console.log("DATABASE_URL is", process.env.DATABASE_URL);
 const prisma = new PrismaClient();
 
 async function main() {
-	if (process.env.NODE_ENV !== "production") {
+	if (process.env.NODE_ENV === "developmemt") {
 		console.log("🌱 Seeding development database...");
 		await prisma.user.upsert({
 			where: { id: DEV_USER.id },
