@@ -67,9 +67,6 @@ importers:
       '@cronicorn/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@hono/zod-validator':
-        specifier: ^0.7.0
-        version: 0.7.0(hono@4.8.4)(zod@3.25.67)
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.1.1(react-hook-form@7.58.1(react@19.1.0))
@@ -124,9 +121,6 @@ importers:
       dotenv:
         specifier: ^17.1.0
         version: 17.1.0
-      hono:
-        specifier: ^4.8.4
-        version: 4.8.4
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@19.1.0)
@@ -4675,11 +4669,6 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@floating-ui/utils@0.2.9': {}
-
-  '@hono/zod-validator@0.7.0(hono@4.8.4)(zod@3.25.67)':
-    dependencies:
-      hono: 4.8.4
-      zod: 3.25.67
 
   '@hono/zod-validator@0.7.0(hono@4.8.4)(zod@4.0.2)':
     dependencies:
