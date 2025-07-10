@@ -10,7 +10,8 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"clean": "rm -rf node_modules && rm -rf .turbo && rm -rf generated"
+		"clean": "rm -rf node_modules && rm -rf .turbo && rm -rf generated",
+		"check-types": "tsc --noEmit"
 	},
 	"publishConfig": {
 		"access": "public"

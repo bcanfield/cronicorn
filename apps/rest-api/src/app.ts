@@ -153,4 +153,6 @@ const statsRoute = app
 const routes = app.route("/", jobsRoute).route("/", messagesRoute).route("/", statsRoute);
 type RestApiType = typeof routes;
 
-export { vercelHandle, app, type RestApiType, hc, type InferResponseType, type InferRequestType };
+const restApiClient = hc<RestApiType>("").api.hono.api.hono;
+
+export { vercelHandle, app, type RestApiType, hc, type InferResponseType, type InferRequestType, restApiClient };

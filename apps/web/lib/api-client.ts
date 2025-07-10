@@ -1,6 +1,3 @@
-import type { RestApiType } from "@cronicorn/rest-api";
-import { hc } from "hono/client";
+import { restApiClient } from "@cronicorn/rest-api";
 
-const restApi = hc<RestApiType>("");
-
-export const api = restApi.api.hono.api.hono;
+export const api = restApiClient;
