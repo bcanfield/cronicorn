@@ -3,13 +3,17 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import type { MessagesQuery } from "@cronicorn/rest-api";
+import { useMemo } from "react";
+import { stringifyQuery } from "../utils/stringify-query";
 
 export function useMessages(params: Partial<MessagesQuery> = {}) {
+	const query = useMemo(() => stringifyQuery(params), [params]);
+
 	return useQuery({
 		queryKey: ["messages", params],
 		queryFn: async () => {
 			const response = await api.messages.$get({
-				query: params as any,
+				query,
 			});
 
 			if (!response.ok) {
@@ -22,12 +26,14 @@ export function useMessages(params: Partial<MessagesQuery> = {}) {
 }
 
 export function useJobMessages(jobId: string, params: Partial<MessagesQuery> = {}) {
+	const query = useMemo(() => stringifyQuery(params), [params]);
+
 	return useQuery({
 		queryKey: ["jobs", jobId, "messages", params],
 		queryFn: async () => {
 			const response = await api.jobs[":id"].messages.$get({
 				param: { id: jobId },
-				query: params as any,
+				query,
 			});
 
 			if (!response.ok) {
@@ -41,11 +47,13 @@ export function useJobMessages(jobId: string, params: Partial<MessagesQuery> = {
 }
 
 export function useInfiniteMessages(params: Partial<MessagesQuery> = {}) {
+	const query = useMemo(() => stringifyQuery({ ...params, page: 1 }), [params]);
+
 	return useInfiniteQuery({
 		queryKey: ["messages", "infinite", params],
-		queryFn: async ({ pageParam = 1 }) => {
+		queryFn: async () => {
 			const response = await api.messages.$get({
-				query: { ...params, page: pageParam } as any,
+				query,
 			});
 
 			if (!response.ok) {

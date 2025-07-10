@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExternalLink, Clock } from "lucide-react";
 import Link from "next/link";
-import { useJobs } from "@/lib/hooks/use-jobs";
+import { useJobs } from "@/lib/rest-api-client/hooks/use-jobs";
 import type { JobStatus } from "@cronicorn/rest-api";
 
 function getStatusColor(status: JobStatus) {
@@ -53,7 +53,8 @@ export function JobsTablePanel() {
 				<CardContent>
 					<div className="space-y-3">
 						{Array.from({ length: 5 }).map((_, i) => (
-							<div key={i} className="flex items-center space-x-4">
+							// biome-ignore lint/suspicious/noArrayIndexKey: Using for skeletons, index is fine
+							<div key={`Skeleton ${i}`} className="flex items-center space-x-4">
 								<Skeleton className="h-4 w-48" />
 								<Skeleton className="h-4 w-20" />
 								<Skeleton className="h-4 w-32" />

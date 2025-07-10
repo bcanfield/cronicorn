@@ -1,4 +1,4 @@
-import type { Job, Message, StatsResponse, MetricsResponse } from "../../web/lib/types";
+import type { Job, Message, StatsResponse, MetricsResponse } from "./types";
 
 // Mock data for development
 export const mockJobs: Job[] = [

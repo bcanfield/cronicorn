@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Activity, User, Settings, Wrench } from "lucide-react";
-import { useMessages } from "@/lib/hooks/use-messages";
+import { useMessages } from "@/lib/rest-api-client/hooks/use-messages";
 import type { MessageRole } from "@cronicorn/rest-api";
 
 function getRoleIcon(role: MessageRole) {

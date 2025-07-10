@@ -3,30 +3,30 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import type { JobsQuery } from "@cronicorn/rest-api";
+import { useMemo } from "react";
+import { stringifyQuery } from "../utils/stringify-query";
 
 export function useJobs(params: Partial<JobsQuery> = {}) {
+	const query = useMemo(() => stringifyQuery(params), [params]);
+
 	return useQuery({
 		queryKey: ["jobs", params],
 		queryFn: async () => {
-			const response = await api.jobs.$get({
-				query: params as any,
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to fetch jobs");
-			}
-
+			const response = await api.jobs.$get({ query });
+			if (!response.ok) throw new Error("Failed to fetch jobs");
 			return response.json();
 		},
 	});
 }
 
 export function useInfiniteJobs(params: Partial<JobsQuery> = {}) {
+	const query = useMemo(() => stringifyQuery({ ...params, page: 1 }), [params]);
+
 	return useInfiniteQuery({
 		queryKey: ["jobs", "infinite", params],
-		queryFn: async ({ pageParam = 1 }) => {
+		queryFn: async () => {
 			const response = await api.jobs.$get({
-				query: { ...params, page: pageParam } as any,
+				query,
 			});
 
 			if (!response.ok) {

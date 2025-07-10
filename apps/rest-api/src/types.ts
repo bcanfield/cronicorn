@@ -88,20 +88,19 @@ export const MetricsResponseSchema = z.object({
 	),
 });
 
-// Query parameter schemas
-export const PaginationSchema = z.object({
+// Query parameter schemas using coerce for type-safe string-to-number conversion
+export const JobsQuerySchema = z.object({
 	page: z.coerce.number().min(1).default(1),
 	limit: z.coerce.number().min(1).max(100).default(10),
-});
-
-export const JobsQuerySchema = PaginationSchema.extend({
 	status: JobStatusSchema.optional(),
 	search: z.string().optional(),
 	sortBy: z.enum(["createdAt", "updatedAt", "nextRunAt", "totalTokens"]).default("updatedAt"),
 	sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
-export const MessagesQuerySchema = PaginationSchema.extend({
+export const MessagesQuerySchema = z.object({
+	page: z.coerce.number().min(1).default(1),
+	limit: z.coerce.number().min(1).max(100).default(10),
 	jobId: z.string().optional(),
 	role: MessageRoleSchema.optional(),
 	since: z.string().optional(), // ISO date string
