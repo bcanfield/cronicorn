@@ -25,6 +25,22 @@ importers:
         specifier: 5.8.2
         version: 5.8.2
 
+  apps/rest-api:
+    dependencies:
+      hono:
+        specifier: ^4.8.4
+        version: 4.8.4
+    devDependencies:
+      '@cronicorn/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.1
+      typescript:
+        specifier: ^5.1.6
+        version: 5.8.2
+
   apps/web:
     dependencies:
       '@auth/prisma-adapter':
@@ -39,6 +55,9 @@ importers:
       '@cronicorn/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@cronicorn/rest-api':
+        specifier: workspace:*
+        version: link:../rest-api
       '@cronicorn/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -60,6 +79,12 @@ importers:
       '@prisma/nextjs-monorepo-workaround-plugin':
         specifier: ^6.8.2
         version: 6.10.1
+      '@radix-ui/react-slot':
+        specifier: ^1.2.3
+        version: 1.2.3(@types/react@19.1.8)(react@19.1.0)
+      '@radix-ui/react-tabs':
+        specifier: ^1.1.12
+        version: 1.1.12(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@t3-oss/env-nextjs':
         specifier: ^0.11.1
         version: 0.11.1(typescript@5.8.2)(zod@3.25.67)
@@ -115,7 +140,7 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.1.8)(react@19.1.0)
       recharts:
-        specifier: ^2.15.3
+        specifier: ^2.15.4
         version: 2.15.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       remark-gfm:
         specifier: ^4.0.1
@@ -2719,6 +2744,10 @@ packages:
 
   header-case@1.0.1:
     resolution: {integrity: sha512-i0q9mkOeSuhXw6bGgiQCCBgY/jlZuV/7dZXyZ9c6LcBrqwvT8eT719E9uxE5LiZftdl+z81Ugbg/VvXV4OJOeQ==}
+
+  hono@4.8.4:
+    resolution: {integrity: sha512-KOIBp1+iUs0HrKztM4EHiB2UtzZDTBihDtOF5K6+WaJjCPeaW4Q92R8j63jOhvJI5+tZSMuKD9REVEXXY9illg==}
+    engines: {node: '>=16.9.0'}
 
   html-url-attributes@3.0.1:
     resolution: {integrity: sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==}
@@ -6622,6 +6651,8 @@ snapshots:
     dependencies:
       no-case: 2.3.2
       upper-case: 1.1.3
+
+  hono@4.8.4: {}
 
   html-url-attributes@3.0.1: {}
 
