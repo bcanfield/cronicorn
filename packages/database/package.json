@@ -2,13 +2,14 @@
 	"name": "@cronicorn/database",
 	"private": true,
 	"version": "0.0.0",
+	"type": "module",
 	"scripts": {
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:deploy": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"db:reset": "ts-node src/reset.ts",
-		"db:seed": "ts-node src/seed.ts",
+		"db:seed": "ts-node src/seed.mjs",
 		"db:up": "docker-compose up -d",
 		"clean": "rm -rf node_modules && rm -rf .turbo && rm -rf generated"
 	},
@@ -16,6 +17,7 @@
 		".": "./src/index.ts",
 		"./jobs": "./src/jobs/index.ts",
 		"./users": "./src/users/index.ts",
+		"./context": "./src/context/index.ts",
 		"./common": "./src/common/index.ts",
 		"./messages": "./src/messages/index.ts",
 		"./dev-user": "./src/dev-user.ts"
@@ -26,10 +28,10 @@
 		"ts-node": "^10.9.2",
 		"tsx": "^4.20.3"
 	},
-
 	"dependencies": {
 		"@cronicorn/typescript-config": "workspace:*",
 		"@neondatabase/serverless": "^1.0.1",
+		"@paralleldrive/cuid2": "^2.2.2",
 		"@types/node": "^22.15.3",
 		"dotenv": "^17.1.0",
 		"drizzle-orm": "^0.44.2",

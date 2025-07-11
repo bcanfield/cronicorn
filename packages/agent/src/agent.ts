@@ -15,7 +15,6 @@ import { getMessageHistory } from "@cronicorn/database/messages";
 
 import { z } from "zod";
 
-import { prisma } from "@cronicorn/database";
 import type { JSONSchemaType } from "ajv";
 import { ajvInstance } from "./ajv";
 import { buildSystemPrompt } from "./build-system-prompt";
@@ -71,6 +70,7 @@ export async function runAgentForJob({ jobId, messages }: { jobId: string; messa
 	const result = await generateText({
 		model: openai("gpt-4o"),
 		system: prompt,
+		// @ts-ignore
 		messages: history,
 		tools,
 		stopWhen: hasToolCall("scheduleNext"),

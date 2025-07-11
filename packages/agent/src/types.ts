@@ -1,11 +1,14 @@
-import { type Endpoint as DbEndpoint, type Prisma, prisma } from "@cronicorn/database";
+import { insertMessagesForJob } from "@cronicorn/database/messages";
 
 import type { JSONSchema7, LanguageModelUsage, ModelMessage } from "ai";
+import type { Endpoint } from "../../database/src/schema";
+import { incrementJobUsage, updateJob } from "@cronicorn/database/jobs";
+import { createContextEntry, getContextEntries } from "@cronicorn/database/context";
 
 /**
  * Represents a user-defined webhook endpoint with its JSON request schema.
  */
-export type ValidatedEndpoint = Omit<DbEndpoint, "id" | "responseSchema" | "requestSchema" | "jobId"> & {
+export type ValidatedEndpoint = Omit<Endpoint, "id" | "responseSchema" | "requestSchema" | "jobId"> & {
 	requestSchema: JSONSchema7;
 };
 
@@ -45,47 +48,40 @@ export function createSaaSApiClient(): SaaSApiClient {
 				createdAt: new Date(Date.now() + index * 100), // stagger by 1 second for uniqueness
 			}));
 
-			await prisma.$transaction(
-				messagesWithSequence.map((msg) =>
-					prisma.message.create({
-						data: {
-							role: msg.role as string,
-							content: msg.content as Prisma.InputJsonValue,
-							jobId,
-							createdAt: msg.createdAt, // set createdAt to the calculated value
-						},
-					}),
-				),
-			);
-			await prisma.job.update({
-				where: { id: jobId },
-				data: {
-					cachedInputTokens: {
-						increment: usage?.cachedInputTokens || 0,
-					},
-					inputTokens: {
-						increment: usage?.inputTokens || 0,
-					},
-					outputTokens: {
-						increment: usage?.outputTokens || 0,
-					},
-					totalTokens: {
-						increment: usage?.totalTokens || 0,
-					},
-					reasoningTokens: {
-						increment: usage?.reasoningTokens || 0,
-					},
-				},
+			// await prisma.$transaction(
+			// 	messagesWithSequence.map((msg) =>
+			// 		prisma.message.create({
+			// 			data: {
+			// 				role: msg.role as string,
+			// 				content: msg.content as Prisma.InputJsonValue,
+			// 				jobId,
+			// 				createdAt: msg.createdAt, // set createdAt to the calculated value
+			// 			},
+			// 		}),
+			// 	),
+			// );
+			await insertMessagesForJob(messagesWithSequence.map((msg) => ({ ...msg, jobId })));
+			// messagesWithSequence.map((msg) => ({
+			// 	role: msg.role as string,
+			// 	content: msg.content,
+			// 	jobId,
+			// 	createdAt: msg.createdAt, // set createdAt to the calculated value
+			// })),
+
+			await incrementJobUsage(jobId, {
+				cachedInputTokens: usage?.cachedInputTokens || 0,
+				inputTokens: usage?.inputTokens || 0,
+				outputTokens: usage?.outputTokens || 0,
+				totalTokens: usage?.totalTokens || 0,
+				reasoningTokens: usage?.reasoningTokens || 0,
 			});
 		},
 
 		scheduleNext: async (jobId, opts) => {
 			const nextRunAt = new Date(Date.now() + opts.delayMinutes * 60 * 1000);
-			const updated = await prisma.job.update({
-				where: { id: jobId },
-				data: { nextRunAt },
-			});
-			if (updated.nextRunAt) {
+
+			const updated = await updateJob({ id: jobId, nextRunAt });
+			if (updated.length) {
 				return {
 					result: `Next run scheduled for ${nextRunAt.toISOString()}`,
 					success: true,
@@ -98,21 +94,16 @@ export function createSaaSApiClient(): SaaSApiClient {
 		},
 
 		updateContext: async (jobId, entry) => {
-			await prisma.contextEntry.create({
-				data: {
-					jobId,
-					key: entry.key,
-					value: entry.value,
-				},
-			});
+			await createContextEntry({ ...entry, jobId });
 		},
 
 		getContext: async (jobId) => {
-			const entries = await prisma.contextEntry.findMany({
-				where: { jobId },
-				orderBy: { createdAt: "asc" },
-			});
-			return entries.reduce<Record<string, any>>((ctx, entry) => {
+			// const entries = await prisma.contextEntry.findMany({
+			// 	where: { jobId },
+			// 	orderBy: { createdAt: "asc" },
+			// });
+			const entries = await getContextEntries(jobId);
+			return entries.reduce<Record<string, string>>((ctx, entry) => {
 				ctx[entry.key] = entry.value;
 				return ctx;
 			}, {});

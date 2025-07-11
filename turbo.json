@@ -39,7 +39,7 @@
     },
 
     "dev": {
-      "dependsOn": ["^db:ready"],
+      // "dependsOn": ["^db:ready"],
       "cache": false,
       "persistent": true
     },

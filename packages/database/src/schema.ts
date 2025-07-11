@@ -1,5 +1,6 @@
 import { pgTable, text, integer, timestamp, boolean, json, pgEnum, unique, index } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
+import { createId } from "@paralleldrive/cuid2";
 
 // Enums
 export const jobStatusEnum = pgEnum("JobStatus", ["ACTIVE", "PAUSED", "ARCHIVED"]);
@@ -8,7 +9,9 @@ export const jobStatusEnum = pgEnum("JobStatus", ["ACTIVE", "PAUSED", "ARCHIVED"
 export const accounts = pgTable(
 	"Account",
 	{
-		id: text("cuid").primaryKey(),
+		id: text("cuid")
+			.primaryKey()
+			.$defaultFn(() => createId()),
 		userId: text("userId").notNull(),
 		type: text("type").notNull(),
 		provider: text("provider").notNull(),
@@ -27,14 +30,18 @@ export const accounts = pgTable(
 );
 
 export const sessions = pgTable("Session", {
-	id: text("cuid").primaryKey(),
+	id: text("cuid")
+		.primaryKey()
+		.$defaultFn(() => createId()),
 	sessionToken: text("sessionToken").notNull().unique(),
 	userId: text("userId").notNull(),
 	expires: timestamp("expires").notNull(),
 });
 
 export const users = pgTable("User", {
-	id: text("cuid").primaryKey(),
+	id: text("cuid")
+		.primaryKey()
+		.$defaultFn(() => createId()),
 	name: text("name"),
 	email: text("email").unique(),
 	emailVerified: timestamp("emailVerified"),
@@ -54,7 +61,9 @@ export const verificationTokens = pgTable(
 );
 
 export const apiKeys = pgTable("ApiKey", {
-	id: text("cuid").primaryKey(),
+	id: text("cuid")
+		.primaryKey()
+		.$defaultFn(() => createId()),
 	name: text("name").notNull(),
 	key: text("key").notNull().unique(),
 	userId: text("userId").notNull(),
@@ -63,7 +72,9 @@ export const apiKeys = pgTable("ApiKey", {
 });
 
 export const jobs = pgTable("Job", {
-	id: text("cuid").primaryKey(),
+	id: text("cuid")
+		.primaryKey()
+		.$defaultFn(() => createId()),
 	definitionNL: text("definitionNL").notNull(),
 	nextRunAt: timestamp("nextRunAt"),
 	status: jobStatusEnum("status").default("PAUSED").notNull(),
@@ -95,7 +106,9 @@ export const contextEntries = pgTable(
 );
 
 export const endpoints = pgTable("Endpoint", {
-	id: text("cuid").primaryKey(),
+	id: text("cuid")
+		.primaryKey()
+		.$defaultFn(() => createId()),
 	name: text("name").notNull(),
 	url: text("url").notNull(),
 	method: text("method").default("GET").notNull(),
@@ -109,7 +122,9 @@ export const endpoints = pgTable("Endpoint", {
 });
 
 export const messages = pgTable("Message", {
-	id: text("cuid").primaryKey(),
+	id: text("cuid")
+		.primaryKey()
+		.$defaultFn(() => createId()),
 	role: text("role").notNull(),
 	content: json("content").notNull(),
 	jobId: text("jobId").notNull(),
@@ -178,22 +193,22 @@ export const messagesRelations = relations(messages, ({ one }) => ({
 }));
 
 // Type exports
-// export type Account = typeof accounts.$inferSelect;
-// export type NewAccount = typeof accounts.$inferInsert;
-// export type Session = typeof sessions.$inferSelect;
-// export type NewSession = typeof sessions.$inferInsert;
-// export type User = typeof users.$inferSelect;
-// export type NewUser = typeof users.$inferInsert;
-// export type VerificationToken = typeof verificationTokens.$inferSelect;
-// export type NewVerificationToken = typeof verificationTokens.$inferInsert;
-// export type ApiKey = typeof apiKeys.$inferSelect;
-// export type NewApiKey = typeof apiKeys.$inferInsert;
-// export type Job = typeof jobs.$inferSelect;
-// export type NewJob = typeof jobs.$inferInsert;
-// export type ContextEntry = typeof contextEntries.$inferSelect;
-// export type NewContextEntry = typeof contextEntries.$inferInsert;
-// export type Endpoint = typeof endpoints.$inferSelect;
-// export type NewEndpoint = typeof endpoints.$inferInsert;
-// export type Message = typeof messages.$inferSelect;
-// export type NewMessage = typeof messages.$inferInsert;
-// export type JobStatus = (typeof jobStatusEnum.enumValues)[number];
+export type Account = typeof accounts.$inferSelect;
+export type NewAccount = typeof accounts.$inferInsert;
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type VerificationToken = typeof verificationTokens.$inferSelect;
+export type NewVerificationToken = typeof verificationTokens.$inferInsert;
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type NewApiKey = typeof apiKeys.$inferInsert;
+export type Job = typeof jobs.$inferSelect;
+export type NewJob = typeof jobs.$inferInsert;
+export type ContextEntry = typeof contextEntries.$inferSelect;
+export type NewContextEntry = typeof contextEntries.$inferInsert;
+export type Endpoint = typeof endpoints.$inferSelect;
+export type NewEndpoint = typeof endpoints.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type NewMessage = typeof messages.$inferInsert;
+export type JobStatus = (typeof jobStatusEnum.enumValues)[number];

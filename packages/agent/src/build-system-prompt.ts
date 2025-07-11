@@ -1,4 +1,4 @@
-import type { Endpoint as DbEndpoint } from "@cronicorn/database";
+import type { Endpoint } from "../../database/src/schema";
 
 /**
  * Build the system prompt for the Cloud Scheduler Agent.
@@ -7,7 +7,7 @@ import type { Endpoint as DbEndpoint } from "@cronicorn/database";
  * @param endpoints - Array of user-defined webhook tool configurations.
  * @returns A formatted system prompt string.
  */
-export function buildSystemPrompt(nlLogic: string, endpoints: DbEndpoint[]): string {
+export function buildSystemPrompt(nlLogic: string, endpoints: Endpoint[]): string {
 	const now = new Date().toISOString();
 
 	// Predefined tools description

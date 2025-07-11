@@ -1,5 +1,5 @@
-import { db } from "..";
-import { messages } from "../schema";
+import { db } from "../index.js";
+import { messages } from "../schema.js";
 import { eq, asc } from "drizzle-orm";
 
 /**

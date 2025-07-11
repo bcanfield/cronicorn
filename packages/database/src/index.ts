@@ -3,7 +3,7 @@ import { config as loadDotenv } from "dotenv";
 import { resolve } from "node:path";
 import { drizzle as drizzleNode } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "./schema";
+import * as schema from "./schema.js";
 
 loadDotenv({ path: resolve(__dirname, "../../../.env") });
 
