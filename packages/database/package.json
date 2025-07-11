@@ -3,14 +3,12 @@
 	"private": true,
 	"version": "0.0.0",
 	"scripts": {
-		"db:generate": "dotenv -e ../../.env -- prisma generate",
-		"db:migrate": "dotenv -e ../../.env -- prisma migrate dev --skip-generate",
-		"db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
-		"db:reset": "dotenv -e ../../.env -- prisma migrate reset",
-		"db:reset:force": "dotenv -e ../../.env -- prisma migrate reset --force",
-		"db:studio": "prisma studio",
-		"db:format": "prisma format",
-		"db:seed": "dotenv -e ../../.env -- prisma db seed",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:deploy": "drizzle-kit push",
+		"db:studio": "drizzle-kit studio",
+		"db:reset": "ts-node src/reset.ts",
+		"db:seed": "ts-node src/seed.ts",
 		"db:up": "docker-compose up -d",
 		"clean": "rm -rf node_modules && rm -rf .turbo && rm -rf generated"
 	},
@@ -20,16 +18,18 @@
 	},
 	"devDependencies": {
 		"dotenv-cli": "^8.0.0",
-		"prisma": "^6.8.2",
-		"ts-node": "^10.9.2"
+		"drizzle-kit": "^0.31.4",
+		"ts-node": "^10.9.2",
+		"tsx": "^4.20.3"
 	},
-	"prisma": {
-		"seed": "ts-node --transpile-only src/seed.ts"
-	},
+
 	"dependencies": {
 		"@cronicorn/typescript-config": "workspace:*",
-		"@prisma/client": "^6.8.2",
+		"@neondatabase/serverless": "^1.0.1",
 		"@types/node": "^22.15.3",
-		"dotenv": "^17.1.0"
+		"dotenv": "^17.1.0",
+		"drizzle-orm": "^0.44.2",
+		"drizzle-seed": "^0.3.1",
+		"postgres": "^3.4.7"
 	}
 }

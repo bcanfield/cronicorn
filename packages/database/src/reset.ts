@@ -1,4 +1,4 @@
-import { seed } from "drizzle-seed";
+import { reset } from "drizzle-seed";
 import { db } from ".";
 import * as schema from "./schema";
 
@@ -6,7 +6,7 @@ async function main() {
 	console.log("🌱 Starting database reset...");
 
 	try {
-		await seed(db, schema, { count: 10 });
+		await reset(db, schema);
 		console.log("✅ Database reset successfully!");
 		// exit process gracefully
 		process.exit(0);

@@ -27,12 +27,12 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "^db:generate"],
+      "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "vercel-build": {
-      "dependsOn": ["build", "^db:generate", "^db:deploy", "^db:seed"],
+      "dependsOn": ["build", "^db:deploy"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
       "cache": false
@@ -45,7 +45,7 @@
     },
 
     "db:ready": {
-      "dependsOn": ["db:migrate", "db:generate", "db:seed"],
+      "dependsOn": ["db:migrate", "db:seed"],
       "cache": false
     },
     "db:up": {
@@ -59,7 +59,6 @@
       "cache": false
     },
     "db:migrate": {
-      "dependsOn": ["db:generate"],
       "cache": false
     },
     "db:generate": {
@@ -69,14 +68,13 @@
       "cache": false
     },
     "db:deploy": {
-      "dependsOn": ["db:generate"],
       "cache": false
     },
     "lint": {
       "dependsOn": ["^lint"]
     },
     "check-types": {
-      "dependsOn": ["^check-types", "^db:generate"]
+      "dependsOn": ["^check-types"]
     },
     "clean": {
       "cache": false
