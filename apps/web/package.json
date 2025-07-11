@@ -13,6 +13,7 @@
 		"clean": "rm -rf node_modules && rm -rf .turbo && rm -rf .next"
 	},
 	"dependencies": {
+		"@auth/drizzle-adapter": "^1.10.0",
 		"@auth/prisma-adapter": "2.7.2",
 		"@cronicorn/agent": "workspace:*",
 		"@cronicorn/billing-engine": "workspace:*",

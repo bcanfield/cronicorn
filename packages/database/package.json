@@ -14,6 +14,10 @@
 	},
 	"exports": {
 		".": "./src/index.ts",
+		"./jobs": "./src/jobs/index.ts",
+		"./users": "./src/users/index.ts",
+		"./common": "./src/common/index.ts",
+		"./messages": "./src/messages/index.ts",
 		"./dev-user": "./src/dev-user.ts"
 	},
 	"devDependencies": {

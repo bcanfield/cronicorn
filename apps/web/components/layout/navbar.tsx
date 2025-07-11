@@ -12,7 +12,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Settings, User, LogOut, Briefcase } from "lucide-react";
 import Image from "next/image";
-import { useAuthSession } from "@/lib/client-auth-wrapper";
 
 export function Navbar({ withUserMenu = true }: { withUserMenu?: boolean }) {
 	return (
@@ -28,46 +27,46 @@ export function Navbar({ withUserMenu = true }: { withUserMenu?: boolean }) {
 						<span className=" text-base font-family-heading text-primary-foreground font-semibold">Cronicorn.com</span>
 					</Link>
 				</div>
-				{withUserMenu && <UserMenu />}
+				{/* {withUserMenu && <UserMenu />} */}
 			</div>
 		</nav>
 	);
 }
 
-const UserMenu = () => {
-	const { data: session } = useAuthSession();
+// const UserMenu = () => {
+// 	const { data: session } = useAuthSession();
 
-	return (
-		<div className="ml-auto flex items-center space-x-2">
-			<Link href="/dashboard/jobs" className={buttonVariants({ variant: "outline", size: "xs" })}>
-				<Briefcase className="size-3" />
-				Jobs
-			</Link>
-			<Link href="/dashboard/settings/api-keys" className={buttonVariants({ variant: "outline", size: "xs" })}>
-				<Settings className="size-3" />
-				Settings
-			</Link>
+// 	return (
+// 		<div className="ml-auto flex items-center space-x-2">
+// 			<Link href="/dashboard/jobs" className={buttonVariants({ variant: "outline", size: "xs" })}>
+// 				<Briefcase className="size-3" />
+// 				Jobs
+// 			</Link>
+// 			<Link href="/dashboard/settings/api-keys" className={buttonVariants({ variant: "outline", size: "xs" })}>
+// 				<Settings className="size-3" />
+// 				Settings
+// 			</Link>
 
-			{session?.user && (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline" size={"xs"} className="relative">
-							<Avatar className="size-3 rounded-none p-1">
-								<AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
-								<AvatarFallback>
-									<User className="h-4 w-4" />
-								</AvatarFallback>
-							</Avatar>
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent className="w-56" align="end" forceMount>
-						<DropdownMenuItem onClick={() => signOut()}>
-							<LogOut className="mr-2 h-4 w-4" />
-							<span>Log out</span>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			)}
-		</div>
-	);
-};
+// 			{session?.user && (
+// 				<DropdownMenu>
+// 					<DropdownMenuTrigger asChild>
+// 						<Button variant="outline" size={"xs"} className="relative">
+// 							<Avatar className="size-3 rounded-none p-1">
+// 								<AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
+// 								<AvatarFallback>
+// 									<User className="h-4 w-4" />
+// 								</AvatarFallback>
+// 							</Avatar>
+// 						</Button>
+// 					</DropdownMenuTrigger>
+// 					<DropdownMenuContent className="w-56" align="end" forceMount>
+// 						<DropdownMenuItem onClick={() => signOut()}>
+// 							<LogOut className="mr-2 h-4 w-4" />
+// 							<span>Log out</span>
+// 						</DropdownMenuItem>
+// 					</DropdownMenuContent>
+// 				</DropdownMenu>
+// 			)}
+// 		</div>
+// 	);
+// };

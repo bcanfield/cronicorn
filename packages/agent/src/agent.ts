@@ -10,6 +10,8 @@ import {
 	tool,
 	type UIMessage,
 } from "ai";
+import { getJobWithEndpoints } from "@cronicorn/database/jobs";
+import { getMessageHistory } from "@cronicorn/database/messages";
 
 import { z } from "zod";
 
@@ -28,10 +30,11 @@ export async function runAgentForJob({ jobId, messages }: { jobId: string; messa
 	console.log(`🔍 Running agent for job ${jobId}...`);
 
 	// 1) Load job config from DB (includes NL logic and endpoint schemas)
-	const job = await prisma.job.findUnique({
-		where: { id: jobId },
-		include: { endpoints: true },
-	});
+	// const job = await prisma.job.findUnique({
+	// 	where: { id: jobId },
+	// 	include: { endpoints: true },
+	// });
+	const job = await getJobWithEndpoints(jobId);
 	if (!job) throw new Error(`Job ${jobId} not found`);
 
 	// 2) Initialize SaaS API client
@@ -40,11 +43,12 @@ export async function runAgentForJob({ jobId, messages }: { jobId: string; messa
 	await client.appendJobHistory(jobId, convertToModelMessages(messages));
 	// 3) Fetch history and context for testing or live
 	// const history = testHistory; // use testHistory or: await client.getJobHistory(jobId)
-	const history = (await prisma.message.findMany({
-		where: { jobId },
-		orderBy: { createdAt: "asc" },
-		select: { role: true, content: true },
-	})) as ModelMessage[];
+	// const history = (await prisma.message.findMany({
+	// 	where: { jobId },
+	// 	orderBy: { createdAt: "asc" },
+	// 	select: { role: true, content: true },
+	// })) as ModelMessage[];
+	const history = await getMessageHistory(jobId);
 
 	// 4) Build system prompt with core + user tools
 	const prompt = buildSystemPrompt(job.definitionNL, job.endpoints);
