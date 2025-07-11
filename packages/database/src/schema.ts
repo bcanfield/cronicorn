@@ -1,0 +1,199 @@
+import { pgTable, text, integer, timestamp, boolean, json, pgEnum, unique, index } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+
+// Enums
+export const jobStatusEnum = pgEnum("JobStatus", ["ACTIVE", "PAUSED", "ARCHIVED"]);
+
+// Tables
+export const accounts = pgTable(
+	"Account",
+	{
+		id: text("cuid").primaryKey(),
+		userId: text("userId").notNull(),
+		type: text("type").notNull(),
+		provider: text("provider").notNull(),
+		providerAccountId: text("providerAccountId").notNull(),
+		refresh_token: text("refresh_token"),
+		access_token: text("access_token"),
+		expires_at: integer("expires_at"),
+		token_type: text("token_type"),
+		scope: text("scope"),
+		id_token: text("id_token"),
+		session_state: text("session_state"),
+	},
+	(table) => ({
+		providerProviderAccountIdUnique: unique().on(table.provider, table.providerAccountId),
+	}),
+);
+
+export const sessions = pgTable("Session", {
+	id: text("cuid").primaryKey(),
+	sessionToken: text("sessionToken").notNull().unique(),
+	userId: text("userId").notNull(),
+	expires: timestamp("expires").notNull(),
+});
+
+export const users = pgTable("User", {
+	id: text("cuid").primaryKey(),
+	name: text("name"),
+	email: text("email").unique(),
+	emailVerified: timestamp("emailVerified"),
+	image: text("image"),
+});
+
+export const verificationTokens = pgTable(
+	"VerificationToken",
+	{
+		identifier: text("identifier").notNull(),
+		token: text("token").notNull().unique(),
+		expires: timestamp("expires").notNull(),
+	},
+	(table) => ({
+		identifierTokenUnique: unique().on(table.identifier, table.token),
+	}),
+);
+
+export const apiKeys = pgTable("ApiKey", {
+	id: text("cuid").primaryKey(),
+	name: text("name").notNull(),
+	key: text("key").notNull().unique(),
+	userId: text("userId").notNull(),
+	createdAt: timestamp("createdAt").default(sql`now()`).notNull(),
+	lastUsed: timestamp("lastUsed"),
+});
+
+export const jobs = pgTable("Job", {
+	id: text("cuid").primaryKey(),
+	definitionNL: text("definitionNL").notNull(),
+	nextRunAt: timestamp("nextRunAt"),
+	status: jobStatusEnum("status").default("PAUSED").notNull(),
+	locked: boolean("locked").default(false).notNull(),
+	userId: text("userId"),
+	inputTokens: integer("inputTokens").default(0).notNull(),
+	outputTokens: integer("outputTokens").default(0).notNull(),
+	totalTokens: integer("totalTokens").default(0).notNull(),
+	reasoningTokens: integer("reasoningTokens").default(0).notNull(),
+	cachedInputTokens: integer("cachedInputTokens").default(0).notNull(),
+	createdAt: timestamp("createdAt").default(sql`now()`).notNull(),
+	updatedAt: timestamp("updatedAt").default(sql`now()`).notNull(),
+});
+
+export const contextEntries = pgTable(
+	"ContextEntry",
+	{
+		id: text("id")
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		jobId: text("jobId").notNull(),
+		key: text("key").notNull(),
+		value: text("value").notNull(),
+		createdAt: timestamp("createdAt").default(sql`now()`).notNull(),
+	},
+	(table) => ({
+		jobIdIndex: index("ContextEntry_jobId_idx").on(table.jobId),
+	}),
+);
+
+export const endpoints = pgTable("Endpoint", {
+	id: text("cuid").primaryKey(),
+	name: text("name").notNull(),
+	url: text("url").notNull(),
+	method: text("method").default("GET").notNull(),
+	bearerToken: text("bearerToken"),
+	requestSchema: json("requestSchema"),
+	jobId: text("jobId").notNull(),
+	timeoutMs: integer("timeoutMs").default(5000),
+	fireAndForget: boolean("fireAndForget").default(false).notNull(),
+	createdAt: timestamp("createdAt").default(sql`now()`).notNull(),
+	updatedAt: timestamp("updatedAt").default(sql`now()`).notNull(),
+});
+
+export const messages = pgTable("Message", {
+	id: text("cuid").primaryKey(),
+	role: text("role").notNull(),
+	content: json("content").notNull(),
+	jobId: text("jobId").notNull(),
+	createdAt: timestamp("createdAt").default(sql`now()`).notNull(),
+	updatedAt: timestamp("updatedAt").default(sql`now()`).notNull(),
+});
+
+// Relations
+export const accountsRelations = relations(accounts, ({ one }) => ({
+	user: one(users, {
+		fields: [accounts.userId],
+		references: [users.id],
+	}),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+	user: one(users, {
+		fields: [sessions.userId],
+		references: [users.id],
+	}),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+	accounts: many(accounts),
+	sessions: many(sessions),
+	apiKeys: many(apiKeys),
+	jobs: many(jobs),
+}));
+
+export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
+	user: one(users, {
+		fields: [apiKeys.userId],
+		references: [users.id],
+	}),
+}));
+
+export const jobsRelations = relations(jobs, ({ one, many }) => ({
+	user: one(users, {
+		fields: [jobs.userId],
+		references: [users.id],
+	}),
+	endpoints: many(endpoints),
+	messages: many(messages),
+	contextEntries: many(contextEntries),
+}));
+
+export const contextEntriesRelations = relations(contextEntries, ({ one }) => ({
+	job: one(jobs, {
+		fields: [contextEntries.jobId],
+		references: [jobs.id],
+	}),
+}));
+
+export const endpointsRelations = relations(endpoints, ({ one }) => ({
+	job: one(jobs, {
+		fields: [endpoints.jobId],
+		references: [jobs.id],
+	}),
+}));
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+	job: one(jobs, {
+		fields: [messages.jobId],
+		references: [jobs.id],
+	}),
+}));
+
+// Type exports
+// export type Account = typeof accounts.$inferSelect;
+// export type NewAccount = typeof accounts.$inferInsert;
+// export type Session = typeof sessions.$inferSelect;
+// export type NewSession = typeof sessions.$inferInsert;
+// export type User = typeof users.$inferSelect;
+// export type NewUser = typeof users.$inferInsert;
+// export type VerificationToken = typeof verificationTokens.$inferSelect;
+// export type NewVerificationToken = typeof verificationTokens.$inferInsert;
+// export type ApiKey = typeof apiKeys.$inferSelect;
+// export type NewApiKey = typeof apiKeys.$inferInsert;
+// export type Job = typeof jobs.$inferSelect;
+// export type NewJob = typeof jobs.$inferInsert;
+// export type ContextEntry = typeof contextEntries.$inferSelect;
+// export type NewContextEntry = typeof contextEntries.$inferInsert;
+// export type Endpoint = typeof endpoints.$inferSelect;
+// export type NewEndpoint = typeof endpoints.$inferInsert;
+// export type Message = typeof messages.$inferSelect;
+// export type NewMessage = typeof messages.$inferInsert;
+// export type JobStatus = (typeof jobStatusEnum.enumValues)[number];
