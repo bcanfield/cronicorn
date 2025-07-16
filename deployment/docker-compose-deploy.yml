@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  cronicorn-ui:
+    container_name: prod-cronicorn-ui
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile.frontend
+    ports:
+      - '3000:3000'
+    depends_on:
+      cronicorn-db:
+        condition: service_healthy
+    networks:
+      - cronicorn_prod_network
+  cronicorn-db:
+    container_name: prod-cronicorn-db
+    image: postgres:17
+    restart: always
+    ports:
+      - 5456:5432
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - cronicorn-db:/var/lib/postgresql/data
+    networks:
+      - cronicorn_prod_network
+  cronicorn-api:
+    container_name: prod-cronicorn-api
+    depends_on:
+      cronicorn-db:
+        condition: service_healthy
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile.api
+    ports:
+      - "3333:3001"
+    networks:
+      - cronicorn_prod_network
+
+volumes:
+  cronicorn-db:
+
+networks:
+  cronicorn_prod_network:
+    name: cronicorn_prod_network

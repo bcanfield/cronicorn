@@ -1,0 +1,35 @@
+{
+  "name": "testapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "dotenv -e .env -- bun --filter '*'  --elide-lines=0 dev",
+    "dev:ui": "dotenv -e .env -- bun run --filter '@cronicorn/frontend' --elide-lines=0  dev",
+    "dev:api": "dotenv -e .env -- bun run --filter '@cronicorn/api' --elide-lines=0 dev",
+    "clean": "bun --filter '*' clean && rm -rf node_modules",
+    "check-types": "bun --filter '*' check-types",
+    "migrate": "dotenv -e .env -- bun run --filter '@cronicorn/database' migrate",
+    "generate": "dotenv -e .env -- bun run --filter '@cronicorn/database' generate",
+    "seed:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' seed",
+    "reset:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' reset",
+    "studio": "dotenv -e .env -- bun run --filter '@cronicorn/database' studio",
+    "migrate:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/database' deploy",
+    "build:api:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/api' build",
+    "build:ui:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/frontend' build",
+    "start:api:prod": "dotenv -e .env.production -- bun run migrate:prod && dotenv -e .env.production -- bun run --filter '@cronicorn/api' start",
+    "start:db": "docker-compose -f docker-compose.yml up -d"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "bun@1.2.18",
+  "dependencies": {
+    "dotenv-cli": "^8.0.0"
+  }
+}

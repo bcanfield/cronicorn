@@ -1,0 +1,28 @@
+
+FROM oven/bun:alpine AS base
+
+# Stage 1: Install dependencies
+
+FROM base AS deps
+WORKDIR /app
+COPY . .
+RUN bun install --frozen-lockfile
+
+# Stage 2: Build the application
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN bun run build:ui:prod
+
+
+# Stage 3: Production server
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/standalone ./.next/standalone
+COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/static ./.next/standalone/apps/frontend/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/public ./.next/standalone/apps/frontend/public
+
+EXPOSE 3000
+CMD ["bun", "run", ".next/standalone/apps/frontend/server.js"]

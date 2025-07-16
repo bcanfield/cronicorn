@@ -1,0 +1,13 @@
+FROM oven/bun:1.2-alpine
+
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+
+COPY . .
+RUN bun install --frozen-lockfile
+RUN bun --filter '@cronicorn/api' build 
+
+EXPOSE 3000
+
+CMD ["bun", "run", "start:api:prod"]
+

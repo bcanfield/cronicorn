@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  cronicorn-db:
+    container_name: cronicorn-db
+    image: postgres:17
+    restart: always
+    ports:
+      - 6666:5432
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - cronicorndatavolume:/var/lib/postgresql/data
+
+volumes:
+  cronicorndatavolume:
