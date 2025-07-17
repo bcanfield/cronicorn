@@ -12,10 +12,11 @@
     "seed:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' seed",
     "reset:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' reset",
     "studio": "dotenv -e .env -- bun run --filter '@cronicorn/database' studio",
-    "migrate:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/database' deploy",
     "build:api:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/api' build",
     "build:ui:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/frontend' build",
     "start:api:old": "dotenv -e .env.production -- bun run migrate:prod && dotenv -e .env.production -- bun run --filter '@cronicorn/api' start",
+    "####################### Production Commands #######################": "",
+    "migrate:prod": "bun run --filter '@cronicorn/database' deploy",
     "start:api:prod": "bun run migrate:prod && bun run --filter '@cronicorn/api' start",
     "start:db": "docker-compose -f docker-compose.yml up -d"
   },
