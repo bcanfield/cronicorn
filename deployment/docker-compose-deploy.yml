@@ -29,7 +29,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - "../files/cronicorn-database-volume:/var/lib/postgresql/data"
+      - "../files/cronicorn-db-volume:/var/lib/postgresql/data"
   cronicorn-migrator:
     build:
       context: ../
@@ -53,7 +53,6 @@ services:
       
     ports:
        - 3001:3001
-    # network_mode: host
     environment:
       DATABASE_URL: ${DATABASE_URL}
       AUTH_SECRET: ${AUTH_SECRET}
@@ -61,12 +60,3 @@ services:
       GITHUB_SECRET: ${GITHUB_SECRET}
       API_URL: ${API_URL}
 
-      # API_HOSTNAME: ${API_HOSTNAME}
-      # API_PORT: ${API_PORT}
-      # API_URL: ${API_URL}
-      # NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
-
-
-# networks:
-#   cronicorn_prod_network:
-#     name: cronicorn_prod_network
