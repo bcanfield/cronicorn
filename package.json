@@ -15,7 +15,8 @@
     "migrate:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/database' deploy",
     "build:api:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/api' build",
     "build:ui:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/frontend' build",
-    "start:api:prod": "dotenv -e .env.production -- bun run migrate:prod && dotenv -e .env.production -- bun run --filter '@cronicorn/api' start",
+    "start:api:old": "dotenv -e .env.production -- bun run migrate:prod && dotenv -e .env.production -- bun run --filter '@cronicorn/api' start",
+    "start:api:prod": "bun run migrate:prod && bun run --filter '@cronicorn/api' start",
     "start:db": "docker-compose -f docker-compose.yml up -d"
   },
   "workspaces": [
