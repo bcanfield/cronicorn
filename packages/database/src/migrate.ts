@@ -12,7 +12,7 @@ const migrationClient = postgres(DATABASE_URL, { max: 1 });
 const db: PostgresJsDatabase = drizzle(migrationClient);
 
 const main = async () => {
-  console.log("Migrating database...");
+  console.log(`Migrating database. Using URL: ${DATABASE_URL}`);
   await migrate(db, { migrationsFolder: "packages/database/drizzle" });
   await migrationClient.end();
   console.log("Database migrated successfully!");

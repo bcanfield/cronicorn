@@ -67,6 +67,7 @@ const route = app
       const query = c.req.valid("query");
       const { page, limit } = getPagination(query);
       const users = await getUsers({ page, limit });
+      console.log("GOT USERS:", users);
       return c.json(users);
     }
   )
