@@ -26,7 +26,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/public ./.next/stan
 EXPOSE 3000
 
 # Bake this in as an env var at build time (pass in via args in docker-compose)
-# ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+# ENV API_URL=${API_URL}
 
 # ENV PORT 3456
 ENV HOSTNAME "0.0.0.0"

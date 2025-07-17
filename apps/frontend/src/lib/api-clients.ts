@@ -1,7 +1,7 @@
 import { createUsersClient, createJobsClient } from "@cronicorn/api";
+import { getApiUrl } from "./get-api-url";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-console.log({ envVar: process.env.NEXT_PUBLIC_API_URL, baseUrl });
+const baseUrl = getApiUrl();
 
 export const usersApiClient = createUsersClient(baseUrl);
 export const jobsApiClient = createJobsClient(baseUrl);
