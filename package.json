@@ -14,11 +14,10 @@
     "studio": "dotenv -e .env -- bun run --filter '@cronicorn/database' studio",
     "build:api:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/api' build",
     "build:ui:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/frontend' build",
-    "start:api:old": "dotenv -e .env.production -- bun run migrate:prod && dotenv -e .env.production -- bun run --filter '@cronicorn/api' start",
     "####################### Production Commands #######################": "",
-    "migrate:prod": "bun run --filter '@cronicorn/database' deploy",
-    "start:api:prod": "bun run migrate:prod && bun run --filter '@cronicorn/api' start",
-    "start:db": "docker-compose -f docker-compose.yml up -d"
+    "start:api:prod": "bun run --filter '@cronicorn/api' start",
+    "start:db": "docker-compose -f docker-compose.yml up -d",
+    "prod:migrate-script": "bun run packages/database/src/migrate.ts"
   },
   "workspaces": [
     "apps/*",

@@ -32,18 +32,27 @@ services:
       retries: 5
     volumes:
       - "../files/cronicorn-database-volume:/var/lib/postgresql/data"
-
+  migrator:
+    container_name: prod-cronicorn-migrator
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile.migrator
+    depends_on:
+      cronicorn-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
   cronicorn-api:
     container_name: prod-cronicorn-api
     restart: unless-stopped
     depends_on:
       cronicorn-db:
         condition: service_healthy
+      migrator:
+        condition: service_started
     build:
       context: ../
       dockerfile: deployment/Dockerfile.api
-      args:
-        - DATABASE_URL=${DATABASE_URL}
       
     ports:
        - 3001:3001
