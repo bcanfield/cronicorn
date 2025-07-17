@@ -2,7 +2,6 @@ version: "3"
 
 services:
   cronicorn-ui:
-    container_name: prod-cronicorn-ui
     build:
       context: ../
       dockerfile: deployment/Dockerfile.frontend
@@ -15,7 +14,6 @@ services:
       - NEXT_PUBLIC_API_URL=${API_URL}
 
   cronicorn-db:
-    container_name: prod-cronicorn-db
     image: postgres:17
     restart: unless-stopped
     ports:
@@ -32,8 +30,7 @@ services:
       retries: 5
     volumes:
       - "../files/cronicorn-database-volume:/var/lib/postgresql/data"
-  migrator:
-    container_name: prod-cronicorn-migrator
+  cronicorn-migrator:
     build:
       context: ../
       dockerfile: deployment/Dockerfile.migrator
@@ -48,7 +45,7 @@ services:
     depends_on:
       cronicorn-db:
         condition: service_healthy
-      migrator:
+      cronicorn-migrator:
         condition: service_started
     build:
       context: ../
