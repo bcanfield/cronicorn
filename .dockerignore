@@ -11,9 +11,8 @@
 **/dist
 **/build
 
-# Environment configs (ignore all except production)
+# Environment configs
 **/.env*
-!**/.env.production
 
 # Logs and caches
 **/logs

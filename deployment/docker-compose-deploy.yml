@@ -6,24 +6,14 @@ services:
     build:
       context: ../
       dockerfile: deployment/Dockerfile.frontend
-      args:
-        API_URL: ${API_URL}
+      args: 
+        - NEXT_PUBLIC_API_URL=${API_URL}
     ports:
       - 3456:3000
     restart: unless-stopped
-    # environment:
-    #   API_URL: ${API_URL}
-      # HOSTNAME:
-    # depends_on:
-    #   cronicorn-db:
-    #     condition: service_healthy
-    # networks:
-    #   - cronicorn_prod_network
-    # network_mode: host
-    # environment:
-    #   API_URL: ${API_URL}
-      # HOSTNAME: 0.0.0.0
-      # PORT: 3000
+    environment:
+      - NEXT_PUBLIC_API_URL=${API_URL}
+
   cronicorn-db:
     container_name: prod-cronicorn-db
     image: postgres:17

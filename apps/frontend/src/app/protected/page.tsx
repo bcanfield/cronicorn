@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { SessionProvider } from "@cronicorn/api/client-auth";
 

@@ -13,6 +13,14 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Build-time environment variables
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# Verify the env var is set during build
+RUN echo "Building with NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
+
 RUN bun run build:ui:prod
 
 
@@ -25,8 +33,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/static ./.nex
 COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/public ./.next/standalone/apps/frontend/public
 EXPOSE 3000
 
-# Bake this in as an env var at build time (pass in via args in docker-compose)
-ENV API_URL=${API_URL}
+
 
 # ENV PORT 3456
 ENV HOSTNAME "0.0.0.0"
