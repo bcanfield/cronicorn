@@ -1,5 +1,3 @@
-import "server-only";
-
 /**
  *  Helper to bake in the API_URL during build time, which can be used in the frontend during runtime.
  */
