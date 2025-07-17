@@ -26,6 +26,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/public ./.next/stan
 EXPOSE 3000
 
 # ENV PORT 3456
-# ENV HOSTNAME "0.0.0.0"
+ENV HOSTNAME "0.0.0.0"
 
 CMD ["bun", "run",  ".next/standalone/apps/frontend/server.js"]
