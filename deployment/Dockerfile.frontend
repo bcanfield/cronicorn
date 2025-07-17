@@ -23,6 +23,9 @@ ENV NODE_ENV=production
 COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/standalone ./.next/standalone
 COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/static ./.next/standalone/apps/frontend/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/public ./.next/standalone/apps/frontend/public
-
 EXPOSE 3000
-CMD ["bun", "run", ".next/standalone/apps/frontend/server.js"]
+
+# ENV PORT 3456
+# ENV HOSTNAME "0.0.0.0"
+
+CMD ["bun", "run",  ".next/standalone/apps/frontend/server.js"]

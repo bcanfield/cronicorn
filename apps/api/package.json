@@ -21,7 +21,7 @@
     "src"
   ],
   "scripts": {
-    "dev": "bun --hot run ./src/run.ts",
+    "dev": "tsx watch src/run.ts",
     "build": "bun build ./src/run.ts --target node --outdir ./dist",
     "start": "bun run dist/run.js",
     "check-types": "tsc --noEmit",

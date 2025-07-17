@@ -7,22 +7,29 @@ services:
       context: ../
       dockerfile: deployment/Dockerfile.frontend
     ports:
-      - '3000:3000'
-    depends_on:
-      cronicorn-db:
-        condition: service_healthy
-    networks:
-      - cronicorn_prod_network
+      - 3456:3000
+    restart: unless-stopped
+    # depends_on:
+    #   cronicorn-db:
+    #     condition: service_healthy
+    # networks:
+    #   - cronicorn_prod_network
+    # network_mode: host
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      # HOSTNAME: 0.0.0.0
+      # PORT: 3000
   cronicorn-db:
     container_name: prod-cronicorn-db
     image: postgres:17
-    restart: always
+    restart: unless-stopped
     ports:
-      - 5456:5432
+      - 5432:5432
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: user
-      POSTGRES_DB: db
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
@@ -30,10 +37,9 @@ services:
       retries: 5
     volumes:
       - cronicorn-db:/var/lib/postgresql/data
-    networks:
-      - cronicorn_prod_network
   cronicorn-api:
     container_name: prod-cronicorn-api
+    restart: unless-stopped
     depends_on:
       cronicorn-db:
         condition: service_healthy
@@ -41,13 +47,22 @@ services:
       context: ../
       dockerfile: deployment/Dockerfile.api
     ports:
-      - "3333:3001"
-    networks:
-      - cronicorn_prod_network
+       - 3001:3001
+    # network_mode: host
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
+      GITHUB_ID: ${GITHUB_ID}
+      GITHUB_SECRET: ${GITHUB_SECRET}
+
+      # API_HOSTNAME: ${API_HOSTNAME}
+      # API_PORT: ${API_PORT}
+      # NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      # NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
 
 volumes:
   cronicorn-db:
 
-networks:
-  cronicorn_prod_network:
-    name: cronicorn_prod_network
+# networks:
+#   cronicorn_prod_network:
+#     name: cronicorn_prod_network

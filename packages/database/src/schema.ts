@@ -63,6 +63,7 @@ export const users = pgTable("User", {
     .$defaultFn(() => createId()),
   name: text("name"),
   email: text("email").unique(),
+  emailVerified: timestamp("emailVerified"),
   image: text("image"),
 });
 
@@ -227,7 +228,10 @@ export const messagesRelations = relations(messages, ({ one }) => ({
 }));
 
 // Type exports
-export const InsertUsersSchema = createInsertSchema(users);
+export const InsertUsersSchema = createInsertSchema(users, {
+  // Ensure dates can be parsed from strings when coming via json
+  emailVerified: z.coerce.date(),
+});
 
 export const UpdateUsersSchema = InsertUsersSchema.partial().omit({ id: true });
 

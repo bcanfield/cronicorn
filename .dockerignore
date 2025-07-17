@@ -1,6 +1,9 @@
 # Ignore Docker ignore itself (will be read but not sent)
 .dockerignore
 
+*.yml
+*.yaml
+
 # Node dependencies
 **/node_modules
 

@@ -45,14 +45,3 @@ export async function deleteMessage(id: string) {
     .returning();
   return message;
 }
-
-/*
-BELOW ARE CUSTOM NON-STANDARD FUNCTIONS NOT PART OF THE CRUD OPERATIONS
-*/
-export async function getJobMessages(jobId: string) {
-  const jobMessages = await db
-    .select()
-    .from(messages)
-    .where(eq(messages.jobId, jobId));
-  return jobMessages;
-}

@@ -1,6 +1,5 @@
-node_modules/
+.env
+.env.*
+!.env.example
 dist/
-build/
-.env*
-.DS_Store
-.next/
+node_modules/

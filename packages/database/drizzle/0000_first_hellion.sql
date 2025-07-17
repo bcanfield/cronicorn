@@ -84,6 +84,7 @@ CREATE TABLE "User" (
 	"cuid" text PRIMARY KEY NOT NULL,
 	"name" text,
 	"email" text,
+	"emailVerified" timestamp,
 	"image" text,
 	CONSTRAINT "User_email_unique" UNIQUE("email")
 );

@@ -1,10 +1,6 @@
 "use client";
 import LoginPopup from "@/components/login-popup";
-import {
-  cronicornApiClient,
-  jobsApiClient,
-  usersApiClient,
-} from "@/lib/api-clients";
+import { jobsApiClient, usersApiClient } from "@/lib/api-clients";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
@@ -32,36 +28,9 @@ export default function Home() {
       return response.json();
     },
   });
-
-  const {
-    data: messages,
-    isLoading: isLoadingMessages,
-    error: messagesError,
-  } = useQuery({
-    queryKey: ["messages"],
-    queryFn: async () => {
-      const response = await cronicornApiClient.index.$get();
-      if (!response.ok) throw new Error("Failed to fetch messages");
-      return response.json();
-    },
-  });
   return (
     <div className="flex flex-col">
       <LoginPopup />
-      <h1 className="text-2xl font-bold mb-4">Messages</h1>
-      {isLoadingMessages && <p>Loading...</p>}
-      {messagesError && (
-        <p className="text-red-500">Error: {messagesError.message}</p>
-      )}
-      <ul className="list-disc pl-5">
-        {messages?.map((message, index) => (
-          <li key={index} className="mb-2">
-            {JSON.stringify(message)}
-          </li>
-        ))}
-      </ul>
-      <hr />
-
       <h1 className="text-2xl font-bold mb-4">Users</h1>
       {isLoadingUsers && <p>Loading...</p>}
       {usersError && (
