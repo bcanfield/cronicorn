@@ -6,6 +6,8 @@ services:
     build:
       context: ../
       dockerfile: deployment/Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     ports:
       - 3456:3000
     restart: unless-stopped
@@ -15,8 +17,8 @@ services:
     # networks:
     #   - cronicorn_prod_network
     # network_mode: host
-    environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    # environment:
+    #   NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       # HOSTNAME: 0.0.0.0
       # PORT: 3000
   cronicorn-db:
@@ -46,14 +48,19 @@ services:
     build:
       context: ../
       dockerfile: deployment/Dockerfile.api
+      args:
+        DATABASE_URL: ${DATABASE_URL}
+        AUTH_SECRET: ${AUTH_SECRET}
+        GITHUB_ID: ${GITHUB_ID}
+        GITHUB_SECRET: ${GITHUB_SECRET}
     ports:
        - 3001:3001
     # network_mode: host
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
-      GITHUB_ID: ${GITHUB_ID}
-      GITHUB_SECRET: ${GITHUB_SECRET}
+    # environment:
+    #   DATABASE_URL: ${DATABASE_URL}
+    #   AUTH_SECRET: ${AUTH_SECRET}
+    #   GITHUB_ID: ${GITHUB_ID}
+    #   GITHUB_SECRET: ${GITHUB_SECRET}
 
       # API_HOSTNAME: ${API_HOSTNAME}
       # API_PORT: ${API_PORT}
