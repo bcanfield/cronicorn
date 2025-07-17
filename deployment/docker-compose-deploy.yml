@@ -35,7 +35,7 @@ services:
       context: ../
       dockerfile: deployment/Dockerfile.migrator
     depends_on:
-      cronicorn-db:
+      cronicorndb:
         condition: service_healthy
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -43,7 +43,7 @@ services:
     container_name: prod-cronicorn-api
     restart: unless-stopped
     depends_on:
-      cronicorn-db:
+      cronicorndb:
         condition: service_healthy
       cronicorn-migrator:
         condition: service_started
