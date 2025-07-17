@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build-migration-script": "bun build ./src/migrate.ts --target node --outdir ./dist",
     "migrate": "drizzle-kit migrate",
     "deploy": "drizzle-kit push",
     "generate": "drizzle-kit generate",

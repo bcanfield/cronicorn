@@ -1,13 +1,33 @@
-FROM oven/bun:1.2-alpine
+FROM oven/bun:alpine AS base
+ 
+FROM base AS builder
+# Set working directory
+WORKDIR /app
 
-WORKDIR /usr/src/app
-ENV NODE_ENV=production
-
+RUN bun install --global turbo
 COPY . .
+ 
+# Generate a partial monorepo with a pruned lockfile for a target workspace.
+# Assuming "web" is the name entered in the project's package.json: { name: "web" }
+RUN turbo prune @cronicorn/api --docker
+ 
+# Add lockfile and package.json's of isolated subworkspace
+FROM base AS installer
+WORKDIR /app
+ 
+# First install the dependencies (as they change less often)
+COPY --from=builder /app/out/json/ .
 RUN bun install --frozen-lockfile
-RUN bun --filter '@cronicorn/api' build 
+ 
+# Build the project
+COPY --from=builder /app/out/full/ .
+RUN bun run --filter '@cronicorn/api' build
+ 
+FROM base AS runner
+WORKDIR /app
 
+ENV NODE_ENV=production
+COPY --from=installer --chown=nextjs:nodejs /app/apps/api/dist ./dist
+ 
 EXPOSE 3000
-
-CMD ["bun", "run", "start:api:prod"]
-
+CMD ["bun", "run", "./dist/run.js"]

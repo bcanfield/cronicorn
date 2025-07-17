@@ -1,41 +1,47 @@
-
 FROM oven/bun:alpine AS base
-
-# Stage 1: Install dependencies
-
-FROM base AS deps
-WORKDIR /app
-COPY . .
-RUN bun install --frozen-lockfile
-
-# Stage 2: Build the application
+ 
 FROM base AS builder
+# Set working directory
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 
+RUN bun install --global turbo
+COPY . .
+ 
+# Generate a partial monorepo with a pruned lockfile for a target workspace.
+# Assuming "web" is the name entered in the project's package.json: { name: "web" }
+RUN turbo prune @cronicorn/frontend --docker
+ 
+# Add lockfile and package.json's of isolated subworkspace
+FROM base AS installer
+WORKDIR /app
+ 
+# First install the dependencies (as they change less often)
+COPY --from=builder /app/out/json/ .
+RUN bun install --frozen-lockfile
+ 
+# Build the project
+COPY --from=builder /app/out/full/ .
 # Build-time environment variables
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
-# Verify the env var is set during build
-RUN echo "Building with NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
-
-RUN bun run build:ui:prod
-
-
-# Stage 3: Production server
+RUN bun run --filter '@cronicorn/frontend' build
+ 
 FROM base AS runner
 WORKDIR /app
+ 
+# Don't run production as root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+USER nextjs
+ 
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
 ENV NODE_ENV=production
-COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/standalone ./.next/standalone
-COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/.next/static ./.next/standalone/apps/frontend/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/frontend/public ./.next/standalone/apps/frontend/public
+COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/.next/standalone ./.next/standalone
+COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/.next/static ./.next/standalone/apps/frontend/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/frontend/public ./.next/standalone/apps/frontend/public
 EXPOSE 3000
-
-
-
-# ENV PORT 3456
 ENV HOSTNAME "0.0.0.0"
 
+ 
 CMD ["bun", "run",  ".next/standalone/apps/frontend/server.js"]
