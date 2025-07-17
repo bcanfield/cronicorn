@@ -13,7 +13,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=${API_URL}
 
-  cronicorn-db:
+  cronicorndb:
     image: postgres:17
     restart: unless-stopped
     ports:
