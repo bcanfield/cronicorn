@@ -59,7 +59,7 @@ const route = app.get(
       },
       servers: [
         {
-          url: process.env.API_EXTERNAL_URL ?? "http://localhost:3001",
+          url: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001",
           description: "Cronicorn API Server",
         },
       ],

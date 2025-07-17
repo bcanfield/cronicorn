@@ -11,6 +11,9 @@ services:
     ports:
       - 3456:3000
     restart: unless-stopped
+    # environment:
+    #   NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      # HOSTNAME:
     # depends_on:
     #   cronicorn-db:
     #     condition: service_healthy
