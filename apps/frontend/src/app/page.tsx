@@ -30,6 +30,7 @@ export default function Home() {
   });
   return (
     <div className="flex flex-col">
+      NEW
       <LoginPopup />
       <h1 className="text-2xl font-bold mb-4">Users</h1>
       {isLoadingUsers && <p>Loading...</p>}
