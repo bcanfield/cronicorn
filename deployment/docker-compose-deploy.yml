@@ -28,12 +28,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cronicorn
     volumes:
       - "../files/cronicorn-db-volume:/var/lib/postgresql/data"
   cronicorn-migrator:
     build:
       context: ../
       dockerfile: deployment/Dockerfile.migrator
+    networks:
+      - cronicorn
     depends_on:
       cronicorndb:
         condition: service_healthy
@@ -50,7 +54,8 @@ services:
     build:
       context: ../
       dockerfile: deployment/Dockerfile.api
-      
+    networks:
+      - cronicorn
     ports:
        - 3001:3001
     environment:
@@ -59,4 +64,7 @@ services:
       GITHUB_ID: ${GITHUB_ID}
       GITHUB_SECRET: ${GITHUB_SECRET}
       API_URL: ${API_URL}
+networks:
+  cronicorn:
+    driver: bridge
 
