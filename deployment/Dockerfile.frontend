@@ -24,8 +24,8 @@ COPY --from=builder /app/out/full/ .
 # Build-time environment variables
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ARG AUTH_URL
-ENV AUTH_URL=$AUTH_URL
+# ARG AUTH_URL
+# ENV AUTH_URL=$AUTH_URL
 RUN bun run --filter '@cronicorn/frontend' build
  
 FROM base AS runner

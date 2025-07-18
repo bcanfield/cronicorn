@@ -30,6 +30,9 @@ app.use(
 app.use(
   "*",
   initAuthConfig((c) => {
+    // log env vars
+    console.log("GITHUB_ID:", process.env.GITHUB_ID);
+    console.log("GITHUB_SECRET:", process.env.GITHUB_SECRET);
     return {
       secret: process.env.AUTH_SECRET ?? "supersecret",
       providers: [
@@ -39,7 +42,7 @@ app.use(
         }),
       ],
       trustHost: true,
-      // basePath: "/api/auth",
+      basePath: "/api/auth",
     };
   })
 );
