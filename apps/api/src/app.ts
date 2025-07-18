@@ -22,18 +22,16 @@ app.use(
   "*",
   cors({
     origin: "*",
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-    credentials: false,
+    // allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    // allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 app.use(
   "*",
   initAuthConfig((c) => {
-    // log secrets
-
     return {
-      secret: c.env.AUTH_SECRET,
+      secret: process.env.AUTH_SECRET ?? "supersecret",
       providers: [
         GitHub({
           clientId: process.env.GITHUB_ID,
@@ -41,11 +39,12 @@ app.use(
         }),
       ],
       trustHost: true,
-      basePath: "/api/auth",
+      // basePath: "/api/auth",
     };
   })
 );
 app.use("/api/auth/*", authHandler());
+// app.use("/api/*", verifyAuth());
 app.use("/protected/*", verifyAuth());
 
 const route = app.get(

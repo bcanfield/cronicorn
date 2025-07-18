@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "dotenv -e .env -- bun --filter '*' dev",
+    "dev": "dotenv -e .env -- bun  --elide-lines 0 --filter '*' dev",
     "clean": "bun --filter '*' clean && rm -rf node_modules",
     "check-types": "bun --filter '*' check-types",
     "migrate:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' migrate",

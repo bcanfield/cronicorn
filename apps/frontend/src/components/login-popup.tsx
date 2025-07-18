@@ -1,9 +1,8 @@
 "use client";
-import useSession from "@/hooks/use-session";
-import { signIn, signOut } from "@cronicorn/api/client-auth";
+import { signIn, signOut, useSession } from "@cronicorn/api/client-auth";
 
 export default function LoginPopup() {
-  const { session } = useSession();
+  const { data: session } = useSession();
 
   return (
     <>
