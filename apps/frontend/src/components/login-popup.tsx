@@ -1,7 +1,7 @@
 "use client";
 import { signIn, signOut, useSession } from "@cronicorn/api/client-auth";
 
-export default function LoginPopup() {
+export default function SignInOrOutButton() {
   const { data: session } = useSession();
 
   return (

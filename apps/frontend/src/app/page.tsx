@@ -1,60 +1,25 @@
 "use client";
-import LoginPopup from "@/components/login-popup";
+import SignInOrOutButton from "@/components/login-popup";
 import { jobsApiClient, usersApiClient } from "@/lib/api-clients";
+import { useSession } from "@cronicorn/api/client-auth";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
-  const {
-    data: users,
-    isLoading: isLoadingUsers,
-    error: usersError,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const response = await usersApiClient.index.$get();
-      if (!response.ok) throw new Error("Failed to fetch users");
-      return response.json();
-    },
-  });
-  const {
-    data: jobs,
-    isLoading: isLoadingJobs,
-    error: jobsError,
-  } = useQuery({
-    queryKey: ["jobs"],
-    queryFn: async () => {
-      const response = await jobsApiClient.index.$get();
-      if (!response.ok) throw new Error("Failed to fetch users");
-      return response.json();
-    },
-  });
+export default function HomePage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    // redirect to dashboard if logged in
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
   return (
     <div className="flex flex-col">
-      NEW
-      <LoginPopup />
-      <h1 className="text-2xl font-bold mb-4">Users</h1>
-      {isLoadingUsers && <p>Loading...</p>}
-      {usersError && (
-        <p className="text-red-500">Error: {usersError.message}</p>
-      )}
-      <ul className="list-disc pl-5">
-        {users?.map((user) => (
-          <li key={user.id} className="mb-2">
-            {user.name} ({user.email})
-          </li>
-        ))}
-      </ul>
-      <hr />
-      <h1 className="text-2xl font-bold mb-4">Jobs</h1>
-      {isLoadingJobs && <p>Loading...</p>}
-      {jobsError && <p className="text-red-500">Error: {jobsError.message}</p>}
-      <ul className="list-disc pl-5">
-        {jobs?.map((job) => (
-          <li key={job.id} className="mb-2">
-            {job.id} - {job.definitionNL}
-          </li>
-        ))}
-      </ul>
+      <h1>Home Page</h1>
     </div>
   );
 }
