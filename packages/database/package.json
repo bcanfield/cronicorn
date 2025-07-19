@@ -28,10 +28,10 @@
     "@types/node": "^20.11.17",
     "drizzle-orm": "^0.44.2",
     "drizzle-seed": "^0.3.1",
-    "drizzle-zod": "^0.8.2",
+    "drizzle-zod": "^0.5.1",
     "pg": "^8.16.3",
     "postgres": "^3.4.7",
-    "zod": "^4.0.5"
+    "zod": "^3.25.51"
   },
   "devDependencies": {
     "@types/pg": "^8.15.4",

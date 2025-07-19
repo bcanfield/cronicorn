@@ -106,12 +106,12 @@ export const jobs = pgTable("Job", {
   totalTokens: integer("totalTokens").default(0).notNull(),
   reasoningTokens: integer("reasoningTokens").default(0).notNull(),
   cachedInputTokens: integer("cachedInputTokens").default(0).notNull(),
-  createdAt: timestamp("createdAt")
-    .default(sql`now()`)
-    .notNull(),
-  updatedAt: timestamp("updatedAt")
-    .default(sql`now()`)
-    .notNull(),
+  createdAt: integer("createdAt")
+    .notNull()
+    .default(sql`extract(epoch from now())`),
+  updatedAt: integer("updatedAt")
+    .notNull()
+    .default(sql`extract(epoch from now())`),
 });
 
 export const contextEntries = pgTable(
@@ -239,12 +239,17 @@ export const UserSchema = createSelectSchema(users);
 export type User = z.infer<typeof UserSchema>;
 export type NewUser = z.infer<typeof InsertUsersSchema>;
 
-// Add Job schemas
-export const InsertJobsSchema = createInsertSchema(jobs);
-export const UpdateJobsSchema = InsertJobsSchema.partial().omit({ id: true });
-export const JobSchema = createSelectSchema(jobs);
-export type Job = z.infer<typeof JobSchema>;
-export type NewJob = z.infer<typeof InsertJobsSchema>;
+// NEW JOB SCHEMAS START
+export const selectJobsSchema = createSelectSchema(jobs);
+
+export const insertJobsSchema = createInsertSchema(jobs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const patchJobsSchema = insertJobsSchema.partial();
+// NEW JOB SCHEMAS END
 
 // Add Account schemas
 export const InsertAccountsSchema = createInsertSchema(accounts);

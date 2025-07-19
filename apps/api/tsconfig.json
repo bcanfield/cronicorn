@@ -10,8 +10,16 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "declaration": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": "./",
+    // "typeRoots": ["./node_modules/@types"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "tsc-alias": {
+    "resolveFullPaths": true
+  }
 }
