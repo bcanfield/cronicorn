@@ -42,7 +42,7 @@ app.use(
         }),
       ],
       trustHost: true,
-      basePath: "/api/auth",
+      // basePath: "/api/auth",
     };
   })
 );
