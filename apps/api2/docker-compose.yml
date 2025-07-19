@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  hono-openapi-postgres-starter-db:
+    container_name: hono-openapi-postgres-starter-db
+    image: postgres:17
+    restart: always
+    ports:
+      - 6666:5432
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    volumes:
+      - hono-openapi-postgres-starter-db-data:/var/lib/postgresql/data
+
+volumes:
+  hono-openapi-postgres-starter-db-data:

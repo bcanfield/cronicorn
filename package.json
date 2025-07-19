@@ -31,6 +31,7 @@
     "dotenv-cli": "^8.0.0"
   },
   "devDependencies": {
+    "@types/bun": "^1.2.18",
     "turbo": "^2.5.5"
   }
 }

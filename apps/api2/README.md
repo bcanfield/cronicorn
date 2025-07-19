@@ -1,19 +1,8 @@
 # Hono Open API Starter
 
-A starter template for building fully documented type-safe JSON APIs with Hono and Open API.
+A starter template for building fully documented type-safe JSON APIs with Hono and Open API and Postgres.
 
-> A new version of drizzle was released since the video showing this starter was made. See the [drizzle-v0.35 branch](https://github.com/w3cj/hono-open-api-starter/tree/drizzle-v0.35) and [this commit](https://github.com/w3cj/hono-open-api-starter/commit/92525ff84fb2a247c8245cc889b2320d7b3b6e2c) for the changes required to use drizzle v0.35
-
-> For a cloudflare specific template, see the [cloudflare branch](https://github.com/w3cj/hono-open-api-starter/tree/cloudflare) on this repo and the [cloudflare-drizzle-v0.35 branch](https://github.com/w3cj/hono-open-api-starter/tree/cloudflare-drizzle-v0.35)
-
-> For other deployment examples see the [hono-node-deployment-examples](https://github.com/w3cj/hono-node-deployment-examples) repo
-
-- [Hono Open API Starter](#hono-open-api-starter)
-  - [Included](#included)
-  - [Setup](#setup)
-  - [Code Tour](#code-tour)
-  - [Endpoints](#endpoints)
-  - [References](#references)
+Initially cloned from: https://github.com/w3cj/hono-open-api-starter
 
 ## Included
 
@@ -31,7 +20,7 @@ A starter template for building fully documented type-safe JSON APIs with Hono a
 Clone this template without git history
 
 ```sh
-npx degit w3cj/hono-open-api-starter my-api
+npx degit bcanfield/hono-openapi-postgres-starter my-api
 cd my-api
 ```
 
@@ -44,31 +33,39 @@ cp .env.example .env
 Install dependencies
 
 ```sh
-pnpm install
+bun install
 ```
 
-Create sqlite db / push schema
+Start postgres db
 
 ```sh
-pnpm drizzle-kit push
+docker-compose up -d
+```
+
+Push schema
+
+```sh
+bun drizzle-kit push
 ```
 
 Run
 
 ```sh
-pnpm dev
+bun dev
 ```
 
 Lint
 
 ```sh
-pnpm lint
+bun lint
 ```
 
 Test
 
+> **Disclaimer:** These tests require a Postgres database running via Docker Compose and will reset the database. It's recommended to configure a dedicated test-only database.
+
 ```sh
-pnpm test
+bun test
 ```
 
 ## Code Tour

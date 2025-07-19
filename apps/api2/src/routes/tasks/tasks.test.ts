@@ -1,14 +1,13 @@
 /* eslint-disable ts/ban-ts-comment */
 import { testClient } from "hono/testing";
 import { execSync } from "node:child_process";
-import fs from "node:fs";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
-import { afterAll, beforeAll, describe, expect, expectTypeOf, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { ZodIssueCode } from "zod";
 
 import env from "@/env";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/lib/constants";
-import { createTestApp } from "@/lib/create-app";
+import createApp from "@/lib/create-app";
 
 import router from "./tasks.index";
 
@@ -16,15 +15,11 @@ if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");
 }
 
-const client = testClient(createTestApp(router));
+const client = testClient(createApp().route("/", router));
 
 describe("tasks routes", () => {
-  beforeAll(async () => {
-    execSync("pnpm drizzle-kit push");
-  });
-
-  afterAll(async () => {
-    fs.rmSync("test.db", { force: true });
+  beforeAll(() => {
+    execSync("bun run reset");
   });
 
   it("post /tasks validates the body when creating", async () => {
@@ -42,7 +37,7 @@ describe("tasks routes", () => {
     }
   });
 
-  const id = 1;
+  let createdId: number;
   const name = "Learn vitest";
 
   it("post /tasks creates a task", async () => {
@@ -57,6 +52,7 @@ describe("tasks routes", () => {
       const json = await response.json();
       expect(json.name).toBe(name);
       expect(json.done).toBe(false);
+      createdId = json.id;
     }
   });
 
@@ -65,8 +61,8 @@ describe("tasks routes", () => {
     expect(response.status).toBe(200);
     if (response.status === 200) {
       const json = await response.json();
-      expectTypeOf(json).toBeArray();
-      expect(json.length).toBe(1);
+      expect(Array.isArray(json)).toBe(true);
+      expect(json.some(t => t.id === createdId && t.name === name)).toBe(true);
     }
   });
 
@@ -101,7 +97,7 @@ describe("tasks routes", () => {
   it("get /tasks/{id} gets a single task", async () => {
     const response = await client.tasks[":id"].$get({
       param: {
-        id,
+        id: createdId,
       },
     });
     expect(response.status).toBe(200);
@@ -115,7 +111,7 @@ describe("tasks routes", () => {
   it("patch /tasks/{id} validates the body when updating", async () => {
     const response = await client.tasks[":id"].$patch({
       param: {
-        id,
+        id: createdId,
       },
       json: {
         name: "",
@@ -148,7 +144,7 @@ describe("tasks routes", () => {
   it("patch /tasks/{id} validates empty body", async () => {
     const response = await client.tasks[":id"].$patch({
       param: {
-        id,
+        id: createdId,
       },
       json: {},
     });
@@ -163,7 +159,7 @@ describe("tasks routes", () => {
   it("patch /tasks/{id} updates a single property of a task", async () => {
     const response = await client.tasks[":id"].$patch({
       param: {
-        id,
+        id: createdId,
       },
       json: {
         done: true,
@@ -194,7 +190,7 @@ describe("tasks routes", () => {
   it("delete /tasks/{id} removes a task", async () => {
     const response = await client.tasks[":id"].$delete({
       param: {
-        id,
+        id: createdId,
       },
     });
     expect(response.status).toBe(204);
