@@ -2,6 +2,8 @@ version: "3"
 
 services:
   cronicorn-ui:
+    networks:
+      - cronicorn
     build:
       context: ../
       dockerfile: deployment/Dockerfile.frontend
