@@ -22,7 +22,6 @@
     "src"
   ],
   "scripts": {
-    "dev": "tsx watch src/index.ts",
     "build": "bun build ./src/run.ts --target node --outdir ./dist",
     "start": "bun run dist/run.js",
     "check-types": "tsc --noEmit",

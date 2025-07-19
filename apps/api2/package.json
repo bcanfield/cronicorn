@@ -1,5 +1,5 @@
 {
-  "name": "hono-openapi-postgres-starter",
+  "name": "@cronicorn/api2",
   "type": "module",
   "version": "1.0.0",
   "license": "MIT",
@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "lint:fix": "bun run lint --fix",
     "test": "cross-env NODE_ENV=test vitest",
-    "build": "tsc && tsc-alias"
+    "build": "tsc && tsc-alias",
+    "push": "drizzle-kit push"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

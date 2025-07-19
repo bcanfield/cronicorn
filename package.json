@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "dotenv -e .env -- bun  --elide-lines 0 --filter '*' dev",
+    "dev": "dotenv -e .env -- bun  --elide-lines 0 --filter '@cronicorn/api2' dev",
     "clean": "bun --filter '*' clean && rm -rf node_modules",
     "check-types": "bun --filter '*' check-types",
     "migrate:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' migrate",
@@ -17,7 +17,8 @@
     "####################### Production Commands #######################": "",
     "start:api:prod": "bun run --filter '@cronicorn/api' start",
     "start:db": "docker-compose -f docker-compose.yml up -d",
-    "prod:migrate-script": "bun run packages/database/src/migrate.ts"
+    "prod:migrate-script": "bun run packages/database/src/migrate.ts",
+    "push": "dotenv -e .env -- bun  --elide-lines 0 --filter '@cronicorn/api2' push"
   },
   "workspaces": [
     "apps/*",

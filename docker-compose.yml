@@ -17,4 +17,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - "../files/cronicorn-database-volume:/var/lib/postgresql/data"
+      - cronicorndatavolume:/var/lib/postgresql/data
+
+volumes:
+  cronicorndatavolume:
