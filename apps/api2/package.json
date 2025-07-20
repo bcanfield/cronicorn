@@ -3,6 +3,14 @@
   "type": "module",
   "version": "1.0.0",
   "license": "MIT",
+  "exports": {
+    "./client": {
+      "import": {
+        "types": "./dist/src/client.d.ts",
+        "default": "./dist/src/client.ts"
+      }
+    }
+  },
   "engines": {
     "bun": ">=1.2.0"
   },
