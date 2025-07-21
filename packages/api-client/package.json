@@ -1,0 +1,22 @@
+{
+  "name": "@tasks-app/api-client",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "tsc --watch",
+    "clean": "rm -rf node_modules dist",
+    "build": "rm -rf dist && tsc",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tasks-app/api": "workspace:^",
+    "@tasks-app/eslint-config": "workspace:^",
+    "@types/node": "^22.10.2",
+    "hono": "^4.6.15"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.2"
+  }
+}

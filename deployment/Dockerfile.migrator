@@ -1,9 +1,0 @@
-FROM oven/bun:1.2-alpine
-
-WORKDIR /usr/src/app
-ENV NODE_ENV=production
-
-COPY . .
-RUN bun install --frozen-lockfile
-
-CMD ["bun", "run", "prod:migrate-script"]

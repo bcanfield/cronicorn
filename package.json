@@ -1,36 +1,16 @@
 {
-  "name": "testapp",
+  "name": "tasks-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "license": "MIT",
+  "packageManager": "pnpm@10.7.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "dotenv -e .env -- bun  --elide-lines 0 --filter '*' dev",
-    "clean": "bun --filter '*' clean && rm -rf node_modules",
-    "check-types": "bun --filter '*' check-types",
-    "migrate:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' migrate",
-    "seed:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' seed",
-    "reset:dev": "dotenv -e .env -- bun run --filter '@cronicorn/database' reset",
-    "studio": "dotenv -e .env -- bun run --filter '@cronicorn/database' studio",
-    "build:api:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/api' build",
-    "build:ui:prod": "dotenv -e .env.production -- bun run --filter '@cronicorn/frontend' build",
-    "####################### Production Commands #######################": "",
-    "start:api:prod": "bun run --filter '@cronicorn/api' start",
-    "start:db": "docker-compose -f docker-compose.yml up -d",
-    "prod:migrate-script": "bun run packages/database/src/migrate.ts"
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "bun@1.2.18",
-  "dependencies": {
-    "dotenv-cli": "^8.0.0"
-  },
-  "devDependencies": {
-    "turbo": "^2.5.5"
+    "dev": "pnpm run -r --parallel --aggregate-output dev",
+    "clean": "pnpm run -r --parallel clean && rm -rf node_modules",
+    "build": "pnpm run -r build",
+    "test": "pnpm run -r --parallel test",
+    "lint": "pnpm run -r --parallel lint",
+    "db:push": "pnpm run -r --parallel db:push",
+    "deploy": "pnpm build && pnpm run -r deploy",
+    "typecheck": "pnpm run -r --parallel typecheck"
   }
 }
