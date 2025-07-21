@@ -75,6 +75,23 @@ export const jobs = pgTable("Job", {
     .notNull(),
 });
 
+// add Zod schemas for jobs
+export const selectJobsSchema = createSelectSchema(jobs);
+export type selectJobsSchema = z.infer<typeof selectJobsSchema>;
+
+export const insertJobsSchema = createInsertSchema(
+  jobs,
+  {
+    definitionNL: schema => schema.min(1).max(1000),
+  },
+)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .required({ definitionNL: true });
+export type insertJobsSchema = z.infer<typeof insertJobsSchema>;
+
+export const patchJobsSchema = insertJobsSchema.partial();
+export type patchJobsSchema = z.infer<typeof patchJobsSchema>;
+
 export const contextEntries = pgTable(
   "ContextEntry",
   {

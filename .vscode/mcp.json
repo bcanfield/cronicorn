@@ -1,0 +1,41 @@
+{
+  "inputs": [],
+
+  "servers": {
+    "Context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+
+    "taskmanager": {
+      "command": "npx",
+      "args": ["-y", "@kazuph/mcp-taskmanager"]
+    },
+
+    "sequential-thinking": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "mcp/sequentialthinking"]
+    },
+
+    "redis": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "--name",
+        "redis-mcp-server",
+        "-i",
+        "-e",
+        "REDIS_HOST=127.0.0.1",
+        "-e",
+        "REDIS_PORT=6379",
+        "-e",
+        "REDIS_USERNAME=cronicorn",
+        "-e",
+        "REDIS_PWD=supersecret",
+        "mcp/redis"
+      ]
+    }
+  }
+}
