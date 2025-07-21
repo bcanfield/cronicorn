@@ -2,6 +2,7 @@ import type { SessionContext } from "@hono/auth-js/react";
 
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { Button } from "@workspace/ui/components/button";
 
 import AppNavbar from "../components/app-navbar";
 
@@ -13,6 +14,8 @@ export const Route = createRootRouteWithContext<{
   component: () => (
     <>
       <AppNavbar />
+
+      <Button>Hey there</Button>
       <main className="container" style={{ marginTop: "1rem" }}>
         <Outlet />
         <TanStackRouterDevtools />

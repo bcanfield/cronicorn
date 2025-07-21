@@ -6,6 +6,7 @@ export default defineConfig(async () => {
     resolve: {
       alias: {
         "@/api": path.resolve(__dirname, "./src"),
+        "@workspace/ui": path.resolve(__dirname, "../../packages/ui/src"),
       },
     },
   };

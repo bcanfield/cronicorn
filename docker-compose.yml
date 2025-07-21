@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  cronicorn-db:
-    container_name: cronicorn-db
+  cronicorn-dev-db:
+    container_name: cronicorn-dev-db
     image: postgres:17
     restart: always
     ports:
@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - cronicorndatavolume:/var/lib/postgresql/data
+      - cronicorndevdatavolume:/var/lib/postgresql/data
 
 volumes:
-  cronicorndatavolume:
+  cronicorndevdatavolume:

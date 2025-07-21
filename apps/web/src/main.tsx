@@ -1,9 +1,7 @@
 import { SessionProvider } from "@hono/auth-js/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
-
-import "./index.css";
-
+import "@workspace/ui/globals.css";
 import { createRoot } from "react-dom/client";
 
 import queryClient from "@/web/lib/query-client";
