@@ -1,7 +1,10 @@
 import { useSession } from "@hono/auth-js/react";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import { routeTree } from "@/web/route-tree.gen";
+
+import type { Session } from "./routes/~__root";
 
 // import { useAuth } from "./auth";
 
@@ -19,8 +22,19 @@ declare module "@tanstack/react-router" {
   }
 }
 
+let resolveAuthClient: (client: Session) => void;
+export const authClient: Promise<Session> = new Promise(
+  (resolve) => { resolveAuthClient = resolve; },
+);
+
 export default function App() {
   // const auth = useAuth();
   const data = useSession();
-  return <RouterProvider router={router} context={{ session: data }} />;
+  useEffect(() => {
+    if (data.status === "loading")
+      return;
+
+    resolveAuthClient(data);
+  }, [data, data.status]);
+  return <RouterProvider router={router} context={{ session: authClient }} />;
 }

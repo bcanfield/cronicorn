@@ -9,23 +9,29 @@ export const Route = createFileRoute("/login")({
   validateSearch: z.object({
     redirect: z.string().optional().catch(""),
   }),
+  pendingComponent: () => (
+    <div className="p-2 grid gap-2 place-items-center">
+      <h3 className="text-xl">Loading...</h3>
+      <p>Please wait while we check your authentication status.</p>
+    </div>
+  ),
+  async beforeLoad({ context, location }) {
+    const session = await context.session; // Wait for auth to be done loading
+    console.log("SLogin ession data:", session, location);
+
+    if (session?.status === "authenticated") {
+      console.log("User already authenticated, redirecting to dashboard");
+      throw redirect({
+        to: "/dashboard",
+      });
+    }
+  },
 
   component: LoginComponent,
 });
 
 function LoginComponent() {
-  const session = useSession();
-
-  const navigate = Route.useNavigate();
-
   const search = Route.useSearch();
-
-  React.useEffect(() => {
-    if (session.status === "authenticated") {
-      console.log("Session authenticated, redirecting to", search.redirect || fallback);
-      navigate({ to: search.redirect || fallback });
-    }
-  }, [session.status, search.redirect, navigate]);
 
   return (
     <div className="p-2 grid gap-2 place-items-center">

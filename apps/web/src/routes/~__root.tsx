@@ -5,10 +5,10 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 import { Button } from "@workspace/ui/components/button";
 
-type Session = Parameters<typeof SessionContext>[0]["value"];
+export type Session = Parameters<typeof SessionContext>[0]["value"];
 
 export const Route = createRootRouteWithContext<{
-  session: Session;
+  session: Promise<Session>;
 }>()({
   component: () => (
     <>

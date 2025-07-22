@@ -1,11 +1,18 @@
-import { signOut, useSession } from "@hono/auth-js/react";
-import { createFileRoute, Link, Outlet, redirect, useRouter } from "@tanstack/react-router";
-import * as React from "react";
+import { signOut } from "@hono/auth-js/react";
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
-
-  loader: ({ context, location }) => {
-    if (!context.session?.data) {
+  pendingComponent: () => (
+    <div className="p-2 grid gap-2 place-items-center">
+      <h3 className="text-xl">Loading...</h3>
+      <p>Please wait while we load your dashboard</p>
+    </div>
+  ),
+  async beforeLoad({ context, location }) {
+    const session = await context.session; // Wait for auth to be done loading
+    console.log("Session data:", session);
+    if (session?.status !== "authenticated") {
+      console.log("User not authenticated, redirecting to login");
       throw redirect({
         to: "/login",
         search: {
