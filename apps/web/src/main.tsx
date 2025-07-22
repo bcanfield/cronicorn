@@ -10,10 +10,12 @@ import App from "./app";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <SessionProvider>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <SessionProvider>
+
         <App />
-      </QueryClientProvider>
-    </SessionProvider>
+      </SessionProvider>
+
+    </QueryClientProvider>
   </StrictMode>,
 );

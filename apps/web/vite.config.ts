@@ -10,7 +10,7 @@ export default defineConfig({
     tsconfigPaths(),
     tailwindcss(),
     tanstackRouter({
-      routeFilePrefix: "~",
+      // routeFilePrefix: "~",
       routeTreeFileHeader: [
         "/* eslint-disable eslint-comments/no-unlimited-disable */",
         "/* eslint-disable */",

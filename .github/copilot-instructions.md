@@ -53,7 +53,12 @@ Use your editor/CLI’s search to quickly locate code by entity name or feature:
   * **`<entity>.routes.ts`**: REST endpoints (GET, POST, PUT, DELETE)
   * **`index.ts`**: `app.route('/jobs', jobsRoutes)` mounts
 
-### 3. Tests
+### 3. Auth
+
+**Library:** [hono/auth-js](https://www.npmjs.com/package/@hono/auth-js)
+
+
+### 4. Tests
 
 * Unit tests for handlers: `apps/api/src/routes/<entity>/<entity>.test.ts`
 * Config: `apps/api/vitest.config.ts`

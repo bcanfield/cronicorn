@@ -1,4 +1,4 @@
-import { authHandler } from "@hono/auth-js";
+import { authHandler, verifyAuth } from "@hono/auth-js";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
@@ -28,6 +28,7 @@ export default function createApp() {
       },
     )
     .use("/auth/*", authHandler())
+    .use("*", verifyAuth())
     .notFound(notFound)
     .onError(onError);
   app.use(serveEmojiFavicon("📝"));
