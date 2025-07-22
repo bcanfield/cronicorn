@@ -2,7 +2,7 @@ import { signOut, useSession } from "@hono/auth-js/react";
 import { createFileRoute, Link, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import * as React from "react";
 
-export const Route = createFileRoute("/__auth")({
+export const Route = createFileRoute("/dashboard")({
 
   loader: ({ context, location }) => {
     if (!context.session?.data) {

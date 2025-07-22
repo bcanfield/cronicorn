@@ -3,7 +3,6 @@ import { createFileRoute, Link, redirect, useRouter, useRouterState } from "@tan
 import * as React from "react";
 import { z } from "zod";
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 const fallback = "/dashboard" as const;
 
 export const Route = createFileRoute("/login")({

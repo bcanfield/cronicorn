@@ -2,7 +2,7 @@ import { useSession } from "@hono/auth-js/react";
 import { createFileRoute } from "@tanstack/react-router";
 import * as React from "react";
 
-export const Route = createFileRoute("/__auth/dashboard")({
+export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage,
 });
 
