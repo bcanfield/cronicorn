@@ -15,6 +15,11 @@ export default function AppNavbar() {
             <Link to="/">Home</Link>
           </li>
         )}
+        {location.pathname !== "/jobs" && (
+          <li>
+            <Link to="/jobs">Jobs</Link>
+          </li>
+        )}
         {session.data?.user
           ? (
               <>

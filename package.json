@@ -10,7 +10,7 @@
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
     "db:push": "pnpm run -r --parallel db:push",
-    "deploy": "pnpm build && pnpm run -r deploy",
+    "db:generate": "pnpm run -r --parallel db:generate",
     "typecheck": "pnpm run -r --parallel typecheck"
   },
   "dependencies": {

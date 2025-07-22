@@ -58,7 +58,7 @@ export const jobs = pgTable("Job", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   definitionNL: text("definitionNL").notNull(),
-  nextRunAt: timestamp("nextRunAt"),
+  nextRunAt: timestamp("nextRunAt", { mode: "string" }),
   status: jobStatusEnum("status").default("PAUSED").notNull(),
   locked: boolean("locked").default(false).notNull(),
   userId: text("userId").references(() => users.id, { onDelete: "cascade" }),
@@ -67,10 +67,10 @@ export const jobs = pgTable("Job", {
   totalTokens: integer("totalTokens").default(0).notNull(),
   reasoningTokens: integer("reasoningTokens").default(0).notNull(),
   cachedInputTokens: integer("cachedInputTokens").default(0).notNull(),
-  createdAt: timestamp("createdAt")
+  createdAt: timestamp("createdAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
-  updatedAt: timestamp("updatedAt")
+  updatedAt: timestamp("updatedAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
 });
@@ -101,7 +101,7 @@ export const contextEntries = pgTable(
     jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
     key: text("key").notNull(),
     value: text("value").notNull(),
-    createdAt: timestamp("createdAt")
+    createdAt: timestamp("createdAt", { mode: "string" })
       .default(sql`now()`)
       .notNull(),
   },
@@ -119,10 +119,10 @@ export const endpoints = pgTable("Endpoint", {
   jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
   timeoutMs: integer("timeoutMs").default(5000),
   fireAndForget: boolean("fireAndForget").default(false).notNull(),
-  createdAt: timestamp("createdAt")
+  createdAt: timestamp("createdAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
-  updatedAt: timestamp("updatedAt")
+  updatedAt: timestamp("updatedAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
 });
@@ -134,10 +134,10 @@ export const messages = pgTable("Message", {
   role: text("role").notNull(),
   content: json("content").notNull(),
   jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
-  createdAt: timestamp("createdAt")
+  createdAt: timestamp("createdAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
-  updatedAt: timestamp("updatedAt")
+  updatedAt: timestamp("updatedAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
 });

@@ -6,14 +6,22 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes'
-import { Route as TaskIdEditRouteImport } from './routes/task/$id/edit'
-import { Route as TaskIdIndexRouteImport } from './routes/task/$id'
+import { Route as rootRouteImport } from './routes/~__root'
+import { Route as IndexRouteImport } from './routes/~index'
+import { Route as JobsIndexRouteImport } from './routes/~jobs/~index'
+import { Route as TaskIdEditRouteImport } from './routes/~task/~$id/~edit'
+import { Route as JobsIdEditRouteImport } from './routes/~jobs/~$id/~edit'
+import { Route as TaskIdIndexRouteImport } from './routes/~task/~$id/~index'
+import { Route as JobsIdIndexRouteImport } from './routes/~jobs/~$id/~index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobsIndexRoute = JobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TaskIdEditRoute = TaskIdEditRouteImport.update({
@@ -21,39 +29,80 @@ const TaskIdEditRoute = TaskIdEditRouteImport.update({
   path: '/task/$id/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JobsIdEditRoute = JobsIdEditRouteImport.update({
+  id: '/jobs/$id/edit',
+  path: '/jobs/$id/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TaskIdIndexRoute = TaskIdIndexRouteImport.update({
   id: '/task/$id/',
   path: '/task/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JobsIdIndexRoute = JobsIdIndexRouteImport.update({
+  id: '/jobs/$id/',
+  path: '/jobs/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/jobs': typeof JobsIndexRoute
+  '/jobs/$id': typeof JobsIdIndexRoute
   '/task/$id': typeof TaskIdIndexRoute
+  '/jobs/$id/edit': typeof JobsIdEditRoute
   '/task/$id/edit': typeof TaskIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/jobs': typeof JobsIndexRoute
+  '/jobs/$id': typeof JobsIdIndexRoute
   '/task/$id': typeof TaskIdIndexRoute
+  '/jobs/$id/edit': typeof JobsIdEditRoute
   '/task/$id/edit': typeof TaskIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/jobs/': typeof JobsIndexRoute
+  '/jobs/$id/': typeof JobsIdIndexRoute
   '/task/$id/': typeof TaskIdIndexRoute
+  '/jobs/$id/edit': typeof JobsIdEditRoute
   '/task/$id/edit': typeof TaskIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/task/$id' | '/task/$id/edit'
+  fullPaths:
+    | '/'
+    | '/jobs'
+    | '/jobs/$id'
+    | '/task/$id'
+    | '/jobs/$id/edit'
+    | '/task/$id/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/task/$id' | '/task/$id/edit'
-  id: '__root__' | '/' | '/task/$id/' | '/task/$id/edit'
+  to:
+    | '/'
+    | '/jobs'
+    | '/jobs/$id'
+    | '/task/$id'
+    | '/jobs/$id/edit'
+    | '/task/$id/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/jobs/'
+    | '/jobs/$id/'
+    | '/task/$id/'
+    | '/jobs/$id/edit'
+    | '/task/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  JobsIndexRoute: typeof JobsIndexRoute
+  JobsIdIndexRoute: typeof JobsIdIndexRoute
   TaskIdIndexRoute: typeof TaskIdIndexRoute
+  JobsIdEditRoute: typeof JobsIdEditRoute
   TaskIdEditRoute: typeof TaskIdEditRoute
 }
 
@@ -66,11 +115,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/jobs/': {
+      id: '/jobs/'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof JobsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/task/$id/edit': {
       id: '/task/$id/edit'
       path: '/task/$id/edit'
       fullPath: '/task/$id/edit'
       preLoaderRoute: typeof TaskIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jobs/$id/edit': {
+      id: '/jobs/$id/edit'
+      path: '/jobs/$id/edit'
+      fullPath: '/jobs/$id/edit'
+      preLoaderRoute: typeof JobsIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/task/$id/': {
@@ -80,12 +143,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaskIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/jobs/$id/': {
+      id: '/jobs/$id/'
+      path: '/jobs/$id'
+      fullPath: '/jobs/$id'
+      preLoaderRoute: typeof JobsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  JobsIndexRoute: JobsIndexRoute,
+  JobsIdIndexRoute: JobsIdIndexRoute,
   TaskIdIndexRoute: TaskIdIndexRoute,
+  JobsIdEditRoute: JobsIdEditRoute,
   TaskIdEditRoute: TaskIdEditRoute,
 }
 export const routeTree = rootRouteImport
