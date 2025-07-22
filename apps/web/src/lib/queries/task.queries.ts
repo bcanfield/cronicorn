@@ -2,8 +2,8 @@ import type { insertTasksSchema, patchTasksSchema } from "@tasks-app/api/schema"
 
 import { queryOptions } from "@tanstack/react-query";
 
-import apiClient from "./api-client";
-import formatApiError from "./format-api-error";
+import apiClient from "../api-client";
+import formatApiError from "../format-api-error";
 
 export const queryKeys = {
   LIST_TASKS: { queryKey: ["list-tasks"] },

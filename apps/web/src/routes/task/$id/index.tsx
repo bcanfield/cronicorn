@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import RoutePending from "@/web/components/route-pending";
 import dateFormatter from "@/web/lib/date-formatter";
-import { createTaskQueryOptions } from "@/web/lib/queries";
+import { createTaskQueryOptions } from "@/web/lib/queries/task.queries";
 import queryClient from "@/web/lib/query-client";
 
 export const Route = createFileRoute("/task/$id/")({

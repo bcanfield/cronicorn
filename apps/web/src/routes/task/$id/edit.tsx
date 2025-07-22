@@ -5,7 +5,7 @@ import { patchTasksSchema } from "@tasks-app/api/schema";
 import { useForm } from "react-hook-form";
 
 import RoutePending from "@/web/components/route-pending";
-import { createTaskQueryOptions, deleteTask, queryKeys, updateTask } from "@/web/lib/queries";
+import { createTaskQueryOptions, deleteTask, queryKeys, updateTask } from "@/web/lib/queries/task.queries";
 import queryClient from "@/web/lib/query-client";
 
 export const Route = createFileRoute("/task/$id/edit")({

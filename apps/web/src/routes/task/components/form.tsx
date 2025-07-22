@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { insertTasksSchema } from "@tasks-app/api/schema";
 import { useForm } from "react-hook-form";
 
-import { createTask, queryKeys } from "@/web/lib/queries";
+import { createTask, queryKeys } from "@/web/lib/queries/task.queries";
 
 export default function TaskForm() {
   const queryClient = useQueryClient();
