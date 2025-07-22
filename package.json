@@ -4,7 +4,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.7.0",
   "scripts": {
-    "dev": "pnpm run -r --parallel --aggregate-output dev",
+    "dev": "turbo run dev",
     "clean": "pnpm run -r --parallel clean && rm -rf node_modules",
     "build": "pnpm run -r build",
     "test": "pnpm run -r --parallel test",
@@ -12,5 +12,8 @@
     "db:push": "pnpm run -r --parallel db:push",
     "deploy": "pnpm build && pnpm run -r deploy",
     "typecheck": "pnpm run -r --parallel typecheck"
+  },
+  "dependencies": {
+    "turbo": "^2.5.5"
   }
 }
