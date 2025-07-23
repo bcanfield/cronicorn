@@ -25,6 +25,7 @@ function DashboardPage() {
           !
         </p>
         <p>You are currently on the dashboard route.</p>
+        <span>TODO: Add job list here</span>
       </CardContent>
     </Card>
   );
