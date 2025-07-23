@@ -19,7 +19,6 @@
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-router": "^1.129.5",
-    "@tanstack/react-table": "^8.21.3",
     "@tasks-app/api": "workspace:^",
     "@tasks-app/api-client": "workspace:^",
     "@tasks-app/eslint-config": "workspace:^",

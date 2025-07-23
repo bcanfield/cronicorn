@@ -2,6 +2,7 @@ import { useSession } from "@hono/auth-js/react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import RoutePending from "@/web/components/route-pending";
+import { DataTableDemo } from "@/web/routes/~dashboard/components/TEMP-TABLE";
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
 
 export const Route = createFileRoute("/dashboard/")({
@@ -25,7 +26,8 @@ function DashboardPage() {
           !
         </p>
         <p>You are currently on the dashboard route.</p>
-        <span>TODO: Add job list here</span>
+        {/* <span>TODO: Add job list here</span> */}
+        <DataTableDemo />
       </CardContent>
     </Card>
   );
