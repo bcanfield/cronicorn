@@ -13,10 +13,10 @@
   "dependencies": {
     "@tasks-app/api": "workspace:^",
     "@tasks-app/eslint-config": "workspace:^",
-    "@types/node": "^22.10.2",
-    "hono": "^4.6.15"
+    "@types/node": "22.10.2",
+    "hono": "4.6.15"
   },
   "devDependencies": {
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.3"
   }
 }

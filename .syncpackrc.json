@@ -1,0 +1,26 @@
+{
+    "$schema": "./node_modules/syncpack/dist/schema.json",
+    "source": ["package.json", "packages/*/package.json"],
+    "dependencyTypes": ["prod", "dev"],
+    "semverGroups": [
+    {
+      "dependencyTypes": [
+        "prod",
+        "resolutions",
+        "overrides",
+        "pnpmOverrides",
+        "local"
+      ],
+      "range": ""
+    },
+    {
+      "dependencyTypes": ["dev"],
+      "range": "~"
+    },
+    {
+      "dependencyTypes": ["peer"],
+      "range": "^"
+    }
+  ]
+  }
+  

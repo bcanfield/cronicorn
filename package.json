@@ -12,9 +12,14 @@
     "lint:fix": "pnpm run -r --parallel lint:fix",
     "db:push": "pnpm run -r --parallel db:push",
     "db:generate": "pnpm run -r --parallel db:generate",
-    "typecheck": "pnpm run -r --parallel typecheck"
+    "typecheck": "pnpm run -r --parallel typecheck",
+    "sync:check": "syncpack lint",
+    "sync:fix": "syncpack fix"
   },
   "dependencies": {
-    "turbo": "^2.5.5"
+    "turbo": "2.5.5"
+  },
+  "devDependencies": {
+    "syncpack": "~14.0.0-alpha.18"
   }
 }

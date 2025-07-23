@@ -10,8 +10,8 @@
     "./create-config": "./create-config.js"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.12.0",
-    "eslint": "^9.17.0",
-    "eslint-plugin-format": "^0.1.3"
+    "@antfu/eslint-config": "~3.12.0",
+    "eslint": "~9.17.0",
+    "eslint-plugin-format": "~0.1.3"
   }
 }
