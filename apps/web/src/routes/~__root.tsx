@@ -12,7 +12,7 @@ export const Route = createRootRouteWithContext<{
     <>
       {/* <AppNavbar /> */}
 
-      <main className="container" style={{ marginTop: "1rem" }}>
+      <main className="container mt-4">
         <Outlet />
         <TanStackRouterDevtools />
       </main>

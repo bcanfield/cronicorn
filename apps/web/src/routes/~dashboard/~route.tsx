@@ -1,22 +1,25 @@
 import { signOut } from "@hono/auth-js/react";
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
+import { Button } from "@workspace/ui/components/button";
 
 export const Route = createFileRoute("/dashboard")({
   pendingComponent: () => (
-    <div className="p-2 grid gap-2 place-items-center">
-      <h3 className="text-xl">Loading...</h3>
-      <p>Please wait while we load your dashboard</p>
+    <div className="p-4">
+      <Alert>
+        <AlertTitle>Loading</AlertTitle>
+        <AlertDescription>
+          <Loader2 className="animate-spin" />
+        </AlertDescription>
+      </Alert>
     </div>
   ),
   async beforeLoad({ context, location }) {
     const session = await context.session; // Wait for auth to be done loading
     if (session?.status !== "authenticated") {
-      throw redirect({
-        to: "/login",
-        search: {
-          redirect: location.href,
-        },
-      });
+      throw redirect({ to: "/login", search: { redirect: location.href } });
     }
   },
   component: AuthLayout,
@@ -34,26 +37,14 @@ function AuthLayout() {
     <div className="p-2 h-full">
       <h1>Authenticated Route</h1>
       <p>This route's content is only visible to authenticated users.</p>
-      <ul className="py-2 flex gap-2">
-        <li>
-          <Link
-            to="/dashboard"
-            className="hover:underline data-[status='active']:font-semibold"
-          >
-            Dashboard
-          </Link>
-        </li>
-
-        <li>
-          <button
-            type="button"
-            className="hover:underline"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        </li>
-      </ul>
+      <div className="py-2 flex gap-2">
+        <Button asChild variant="ghost">
+          <Link to="/dashboard">Dashboard</Link>
+        </Button>
+        <Button variant="destructive" onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
       <hr />
       <Outlet />
     </div>

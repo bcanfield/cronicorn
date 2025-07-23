@@ -2,6 +2,9 @@ import { signIn } from "@hono/auth-js/react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
+import { Button } from "@workspace/ui/components/button";
+
 import RoutePending from "../components/route-pending";
 
 export const Route = createFileRoute("/login")({
@@ -27,23 +30,28 @@ function LoginComponent() {
   const search = Route.useSearch();
 
   return (
-    <div className="p-2 grid gap-2 place-items-center">
-      <h3 className="text-xl">Login page</h3>
+    <div className="p-6 space-y-4">
+      <h3 className="text-2xl font-semibold">Login</h3>
       {search.redirect
         ? (
-            <p className="text-red-500">You need to login to access this page.</p>
+            <Alert variant="destructive">
+              <AlertDescription>You need to login to access this page.</AlertDescription>
+              <AlertTitle>Access denied</AlertTitle>
+            </Alert>
           )
         : (
-            <p>Login to see all the cool content in here.</p>
+            <p>You need to login to access this page.</p>
           )}
       <Link
         to="/"
-        className="hover:underline data-[status='active']:font-semibold"
+        className="text-blue-500 hover:underline"
       >
         Return Home
       </Link>
 
-      <button type="button" onClick={async () => await signIn("github")}>Sign in</button>
+      <Button onClick={() => signIn("github")}>
+        Sign in with GitHub
+      </Button>
     </div>
   );
 }

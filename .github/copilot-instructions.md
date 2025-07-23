@@ -134,3 +134,6 @@ Use your editor/CLI’s search to quickly locate code by entity name or feature:
 * Core components: `Button`, `Card`, etc.
 * Global styles: `global.css`
 * Utilities for theming
+
+## ADDITIONAL REQUIREMENTS
+* When using colors for tailwind, NEVER use a custom color. ALWAYS reference a theme var from `packages/ui/src/styles/globals.css`. (ie. use `text-primary` instead of `text-white`)

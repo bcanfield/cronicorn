@@ -1,19 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { insertJobsSchema } from "@tasks-app/api/schema";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { createJob, queryKeys } from "@/web/lib/queries/jobs.queries";
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
+import { Button } from "@workspace/ui/components/button";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@workspace/ui/components/form";
+import { Textarea } from "@workspace/ui/components/textarea";
 
 export default function JobForm() {
   const queryClient = useQueryClient();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setFocus,
-    formState: { errors },
-  } = useForm<insertJobsSchema>({
+  const form = useForm<insertJobsSchema>({
     defaultValues: { definitionNL: "" },
     resolver: zodResolver(insertJobsSchema),
   });
@@ -21,36 +20,42 @@ export default function JobForm() {
   const createMutation = useMutation({
     mutationFn: createJob,
     onSuccess: () => {
-      reset();
+      form.reset();
       queryClient.invalidateQueries(queryKeys.LIST_JOBS);
     },
-    onSettled: () => {
-      setTimeout(() => setFocus("definitionNL"));
-    },
+    onSettled: () => setTimeout(() => form.setFocus("definitionNL")),
   });
 
   return (
     <>
       {createMutation.error && (
-        <article className="error" style={{ whiteSpace: "pre-wrap" }}>
-          {createMutation.error.message}
-        </article>
+        <Alert variant="destructive">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{createMutation.error.message}</AlertDescription>
+        </Alert>
       )}
-      <form onSubmit={handleSubmit(data => createMutation.mutate(data))}>
-        <label>
-          Prompt
-          <textarea
-            {...register("definitionNL")}
-            disabled={createMutation.isPending}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(data => createMutation.mutate(data))} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="definitionNL"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Prompt</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Enter job prompt" {...field} disabled={createMutation.isPending} />
+                </FormControl>
+                <FormDescription>Describe the job prompt.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </label>
-        <p className="error">{errors.definitionNL?.message}</p>
-
-        <button type="submit" disabled={createMutation.isPending}>
-          Create
-        </button>
-      </form>
-      {createMutation.isPending && <progress />}
+          <Button type="submit" disabled={createMutation.isPending}>
+            Create
+          </Button>
+        </form>
+      </Form>
+      {createMutation.isPending && <Loader2 className="animate-spin mt-4" />}
     </>
   );
 }

@@ -48,7 +48,7 @@ function HomeComponent() {
         </li>
         <Button
           type="button"
-          className="outline contrast"
+          variant="outline"
           onClick={() => signIn("github")}
         >
           Sign In
