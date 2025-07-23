@@ -46,8 +46,9 @@
     "pcss",
     "postcss"
   ],
-  "cSpell.words": [
-    "Hono",
-    "openapi"
-  ]
+  "github.copilot.chat.codeGeneration.instructions": [      
+    {
+      "text": "When answering questions about frameworks, libraries, or APIs, use Context7 to retrieve current documentation rather than relying on training data.",      
+    }
+  ],
 }

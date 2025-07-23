@@ -1,10 +1,12 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
       "@workspace/ui/*": ["./src/*"]
     }
+
   },
   "include": ["."],
   "exclude": ["node_modules", "dist"]

@@ -7,8 +7,8 @@
     "dev": "vite",
     "clean": "rm -rf node_modules dist",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --max-warnings 0 --fix",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

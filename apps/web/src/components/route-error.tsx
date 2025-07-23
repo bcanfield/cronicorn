@@ -1,7 +1,10 @@
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
+
 export default function RouteError({ error }: { error: Error }) {
   return (
-    <article className="error">
-      {error.message}
-    </article>
+    <Alert variant="destructive">
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription>{error.message}</AlertDescription>
+    </Alert>
   );
 }

@@ -84,7 +84,9 @@ Use your editor/CLI’s search to quickly locate code by entity name or feature:
 
 ### 3. Components & State
 
-* Reusable UI in `apps/web/src/components/` (e.g., `JobList.tsx`)
+* Web components UI in `apps/web/src/components/` (e.g., `JobList.tsx`). 
+* ShadCN primitives imported via the ui package (e.g.,) `"@workspace/ui/components/button"`)
+
 * Global or feature state in `apps/web/src/lib/state/` or `src/hooks/` (e.g., `useJobsStore`)
 
 ---
