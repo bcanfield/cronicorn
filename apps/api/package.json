@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc && tsc-alias",
     "lint": "eslint .",
-    "lint:fix": "npm run lint --fix",
+    "lint:fix": "eslint . --fix",
     "test": "cross-env NODE_ENV=test vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

@@ -9,107 +9,107 @@ import { notFoundSchema } from "@/api/lib/constants";
 const tags = ["Jobs"];
 
 export const list = createRoute({
-    path: "/jobs",
-    method: "get",
-    tags,
-    responses: {
-        [HttpStatusCodes.OK]: jsonContent(
-            z.array(selectJobsSchema),
-            "The list of jobs",
-        ),
-    },
+  path: "/jobs",
+  method: "get",
+  tags,
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.array(selectJobsSchema),
+      "The list of jobs",
+    ),
+  },
 });
 
 export const create = createRoute({
-    path: "/jobs",
-    method: "post",
-    tags,
-    request: {
-        body: jsonContentRequired(
-            insertJobsSchema,
-            "The job to create",
-        ),
-    },
-    responses: {
-        [HttpStatusCodes.OK]: jsonContent(
-            selectJobsSchema,
-            "The created job",
-        ),
-        [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-            createErrorSchema(insertJobsSchema),
-            "Validation error(s)",
-        ),
-    },
+  path: "/jobs",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContentRequired(
+      insertJobsSchema,
+      "The job to create",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectJobsSchema,
+      "The created job",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(insertJobsSchema),
+      "Validation error(s)",
+    ),
+  },
 });
 
 export const getOne = createRoute({
-    path: "/jobs/{id}",
-    method: "get",
-    tags,
-    request: {
-        params: IdUUIDParamsSchema,
-    },
-    responses: {
-        [HttpStatusCodes.OK]: jsonContent(
-            selectJobsSchema,
-            "The requested job",
-        ),
-        [HttpStatusCodes.NOT_FOUND]: jsonContent(
-            notFoundSchema,
-            "Job not found",
-        ),
-        [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-            createErrorSchema(IdUUIDParamsSchema),
-            "Invalid id",
-        ),
-    },
+  path: "/jobs/{id}",
+  method: "get",
+  tags,
+  request: {
+    params: IdUUIDParamsSchema,
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectJobsSchema,
+      "The requested job",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "Job not found",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(IdUUIDParamsSchema),
+      "Invalid id",
+    ),
+  },
 });
 
 export const patch = createRoute({
-    path: "/jobs/{id}",
-    method: "patch",
-    tags,
-    request: {
-        params: IdUUIDParamsSchema,
-        body: jsonContentRequired(
-            patchJobsSchema,
-            "The job updates",
-        ),
-    },
-    responses: {
-        [HttpStatusCodes.OK]: jsonContent(
-            selectJobsSchema,
-            "The updated job",
-        ),
-        [HttpStatusCodes.NOT_FOUND]: jsonContent(
-            notFoundSchema,
-            "Job not found",
-        ),
-        [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-            createErrorSchema(patchJobsSchema).or(createErrorSchema(IdUUIDParamsSchema)),
-            "Validation error(s)",
-        ),
-    },
+  path: "/jobs/{id}",
+  method: "patch",
+  tags,
+  request: {
+    params: IdUUIDParamsSchema,
+    body: jsonContentRequired(
+      patchJobsSchema,
+      "The job updates",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      selectJobsSchema,
+      "The updated job",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "Job not found",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(patchJobsSchema).or(createErrorSchema(IdUUIDParamsSchema)),
+      "Validation error(s)",
+    ),
+  },
 });
 
 export const remove = createRoute({
-    path: "/jobs/{id}",
-    method: "delete",
-    tags,
-    request: {
-        params: IdUUIDParamsSchema,
-    },
-    responses: {
-        [HttpStatusCodes.NO_CONTENT]: { description: "Job deleted" },
-        [HttpStatusCodes.NOT_FOUND]: jsonContent(
-            notFoundSchema,
-            "Job not found",
-        ),
-        [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-            createErrorSchema(IdUUIDParamsSchema),
-            "Invalid id",
-        ),
-    },
+  path: "/jobs/{id}",
+  method: "delete",
+  tags,
+  request: {
+    params: IdUUIDParamsSchema,
+  },
+  responses: {
+    [HttpStatusCodes.NO_CONTENT]: { description: "Job deleted" },
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "Job not found",
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(IdUUIDParamsSchema),
+      "Invalid id",
+    ),
+  },
 });
 
 export type ListRoute = typeof list;

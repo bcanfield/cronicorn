@@ -10,14 +10,14 @@ import jobs from "./jobs/jobs.index";
 import tasks from "./tasks/tasks.index";
 
 export function registerRoutes(app: AppOpenAPI) {
-    return app
-        .route("/", index)
-        .route("/", tasks)
-        .route("/", jobs);
+  return app
+    .route("/", index)
+    .route("/", tasks)
+    .route("/", jobs);
 }
 
 // stand alone router type used for api client
 export const router = registerRoutes(
-    createRouter().basePath(BASE_PATH),
+  createRouter().basePath(BASE_PATH),
 );
 export type router = typeof router;

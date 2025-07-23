@@ -9,6 +9,7 @@
     "build": "pnpm run -r build",
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
+    "lint:fix": "pnpm run -r --parallel lint:fix",
     "db:push": "pnpm run -r --parallel db:push",
     "db:generate": "pnpm run -r --parallel db:generate",
     "typecheck": "pnpm run -r --parallel typecheck"
