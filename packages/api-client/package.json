@@ -3,6 +3,14 @@
   "type": "module",
   "version": "1.0.0",
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "dev": "tsc --watch",
     "clean": "rm -rf node_modules dist",
@@ -11,12 +19,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tasks-app/api": "workspace:^",
-    "@tasks-app/eslint-config": "workspace:^",
+    "@tasks-app/api": "workspace:*",
+    "@tasks-app/eslint-config": "workspace:*",
     "@types/node": "22.10.2",
-    "hono": "4.6.15"
+    "hono": "4.8.5"
   },
   "devDependencies": {
-    "typescript": "~5.7.3"
+    "typescript": "~5.8.3"
   }
 }

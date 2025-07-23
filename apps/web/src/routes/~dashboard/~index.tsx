@@ -2,7 +2,7 @@ import { useSession } from "@hono/auth-js/react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import RoutePending from "@/web/components/route-pending";
-import { DataTableDemo } from "@/web/routes/~dashboard/components/TEMP-TABLE";
+import { DataTableDemo } from "@/web/routes/~dashboard/components/temp-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
 
 export const Route = createFileRoute("/dashboard/")({
