@@ -1,6 +1,5 @@
 import { signIn } from "@hono/auth-js/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import * as React from "react";
 
 import { Button } from "@workspace/ui/components/button";
 

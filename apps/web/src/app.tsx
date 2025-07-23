@@ -6,8 +6,6 @@ import { routeTree } from "@/web/route-tree.gen";
 
 import type { Session } from "./routes/~__root";
 
-// import { useAuth } from "./auth";
-
 const router = createRouter({
   routeTree,
   context: {
@@ -23,12 +21,11 @@ declare module "@tanstack/react-router" {
 }
 
 let resolveAuthClient: (client: Session) => void;
-export const authClient: Promise<Session> = new Promise(
+const authClient: Promise<Session> = new Promise(
   (resolve) => { resolveAuthClient = resolve; },
 );
 
 export default function App() {
-  // const auth = useAuth();
   const data = useSession();
   useEffect(() => {
     if (data.status === "loading")

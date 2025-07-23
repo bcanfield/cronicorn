@@ -1,9 +1,6 @@
-import { signIn, useSession } from "@hono/auth-js/react";
-import { createFileRoute, Link, redirect, useRouter, useRouterState } from "@tanstack/react-router";
-import * as React from "react";
+import { signIn } from "@hono/auth-js/react";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { z } from "zod";
-
-const fallback = "/dashboard" as const;
 
 export const Route = createFileRoute("/login")({
   validateSearch: z.object({
@@ -15,12 +12,10 @@ export const Route = createFileRoute("/login")({
       <p>Please wait while we check your authentication status.</p>
     </div>
   ),
-  async beforeLoad({ context, location }) {
+  async beforeLoad({ context }) {
     const session = await context.session; // Wait for auth to be done loading
-    console.log("SLogin ession data:", session, location);
 
     if (session?.status === "authenticated") {
-      console.log("User already authenticated, redirecting to dashboard");
       throw redirect({
         to: "/dashboard",
       });

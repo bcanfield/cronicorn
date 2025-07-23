@@ -10,9 +10,7 @@ export const Route = createFileRoute("/dashboard")({
   ),
   async beforeLoad({ context, location }) {
     const session = await context.session; // Wait for auth to be done loading
-    console.log("Session data:", session);
     if (session?.status !== "authenticated") {
-      console.log("User not authenticated, redirecting to login");
       throw redirect({
         to: "/login",
         search: {
@@ -26,6 +24,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function AuthLayout() {
   const handleLogout = () => {
+    // eslint-disable-next-line no-alert
     if (window.confirm("Are you sure you want to logout?")) {
       signOut();
     }
