@@ -1,9 +1,12 @@
 import { useSession } from "@hono/auth-js/react";
 import { createFileRoute } from "@tanstack/react-router";
-import * as React from "react";
+
+import RoutePending from "@/web/components/route-pending";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage,
+  pendingComponent: RoutePending,
+
 });
 
 function DashboardPage() {

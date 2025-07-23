@@ -3,8 +3,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Button } from "@workspace/ui/components/button";
 
+import RoutePending from "../components/route-pending";
+
 export const Route = createFileRoute("/")({
   component: HomeComponent,
+  pendingComponent: RoutePending,
+
 });
 
 function HomeComponent() {

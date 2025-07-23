@@ -2,16 +2,14 @@ import { signIn } from "@hono/auth-js/react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
+import RoutePending from "../components/route-pending";
+
 export const Route = createFileRoute("/login")({
   validateSearch: z.object({
     redirect: z.string().optional().catch(""),
   }),
-  pendingComponent: () => (
-    <div className="p-2 grid gap-2 place-items-center">
-      <h3 className="text-xl">Loading...</h3>
-      <p>Please wait while we check your authentication status.</p>
-    </div>
-  ),
+  pendingComponent: RoutePending,
+
   async beforeLoad({ context }) {
     const session = await context.session; // Wait for auth to be done loading
 
