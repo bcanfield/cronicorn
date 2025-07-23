@@ -12,7 +12,7 @@ export const Route = createRootRouteWithContext<{
     <>
       {/* <AppNavbar /> */}
 
-      <main className="container mt-4">
+      <main className="container   mx-auto">
         <Outlet />
         <TanStackRouterDevtools />
       </main>
