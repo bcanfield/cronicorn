@@ -14,7 +14,9 @@
     "db:generate": "pnpm run -r --parallel db:generate",
     "typecheck": "pnpm run -r --parallel typecheck",
     "sync:check": "syncpack lint",
-    "sync:fix": "syncpack fix"
+    "sync:fix": "syncpack fix",
+    "kill": "pnpx kill-port 3000 9999"
+
   },
   "dependencies": {
     "turbo": "2.5.5"

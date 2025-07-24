@@ -1,11 +1,20 @@
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
+import path from "node:path";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-// https://vite.dev/config/
+/** @type {import('vite').UserConfig} */
 export default defineConfig({
+  resolve: {
+    alias: {
+      // `@/web/foo` → `<projectRoot>/src/foo`
+      "@/web": path.resolve(__dirname, "src"),
+      // if you import `@workspace/ui/...`
+      "@workspace/ui": path.resolve(__dirname, "../../packages/ui/src"),
+    },
+  },
   plugins: [
     tsconfigPaths(),
     tailwindcss(),
@@ -20,6 +29,7 @@ export default defineConfig({
     }),
     react(),
   ],
+
   server: {
     port: 3000,
     proxy: {

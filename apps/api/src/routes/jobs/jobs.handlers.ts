@@ -13,6 +13,7 @@ import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } fro
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const params = c.req.valid("query");
+  console.log({ params });
   // Build full query options (pagination, sorting, filtering)
   const options = buildQueryOptions(
     params,
@@ -20,13 +21,15 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
     ["definitionNL", "createdAt", "updatedAt", "nextRunAt"] as const,
     ["status", "userId"] as const,
   );
+  console.log({ options });
   const records = await db.query.jobs.findMany(options);
   return c.json(records);
 };
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
+  const authUser = c.get("authUser");
   const jobInput = c.req.valid("json");
-  const [inserted] = await db.insert(jobs).values(jobInput).returning();
+  const [inserted] = await db.insert(jobs).values({ ...jobInput, userId: authUser.user!.id }).returning();
   return c.json(inserted, HttpStatusCodes.OK);
 };
 

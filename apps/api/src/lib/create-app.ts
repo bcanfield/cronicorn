@@ -34,6 +34,17 @@ export default function createApp() {
   if (env.NODE_ENV === "production" || !env.FAKE_AUTH) {
     app.use("*", verifyAuth());
   }
+  else {
+    app.use("*", async (c, next) => {
+      // @ts-expect-error: TODO: FIX THIS BY ADDING THIS TYPE MANUALLY TO THE CONTEXT
+      c.set("authUser", {
+        id: "dev-user",
+        name: "Dev User",
+        email: "devuser@example.com",
+      });
+      return next();
+    });
+  }
   app.notFound(notFound)
     .onError(onError)
     .use(serveEmojiFavicon("📝"))
