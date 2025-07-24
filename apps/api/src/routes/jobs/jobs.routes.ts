@@ -5,13 +5,21 @@ import { createErrorSchema, IdUUIDParamsSchema } from "stoker/openapi/schemas";
 
 import { insertJobsSchema, patchJobsSchema, selectJobsSchema } from "@/api/db/schema";
 import { notFoundSchema } from "@/api/lib/constants";
+import { createFilteringParamsSchema, createSortingParamsSchema, paginationParamsSchema } from "@/api/lib/query-params";
 
 const tags = ["Jobs"];
+
+// Composite query schema: pagination, sorting, filtering
+const listQuerySchema = z.object({})
+  .merge(paginationParamsSchema)
+  .merge(createSortingParamsSchema(["createdAt", "updatedAt", "nextRunAt"] as const))
+  .merge(createFilteringParamsSchema(["status", "userId"] as const));
 
 export const list = createRoute({
   path: "/jobs",
   method: "get",
   tags,
+  request: { query: listQuerySchema },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       z.array(selectJobsSchema),

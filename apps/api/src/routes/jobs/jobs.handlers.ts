@@ -7,12 +7,21 @@ import type { AppRouteHandler } from "@/api/lib/types";
 import db from "@/api/db";
 import { jobs } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
+import { buildQueryOptions } from "@/api/lib/query-utils";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./jobs.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-  const all = await db.query.jobs.findMany();
-  return c.json(all);
+  const params = c.req.valid("query");
+  // Build full query options (pagination, sorting, filtering)
+  const options = buildQueryOptions(
+    params,
+    jobs,
+    ["createdAt", "updatedAt", "nextRunAt"] as const,
+    ["status", "userId"] as const,
+  );
+  const records = await db.query.jobs.findMany(options);
+  return c.json(records);
 };
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
