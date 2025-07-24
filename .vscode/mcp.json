@@ -36,6 +36,12 @@
         "REDIS_PWD=supersecret",
         "mcp/redis"
       ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
     }
   }
 }

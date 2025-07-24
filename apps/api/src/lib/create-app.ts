@@ -29,16 +29,16 @@ export default function createApp() {
       },
     )
     .use("/auth/*", authHandler());
-  if (env.NODE_ENV === "production") {
+
+  // In non-production (dev/test), allow bypassing auth
+  if (env.NODE_ENV === "production" || !env.FAKE_AUTH) {
     app.use("*", verifyAuth());
   }
   app.notFound(notFound)
-    .onError(onError);
-  app.use(serveEmojiFavicon("📝"));
-  app.use(pinoLogger());
+    .onError(onError)
+    .use(serveEmojiFavicon("📝"))
+    .use(pinoLogger());
 
-  app.notFound(notFound);
-  app.onError(onError);
   return app;
 }
 

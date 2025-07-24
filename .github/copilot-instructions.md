@@ -34,6 +34,18 @@ Use your editor/CLI’s search to quickly locate code by entity name or feature:
 
 ---
 
+## 🤖 AI Tools (MCP Servers)
+
+Defined in `mcp.json` at the repo root. Copilot can invoke these specialized servers to work more efficiently when adding or modifying features:
+
+| Server                  | Type   | Purpose                                                | When to invoke                                                                                              |
+| ----------------------- | ------ | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| **Context7**            | stdio  | Extended project context retrieval                     | When generating code that requires cross-file/project-level context (e.g., entity schemas, shared types)    |
+| **taskmanager**         | stdio  | Plan and manage incremental development tasks          | When decomposing feature requests or modifications into ordered, trackable steps                            |
+| **sequential-thinking** | docker | Perform detailed, step-by-step reasoning before action | Always for complex features or ambiguous requests—let Copilot think through the plan before generating code |
+| **redis**               | docker | Store and retrieve Copilot’s own context efficiently   | Before code generation or suggestion, to load or persist internal context and improve suggestion continuity |
+
+
 ## 🧩 API (`apps/api`)
 
 **Framework:** [Hono](https://hono.dev)
