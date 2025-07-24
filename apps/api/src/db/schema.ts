@@ -92,6 +92,9 @@ export type insertJobsSchema = z.infer<typeof insertJobsSchema>;
 export const patchJobsSchema = insertJobsSchema.partial();
 export type patchJobsSchema = z.infer<typeof patchJobsSchema>;
 
+// Re-export query-schemas so UI can import ListJobsQuery
+export * from "./query-schemas";
+
 export const contextEntries = pgTable(
   "ContextEntry",
   {

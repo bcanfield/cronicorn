@@ -15,6 +15,9 @@ const listQuerySchema = z.object({})
   .merge(createSortingParamsSchema(["createdAt", "updatedAt", "nextRunAt"] as const))
   .merge(createFilteringParamsSchema(["status", "userId"] as const));
 
+// Type for validated query parameters of GET /jobs
+export type ListJobsQuery = z.infer<typeof listQuerySchema>;
+
 export const list = createRoute({
   path: "/jobs",
   method: "get",

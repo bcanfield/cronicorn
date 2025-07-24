@@ -1,4 +1,4 @@
-import type { insertJobsSchema, patchJobsSchema } from "@tasks-app/api/schema";
+import type { insertJobsSchema, ListJobsQuery, patchJobsSchema } from "@tasks-app/api/schema";
 
 import { queryOptions } from "@tanstack/react-query";
 
@@ -10,13 +10,19 @@ export const queryKeys = {
   LIST_JOB: (id: string) => ({ queryKey: [`list-job-${id}`] }),
 };
 
-export const jobsQueryOptions = queryOptions({
-  ...queryKeys.LIST_JOBS,
-  queryFn: async () => {
-    const response = await apiClient.api.jobs.$get();
-    return response.json();
-  },
-});
+/**
+ * React-Query options for listing jobs with dynamic query params
+ */
+export function jobsQueryOptions(params?: ListJobsQuery) {
+  return queryOptions({
+    ...queryKeys.LIST_JOBS,
+    queryKey: ["list-jobs", params],
+    queryFn: async () => {
+      const response = await apiClient.api.jobs.$get({ query: params });
+      return response.json();
+    },
+  });
+}
 
 export const createJobQueryOptions = (id: string) =>
   queryOptions({
