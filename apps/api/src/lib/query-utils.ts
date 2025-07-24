@@ -82,7 +82,9 @@ export function buildQueryOptions<
     const pagination = buildPagination(params);
     // ordering
     const colsMap = pickColumns(table, sortable as any);
-    const orderBy = buildOrderBy(params, colsMap);
+    // explicit default sort by first allowed key if none provided
+    const orderBy
+        = buildOrderBy(params, colsMap) ?? [asc(colsMap[sortable[0]])];
     // filtering
     const filters: Record<string, string> = {};
     for (const key of filterable) {

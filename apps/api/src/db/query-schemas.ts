@@ -5,7 +5,7 @@ import { createFilteringParamsSchema, createSortingParamsSchema, paginationParam
 // Zod schema for GET /jobs query params (pagination, sorting, filtering)
 export const listJobsQuerySchema = z.object({})
     .merge(paginationParamsSchema)
-    .merge(createSortingParamsSchema(["createdAt", "updatedAt", "nextRunAt"] as const))
+    .merge(createSortingParamsSchema(["definitionNL", "createdAt", "updatedAt", "nextRunAt"] as const))
     .merge(createFilteringParamsSchema(["status", "userId"] as const));
 
 // TS type for validated GET /jobs query parameters

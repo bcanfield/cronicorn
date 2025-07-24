@@ -17,7 +17,7 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
   const options = buildQueryOptions(
     params,
     jobs,
-    ["createdAt", "updatedAt", "nextRunAt"] as const,
+    ["definitionNL", "createdAt", "updatedAt", "nextRunAt"] as const,
     ["status", "userId"] as const,
   );
   const records = await db.query.jobs.findMany(options);

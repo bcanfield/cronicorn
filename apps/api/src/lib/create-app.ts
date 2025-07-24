@@ -3,6 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 
+import env from "@/api/env";
 import { pinoLogger } from "@/api/middlewares/pino-logger";
 
 import type { AppBindings, AppOpenAPI } from "./types";
@@ -27,9 +28,11 @@ export default function createApp() {
         return next();
       },
     )
-    .use("/auth/*", authHandler())
-    .use("*", verifyAuth())
-    .notFound(notFound)
+    .use("/auth/*", authHandler());
+  if (env.NODE_ENV === "production") {
+    app.use("*", verifyAuth());
+  }
+  app.notFound(notFound)
     .onError(onError);
   app.use(serveEmojiFavicon("📝"));
   app.use(pinoLogger());

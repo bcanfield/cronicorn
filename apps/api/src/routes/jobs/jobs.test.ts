@@ -133,4 +133,52 @@ describe("jobs routes", () => {
     const response = await client.api.jobs[":id"].$delete({ param: { id: createdId } });
     expect(response.status).toBe(204);
   });
+
+  // Additional tests for pagination, sorting, filtering
+  describe("get /jobs with pagination, sorting, filtering", () => {
+    let ids: string[];
+    beforeAll(async () => {
+      await resetDb();
+      // Seed three jobs
+      ids = [];
+      for (const name of ["A-job", "B-job", "C-job"]) {
+        const response = await client.api.jobs.$post({
+          json: { definitionNL: name },
+        });
+        expect(response.status).toBe(200);
+        if (response.status === 200) {
+          const json = await response.json();
+          ids.push(json.id);
+        }
+      }
+      // Update statuses: first ACTIVE, last ARCHIVED
+      await client.api.jobs[":id"].$patch({ param: { id: ids[0] }, json: { status: "ACTIVE" } });
+      await client.api.jobs[":id"].$patch({ param: { id: ids[2] }, json: { status: "ARCHIVED" } });
+    });
+
+    it("paginates results", async () => {
+      const response = await client.api.jobs.$get({ query: { page: "1", pageSize: "2" } });
+      expect(response.status).toBe(200);
+      const list = await response.json();
+      expect(list).toHaveLength(2);
+      expect(list[0].definitionNL).toBe("A-job");
+      expect(list[1].definitionNL).toBe("B-job");
+    });
+
+    it("sorts results by createdAt desc", async () => {
+      const response = await client.api.jobs.$get({ query: { sortBy: "createdAt", sortDirection: "desc" } });
+      expect(response.status).toBe(200);
+      const list = await response.json();
+      expect(list[0].definitionNL).toBe("C-job");
+      expect(list[2].definitionNL).toBe("A-job");
+    });
+
+    it("filters results by status", async () => {
+      const response = await client.api.jobs.$get({ query: { status: "ACTIVE" } });
+      expect(response.status).toBe(200);
+      const list = await response.json();
+      expect(list.length).toBe(1);
+      expect(list[0].status).toBe("ACTIVE");
+    });
+  });
 });
