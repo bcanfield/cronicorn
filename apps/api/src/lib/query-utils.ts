@@ -49,6 +49,9 @@ export function buildOrderBy(
  * Build a where function for Drizzle based on simple equality filters.
  * Returns undefined if no filters provided or empty.
  */
+/**
+ * Build a where function for Drizzle based on simple equality filters.
+ */
 export function buildWhere(
     filters?: Record<string, string>,
 ): ((fields: any, ops: any) => any) | undefined {
@@ -59,6 +62,50 @@ export function buildWhere(
         ops.and(
             ...entries.map(([key, value]) => ops.eq((fields as any)[key], value)),
         );
+}
+
+/**
+ * Build a where function for Drizzle based on advanced filters with operators.
+ */
+export function buildAdvancedWhere(
+    filters?: Record<string, string>,
+): ((fields: any, ops: any) => any) | undefined {
+    if (!filters || Object.keys(filters).length === 0)
+        return undefined;
+    return (fields: any, ops: any) => {
+        const clauses = Object.entries(filters).map(([key, value]) => {
+            const idx = key.lastIndexOf("_");
+            let fieldName = key;
+            let operator = "eq";
+            if (idx > 0) {
+                const suffix = key.slice(idx + 1);
+                if (["eq", "ne", "contains", "gt", "gte", "lt", "lte"].includes(suffix)) {
+                    operator = suffix;
+                    fieldName = key.slice(0, idx);
+                }
+            }
+            const column = (fields as any)[fieldName];
+            switch (operator) {
+                case "eq":
+                    return ops.eq(column, value);
+                case "ne":
+                    return ops.ne(column, value);
+                case "contains":
+                    return ops.like(column, `%${value}%`);
+                case "gt":
+                    return ops.gt(column, value);
+                case "gte":
+                    return ops.gte(column, value);
+                case "lt":
+                    return ops.lt(column, value);
+                case "lte":
+                    return ops.lte(column, value);
+                default:
+                    return ops.eq(column, value);
+            }
+        });
+        return ops.and(...clauses);
+    };
 }
 
 /**
@@ -85,15 +132,28 @@ export function buildQueryOptions<
     // explicit default sort by first allowed key if none provided
     const orderBy
         = buildOrderBy(params, colsMap) ?? [asc(colsMap[sortable[0]])];
-    // filtering
+    // filtering: include plain fields and operator-suffixed fields (e.g., status_ne)
     const filters: Record<string, string> = {};
-    for (const key of filterable) {
-        const val = params[key];
-        if (val !== undefined) {
+    const validOps = ["eq", "ne", "contains", "gt", "gte", "lt", "lte"];
+    for (const [key, val] of Object.entries(params)) {
+        if (typeof val !== "string")
+            continue;
+        if (filterable.includes(key as any)) {
+            // plain eq
             filters[key] = val;
         }
+        else {
+            // advanced operator: field_op
+            const parts = key.split("_");
+            if (parts.length === 2) {
+                const [field, op] = parts;
+                if (filterable.includes(field as any) && validOps.includes(op)) {
+                    filters[key] = val;
+                }
+            }
+        }
     }
-    const where = buildWhere(filters);
+    const where = buildAdvancedWhere(filters);
     return {
         ...pagination,
         ...(orderBy ? { orderBy } : {}),

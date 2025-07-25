@@ -189,4 +189,96 @@ describe("jobs routes", () => {
       expect(list[0].status).toBe("ACTIVE");
     });
   });
+
+  // Advanced filtering tests
+  describe("get /jobs with advanced filtering", () => {
+    const times = [
+      "2025-01-01T00:00:00.000Z",
+      "2025-06-01T00:00:00.000Z",
+      "2025-10-01T00:00:00.000Z",
+    ];
+    beforeAll(async () => {
+      await resetDb();
+      // Recreate test user
+      const [user] = await db.insert(users).values({ email: "seed@seed.com" }).returning();
+      const uid = user.id;
+      // Seed three jobs via API and capture createdAt
+      const jobsSeeded: Array<{ id: string; createdAt: string }> = [];
+      for (const def of ["foo-1", "bar-2", "foobar-3"]) {
+        const res = await client.api.jobs.$post({ json: { definitionNL: def, userId: uid } });
+        expect(res.status).toBe(200);
+        if (res.status === 200) {
+          const json = await res.json();
+          jobsSeeded.push({ id: json.id, createdAt: json.createdAt });
+        }
+      }
+      // Update statuses: first to ACTIVE, last to ARCHIVED
+      await client.api.jobs[":id"].$patch({ param: { id: jobsSeeded[0].id }, json: { status: "ACTIVE" } });
+      await client.api.jobs[":id"].$patch({ param: { id: jobsSeeded[2].id }, json: { status: "ARCHIVED" } });
+      // Use actual createdAt values for tests
+      times[0] = jobsSeeded[0].createdAt;
+      times[1] = jobsSeeded[1].createdAt;
+      times[2] = jobsSeeded[2].createdAt;
+    });
+    it("filters eq via status=ACTIVE", async () => {
+      const res = await client.api.jobs.$get({ query: { status: "ACTIVE" } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list).toHaveLength(1);
+      expect(list.every((j: any) => j.status === "ACTIVE")).toBe(true);
+    });
+    it("filters ne via status_ne=PAUSED", async () => {
+      const res = await client.api.jobs.$get({ query: { status_ne: "PAUSED" } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list).toHaveLength(2);
+      expect(list.every((j: any) => j.status !== "PAUSED")).toBe(true);
+    });
+    it("filters contains via definitionNL_contains=foo", async () => {
+      const res = await client.api.jobs.$get({ query: { definitionNL_contains: "foo" } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list).toHaveLength(2);
+      expect(list.every((j: any) => j.definitionNL.includes("foo"))).toBe(true);
+    });
+    it("filters gt via createdAt_gt", async () => {
+      const threshold = times[1];
+      const res = await client.api.jobs.$get({ query: { createdAt_gt: threshold } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list).toHaveLength(1);
+      expect(list.every((j: any) => new Date(j.createdAt) > new Date(threshold))).toBe(true);
+    });
+    it("filters lt via createdAt_lt", async () => {
+      const threshold = times[1];
+      const res = await client.api.jobs.$get({ query: { createdAt_lt: threshold } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list).toHaveLength(1);
+      expect(list.every((j: any) => new Date(j.createdAt) < new Date(threshold))).toBe(true);
+    });
+    it("filters gte via createdAt_gte", async () => {
+      const threshold = times[0];
+      const res = await client.api.jobs.$get({ query: { createdAt_gte: threshold } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list).toHaveLength(3);
+      expect(list.every((j: any) => new Date(j.createdAt) >= new Date(threshold))).toBe(true);
+    });
+    it("filters lte via createdAt_lte", async () => {
+      const threshold = times[2];
+      const res = await client.api.jobs.$get({ query: { createdAt_lte: threshold } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list).toHaveLength(3);
+      expect(list.every((j: any) => new Date(j.createdAt) <= new Date(threshold))).toBe(true);
+    });
+    it("combines filters status_ne=ARCHIVED and definitionNL_contains=bar", async () => {
+      const res = await client.api.jobs.$get({ query: { status_ne: "ARCHIVED", definitionNL_contains: "bar" } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list).toHaveLength(1);
+      expect(list.every((j: any) => j.status !== "ARCHIVED" && j.definitionNL.includes("bar"))).toBe(true);
+    });
+  });
 });

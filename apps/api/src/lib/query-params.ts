@@ -57,4 +57,28 @@ export function createFilteringParamsSchema<Fields extends readonly [string, ...
     // Cast to ZodObject with specific fields keys
     return z.object(shape) as z.ZodObject<Record<Fields[number], z.ZodOptional<z.ZodString>>>;
 }
+/**
+ * Create a Zod schema for advanced filtering params with operators (eq, ne, contains, gt, gte, lt, lte).
+ * Supports both plain value (shorthand for eq) and operator-suffixed fields.
+ * @param fields - Tuple of valid field names for filtering
+ */
+export function createAdvancedFilteringParamsSchema<Fields extends readonly [string, ...string[]]>(
+    fields: Fields,
+) {
+    const operators = ["eq", "ne", "contains", "gt", "gte", "lt", "lte"] as const;
+    const shape: Record<string, z.ZodOptional<z.ZodString>> = {};
+    for (const field of fields) {
+        // plain shorthand equals
+        shape[field] = z.string().optional();
+        for (const op of operators) {
+            shape[`${field}_${op}`] = z.string().optional();
+        }
+    }
+    return z.object(shape) as z.ZodObject<
+        Record<
+            Fields[number] | `${Fields[number]}_${typeof operators[number]}`,
+            z.ZodOptional<z.ZodString>
+        >
+    >;
+}
 export type FilteringParams<Fields extends readonly [string, ...string[]]> = z.infer<ReturnType<typeof createFilteringParamsSchema<Fields>>>;

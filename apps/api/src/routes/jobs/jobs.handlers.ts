@@ -5,7 +5,7 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import type { AppRouteHandler } from "@/api/lib/types";
 
 import db from "@/api/db";
-import { jobs } from "@/api/db/schema";
+import { jobs, JOBS_FILTER_KEYS, JOBS_SORT_KEYS } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 import { buildQueryOptions } from "@/api/lib/query-utils";
 
@@ -18,8 +18,8 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
   const options = buildQueryOptions(
     params,
     jobs,
-    ["definitionNL", "createdAt", "updatedAt", "nextRunAt"] as const,
-    ["status", "userId"] as const,
+    JOBS_SORT_KEYS,
+    JOBS_FILTER_KEYS,
   );
   console.log({ options });
   const records = await db.query.jobs.findMany(options);
