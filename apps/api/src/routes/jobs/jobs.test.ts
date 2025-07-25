@@ -1,9 +1,12 @@
 /* eslint-disable ts/ban-ts-comment */
+
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ZodIssueCode } from "zod";
 
+import db from "@/api/db";
+import { users } from "@/api/db/auth-schema";
 import resetDb from "@/api/db/reset";
 import env from "@/api/env";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
@@ -19,12 +22,17 @@ const client = testClient(createApp().route("/", router));
 
 describe("jobs routes", () => {
   let createdId: string;
+  let testUserId: string;
   const definitionNL = "Test job definition";
 
   beforeAll(async () => {
     await resetDb();
+    // Create a test user and store the ID for later use
+    const [user] = await db.insert(users).values({
+      email: "asdf@asdf.com",
+    }).returning();
+    testUserId = user.id;
   });
-
   it("post /jobs validates the body when creating", async () => {
     const response = await client.api.jobs.$post({
       // @ts-expect-error
@@ -40,7 +48,7 @@ describe("jobs routes", () => {
 
   it("post /jobs creates a job", async () => {
     const response = await client.api.jobs.$post({
-      json: { definitionNL },
+      json: { definitionNL, userId: testUserId },
     });
     expect(response.status).toBe(200);
     if (response.status === 200) {
@@ -51,7 +59,7 @@ describe("jobs routes", () => {
   });
 
   it("get /jobs lists all jobs", async () => {
-    const response = await client.api.jobs.$get();
+    const response = await client.api.jobs.$get({ query: {} });
     expect(response.status).toBe(200);
     if (response.status === 200) {
       const json = await response.json();

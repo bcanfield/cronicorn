@@ -26,10 +26,14 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
   return c.json(records);
 };
 
+// TODO: Get user from authUser
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
-  const authUser = c.get("authUser");
+  // const authUser = c.get("authUser");
   const jobInput = c.req.valid("json");
-  const [inserted] = await db.insert(jobs).values({ ...jobInput, userId: authUser.user!.id }).returning();
+  console.log({ jobInput });
+  const [inserted] = await db.insert(jobs).values({ ...jobInput }).returning();
+
+  // const [inserted] = await db.insert(jobs).values({ ...jobInput, userId: authUser.user!.id }).returning();
   return c.json(inserted, HttpStatusCodes.OK);
 };
 

@@ -12,6 +12,6 @@ async function resetDb() {
   console.log("Database reset completed.");
 }
 
-resetDb();
+// resetDb();
 
 export default resetDb;

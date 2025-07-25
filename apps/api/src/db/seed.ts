@@ -3,10 +3,10 @@ import { DEV_USER } from "@/api/lib/dev-user";
 
 import * as schema from "./schema";
 
-async function main() {
+async function seed() {
     console.log("🌱 Starting database seed...");
     // insert a dev user
-    await db.insert(schema.users).values({ ...DEV_USER });
+    await db.insert(schema.users).values({ ...DEV_USER }).onConflictDoNothing();
 
     // try {
     //     await seed(db, schema, { count: 10 });
@@ -19,4 +19,6 @@ async function main() {
     // }
 }
 
-main();
+export default seed;
+
+// seed();
