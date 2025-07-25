@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useCallbackRef } from "@workspace/ui/features//data-table/use-callback-ref";
+import { useCallbackRef } from "@/web/features/data-table/use-callback-ref";
 
 export function useDebouncedCallback<T extends (...args: never[]) => unknown>(
   callback: T,
