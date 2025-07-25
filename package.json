@@ -13,6 +13,7 @@
     "lint:fix": "pnpm run -r --parallel lint:fix",
     "db:push": "pnpm run -r --parallel db:push",
     "db:generate": "pnpm run -r --parallel db:generate",
+    "db:seed": "pnpm run -r --parallel db:seed",
     "typecheck": "pnpm run -r --parallel typecheck",
     "sync:check": "syncpack lint",
     "sync:fix": "syncpack fix",
