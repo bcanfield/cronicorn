@@ -1,3 +1,5 @@
+/* eslint-disable ts/no-redeclare */
+
 import { z } from "@hono/zod-openapi";
 
 import { createAdvancedFilteringParamsSchema, createSortingParamsSchema, paginationParamsSchema } from "@/api/lib/query-params";
@@ -8,11 +10,16 @@ export type JobsSortKey = typeof JOBS_SORT_KEYS[number];
 export const JOBS_FILTER_KEYS = ["status", "userId", "definitionNL", "createdAt"] as const;
 export type JobsFilterKey = typeof JOBS_FILTER_KEYS[number];
 
+export const jobsSortSchema = createSortingParamsSchema(JOBS_SORT_KEYS);
+export type jobsSortSchema = z.infer<typeof jobsSortSchema>;
+export const jobsFilterSchema = createAdvancedFilteringParamsSchema(JOBS_FILTER_KEYS);
+export type jobsFilterSchema = z.infer<typeof jobsFilterSchema>;
+
 // Zod schema for GET /jobs query params (pagination, sorting, filtering)
 export const listJobsQuerySchema = z.object({})
     .merge(paginationParamsSchema)
-    .merge(createSortingParamsSchema(JOBS_SORT_KEYS))
-    .merge(createAdvancedFilteringParamsSchema(JOBS_FILTER_KEYS));
+    .merge(jobsSortSchema)
+    .merge(jobsFilterSchema);
 
 // TS type for validated GET /jobs query parameters
 export type ListJobsQuery = z.infer<typeof listJobsQuerySchema>;

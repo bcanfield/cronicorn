@@ -192,6 +192,7 @@ describe("jobs routes", () => {
 
   // Advanced filtering tests
   describe("get /jobs with advanced filtering", () => {
+    let uid: string;
     const times = [
       "2025-01-01T00:00:00.000Z",
       "2025-06-01T00:00:00.000Z",
@@ -226,6 +227,15 @@ describe("jobs routes", () => {
       const list = await res.json();
       expect(list).toHaveLength(1);
       expect(list.every((j: any) => j.status === "ACTIVE")).toBe(true);
+    });
+    it("filters eq via userId=<id>", async () => {
+      const resAll = await client.api.jobs.$get({ query: {} });
+      const all = await resAll.json();
+      const uid = all[0].userId as string;
+      const res = await client.api.jobs.$get({ query: { userId: uid } });
+      expect(res.status).toBe(200);
+      const list = await res.json();
+      expect(list.every((j: any) => j.userId === uid)).toBe(true);
     });
     it("filters ne via status_ne=PAUSED", async () => {
       const res = await client.api.jobs.$get({ query: { status_ne: "PAUSED" } });
