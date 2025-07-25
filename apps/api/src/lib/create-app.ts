@@ -1,9 +1,12 @@
+import type { AuthUser } from "@hono/auth-js";
+
 import { authHandler, verifyAuth } from "@hono/auth-js";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 
 import env from "@/api/env";
+import { DEV_USER } from "@/api/lib/dev-user";
 import { pinoLogger } from "@/api/middlewares/pino-logger";
 
 import type { AppBindings, AppOpenAPI } from "./types";
@@ -36,12 +39,14 @@ export default function createApp() {
   }
   else {
     app.use("*", async (c, next) => {
-      // @ts-expect-error: TODO: FIX THIS BY ADDING THIS TYPE MANUALLY TO THE CONTEXT
-      c.set("authUser", {
-        id: "dev-user",
-        name: "Dev User",
-        email: "devuser@example.com",
-      });
+      const authUser: AuthUser = {
+        user: DEV_USER,
+        session: {
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toDateString(), // 7 days
+        },
+
+      };
+      c.set("authUser", authUser);
       return next();
     });
   }

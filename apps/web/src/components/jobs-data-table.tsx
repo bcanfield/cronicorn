@@ -1,6 +1,7 @@
 import type { selectJobsSchema } from "@tasks-app/api/schema";
 
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { Archive, CheckCircle, MoreHorizontal, Pause, Text } from "lucide-react";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import * as React from "react";
@@ -10,7 +11,7 @@ import type { ColumnDef } from "@workspace/ui/features/data-table/data-table-typ
 import dateFormatter from "@/web/lib/date-formatter";
 import { jobsQueryOptions } from "@/web/lib/queries/jobs.queries";
 import { Badge } from "@workspace/ui/components/badge";
-import { Button } from "@workspace/ui/components/button";
+import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@workspace/ui/components/dropdown-menu";
 import { DataTable } from "@workspace/ui/features/data-table/subcomponents/data-table";
@@ -40,8 +41,9 @@ export function JobsDataTable() {
   // Sync query params from URL
   const [page] = useQueryState("page", parseAsString.withDefault("1"));
   const [pageSize] = useQueryState("pageSize", parseAsString.withDefault("10"));
-  const [sortBy] = useQueryState("sortBy", parseAsString.withDefault("createdAt"));
-  const [sortDirection] = useQueryState("sortDirection", parseAsString.withDefault("asc"));
+  // Sync sorting state from URL and update on sort
+  const [sortBy, setSortBy] = useQueryState("sortBy", parseAsString.withDefault("createdAt"));
+  const [sortDirection, setSortDirection] = useQueryState("sortDirection", parseAsString.withDefault("asc"));
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]));
 
   // Fetch jobs using React Query and our hook
@@ -159,13 +161,32 @@ export function JobsDataTable() {
       sorting: [{ id: sortBy as keyof selectJobsSchema, desc: sortDirection === "desc" }],
       columnPinning: { right: ["actions"] },
     },
+    // Update URL params when sorting changes
+    onSortingChange: (updaterOrValue) => {
+      let nextSorting;
+      if (typeof updaterOrValue === "function") {
+        nextSorting = updaterOrValue([{ id: sortBy as keyof selectJobsSchema, desc: sortDirection === "desc" }]);
+      }
+      else {
+        nextSorting = updaterOrValue;
+      }
+      const sort = Array.isArray(nextSorting) ? nextSorting[0] : undefined;
+      if (sort) {
+        setSortBy(sort.id as string);
+        setSortDirection(sort.desc ? "desc" : "asc");
+      }
+    },
     getRowId: row => row.id,
   });
 
   return (
     <div className="data-table-container">
       <DataTable table={table}>
-        <DataTableToolbar table={table} />
+        <DataTableToolbar table={table}>
+          <Link to="/dashboard/jobs/create" className={buttonVariants({ size: "sm" })}>
+            Create Job
+          </Link>
+        </DataTableToolbar>
       </DataTable>
     </div>
   );

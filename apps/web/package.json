@@ -25,6 +25,7 @@
     "@tasks-app/api": "workspace:*",
     "@tasks-app/api-client": "workspace:*",
     "@tasks-app/eslint-config": "workspace:*",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "22.10.2",
     "@workspace/ui": "workspace:*",
     "hono": "4.8.5",

@@ -6,24 +6,29 @@ import apiClient from "../api-client";
 import formatApiError from "../format-api-error";
 
 export const queryKeys = {
-  LIST_JOBS: { queryKey: ["list-jobs"] },
+  LIST_JOBS: () => ["list-jobs"] as const,
   LIST_JOB: (id: string) => ({ queryKey: [`list-job-${id}`] }),
 };
 
 /**
  * React-Query options for listing jobs with dynamic query params
  */
-export function jobsQueryOptions(params?: ListJobsQuery) {
+export function jobsQueryOptions(params: ListJobsQuery) {
+  // ⬇️ build a stable tuple key
+  const key = [...queryKeys.LIST_JOBS(), params] as const;
+
   return queryOptions({
-    ...queryKeys.LIST_JOBS,
-    queryKey: ["list-jobs", params],
-    queryFn: async () => {
-      const response = await apiClient.api.jobs.$get({ query: params });
-      return response.json();
+    queryKey: key,
+    // React-Query will pass { queryKey } into your fn
+    queryFn: async ({ queryKey: [, q] }) => {
+      const resp = await apiClient.api.jobs.$get({ query: q });
+      return resp.json();
     },
+
+    // // optional: don’t refetch for 60s if you re-mount
+    // staleTime: 1000 * 60,
   });
 }
-
 export const createJobQueryOptions = (id: string) =>
   queryOptions({
     ...queryKeys.LIST_JOB(id),

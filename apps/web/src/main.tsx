@@ -1,7 +1,7 @@
 import { SessionProvider } from "@hono/auth-js/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { NuqsAdapter } from "nuqs/adapters/react";
-import "@workspace/ui/globals.css";
+import "@workspace/ui/styles/globals.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 

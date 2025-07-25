@@ -18,7 +18,7 @@ export default defineConfig({
         // where to find your tests
         include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}"],
         // run any setup code (e.g. jest-dom)
-        setupFiles: "src/setup-tests.ts",
+        setupFiles: "src/setup-tests.tsx",
         // inline ESM‑only deps if necessary
         // deps: { inline: [/solid-js/, /@testing-library/] },
     },
