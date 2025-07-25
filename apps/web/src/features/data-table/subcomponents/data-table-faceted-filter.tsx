@@ -5,7 +5,7 @@ import type { Column } from "@tanstack/react-table";
 import { Check, PlusCircle, XCircle } from "lucide-react";
 import * as React from "react";
 
-import type { Option } from "@workspace/ui/features/data-table/data-table-types";
+import type { Option } from "@/web/features/data-table/data-table-types";
 
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";

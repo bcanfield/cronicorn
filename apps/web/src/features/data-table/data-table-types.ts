@@ -1,7 +1,7 @@
 import type { ColumnSort, Row, RowData } from "@tanstack/react-table";
 
-import type { DataTableConfig } from "@workspace/ui/features/data-table/data-table-config";
-import type { FilterItemSchema } from "@workspace/ui/features/data-table/data-table-parsers";
+import type { DataTableConfig } from "@/web/features/data-table/data-table-config";
+import type { FilterItemSchema } from "@/web/features/data-table/data-table-parsers";
 
 declare module "@tanstack/react-table" {
   // @ts-expect-error - Extend the Column interface to include metadata

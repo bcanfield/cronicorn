@@ -6,18 +6,18 @@ import { Archive, CheckCircle, MoreHorizontal, Pause, Text } from "lucide-react"
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import * as React from "react";
 
-import type { ColumnDef } from "@workspace/ui/features/data-table/data-table-types";
+import type { ColumnDef } from "@/web/features/data-table/data-table-types";
 
+import { DataTable } from "@/web/features/data-table/subcomponents/data-table";
+import { DataTableColumnHeader } from "@/web/features/data-table/subcomponents/data-table-column-header";
+import { DataTableToolbar } from "@/web/features/data-table/subcomponents/data-table-toolbar";
+import { useDataTable } from "@/web/features/data-table/use-data-table";
 import dateFormatter from "@/web/lib/date-formatter";
 import { jobsQueryOptions } from "@/web/lib/queries/jobs.queries";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { Checkbox } from "@workspace/ui/components/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@workspace/ui/components/dropdown-menu";
-import { DataTable } from "@workspace/ui/features/data-table/subcomponents/data-table";
-import { DataTableColumnHeader } from "@workspace/ui/features/data-table/subcomponents/data-table-column-header";
-import { DataTableToolbar } from "@workspace/ui/features/data-table/subcomponents/data-table-toolbar";
-import { useDataTable } from "@workspace/ui/features/data-table/use-data-table";
 
 // Top-level component for actions menu
 function ActionsCell() {

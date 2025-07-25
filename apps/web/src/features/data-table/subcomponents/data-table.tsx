@@ -10,8 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table";
-import { getCommonPinningStyles } from "@workspace/ui/features/data-table/data-table-utils";
-import { DataTablePagination } from "@workspace/ui/features/data-table/subcomponents/data-table-pagination";
+import { getCommonPinningStyles } from "@/web/features/data-table/data-table-utils";
+import { DataTablePagination } from "@/web/features/data-table/subcomponents/data-table-pagination";
 import { cn } from "@workspace/ui/lib/utils";
 
 type DataTableProps<TData> = {

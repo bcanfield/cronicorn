@@ -7,10 +7,10 @@ import * as React from "react";
 
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
-import { DataTableDateFilter } from "@workspace/ui/features/data-table/subcomponents/data-table-date-filter";
-import { DataTableFacetedFilter } from "@workspace/ui/features/data-table/subcomponents/data-table-faceted-filter";
-import { DataTableSliderFilter } from "@workspace/ui/features/data-table/subcomponents/data-table-slider-filter";
-import { DataTableViewOptions } from "@workspace/ui/features/data-table/subcomponents/data-table-view-options";
+import { DataTableDateFilter } from "@/web/features/data-table/subcomponents/data-table-date-filter";
+import { DataTableFacetedFilter } from "@/web/features/data-table/subcomponents/data-table-faceted-filter";
+import { DataTableSliderFilter } from "@/web/features/data-table/subcomponents/data-table-slider-filter";
+import { DataTableViewOptions } from "@/web/features/data-table/subcomponents/data-table-view-options";
 import { cn } from "@workspace/ui/lib/utils";
 
 type DataTableToolbarProps<TData> = {

@@ -4,9 +4,9 @@ import type {
   ExtendedColumnFilter,
   FilterOperator,
   FilterVariant,
-} from "@workspace/ui/features/data-table/data-table-types";
+} from "@/web/features/data-table/data-table-types";
 
-import { dataTableConfig } from "@workspace/ui/features/data-table/data-table-config";
+import { dataTableConfig } from "@/web/features/data-table/data-table-config";
 
 export function getCommonPinningStyles<TData>({
   column,
@@ -73,7 +73,7 @@ export function getValidFilters<TData>(
       || (Array.isArray(filter.value)
         ? filter.value.length > 0
         : filter.value !== ""
-          && filter.value !== null
-          && filter.value !== undefined),
+        && filter.value !== null
+        && filter.value !== undefined),
   );
 }

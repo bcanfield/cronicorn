@@ -29,10 +29,10 @@ import {
 } from "nuqs";
 import * as React from "react";
 
-import type { ExtendedColumnSort } from "@workspace/ui/features/data-table/data-table-types";
+import type { ExtendedColumnSort } from "@/web/features/data-table/data-table-types";
 
-import { getSortingStateParser } from "@workspace/ui/features/data-table/data-table-parsers";
-import { useDebouncedCallback } from "@workspace/ui/features/data-table/use-debounced-callback";
+import { getSortingStateParser } from "@/web/features/data-table/data-table-parsers";
+import { useDebouncedCallback } from "@/web/features/data-table/use-debounced-callback";
 
 const PAGE_KEY = "page";
 const PER_PAGE_KEY = "perPage";

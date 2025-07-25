@@ -9,8 +9,14 @@ import {
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import * as React from "react";
 
-import type { Column, ColumnDef } from "@workspace/ui/features/data-table/data-table-types";
+import type { Column, ColumnDef } from "@/web/features/data-table/data-table-types";
 
+import { DataTable } from "@/web/features/data-table/subcomponents/data-table";
+import {
+  DataTableColumnHeader,
+} from "@/web/features/data-table/subcomponents/data-table-column-header";
+import { DataTableToolbar } from "@/web/features/data-table/subcomponents/data-table-toolbar";
+import { useDataTable } from "@/web/features/data-table/use-data-table";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Checkbox } from "@workspace/ui/components/checkbox";
@@ -20,12 +26,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
-import { DataTable } from "@workspace/ui/features/data-table/subcomponents/data-table";
-import {
-  DataTableColumnHeader,
-} from "@workspace/ui/features/data-table/subcomponents/data-table-column-header";
-import { DataTableToolbar } from "@workspace/ui/features/data-table/subcomponents/data-table-toolbar";
-import { useDataTable } from "@workspace/ui/features/data-table/use-data-table";
 
 // Top-level component for actions menu to avoid nesting component definitions
 function ActionsCell() {
