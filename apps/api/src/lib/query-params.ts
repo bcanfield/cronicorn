@@ -4,18 +4,20 @@ import { z } from "@hono/zod-openapi";
  * Generic pagination params: page number (1-based) and page size.
  */
 export const paginationParamsSchema = z.object({
-    page: z
-        .string()
-        .optional()
-        .default("1")
-        .transform(val => Number.parseInt(val, 10))
-        .pipe(z.number().int().positive()),
-    pageSize: z
-        .string()
-        .optional()
-        .default("20")
-        .transform(val => Number.parseInt(val, 10))
-        .pipe(z.number().int().positive()),
+    page: z.coerce.number().int().positive().default(1),
+    pageSize: z.coerce.number().int().positive().default(20),
+    // page: z
+    //     .string()
+    //     .optional()
+    //     .default("1")
+    //     .transform(val => Number.parseInt(val, 10))
+    //     .pipe(z.number().int().positive()),
+    // pageSize: z
+    //     .string()
+    //     .optional()
+    //     .default("20")
+    //     .transform(val => Number.parseInt(val, 10))
+    //     .pipe(z.number().int().positive()),
 });
 export type PaginationParams = z.infer<typeof paginationParamsSchema>;
 

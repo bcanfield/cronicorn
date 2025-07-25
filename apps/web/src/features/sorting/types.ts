@@ -1,6 +1,12 @@
 // Zod-generated query types for jobs filtering and sorting
 
-import { JOBS_FILTER_KEYS, JOBS_SORT_KEYS, JobsFilterKey, type jobsFilterSchema, JobsSortKey, type jobsSortSchema, ListJobsQuery } from "@/api/db/query-schemas";
+// import type { iJobsSortKey, JOBS_FILTER_KEYS, JOBS_SORT_KEYS, ListJobsQuery } from "@tasks-app/api/schema";
+
+// import { JOBS_SORT_KEYS } from "@/api/db/query-schemas";
+// // Re-export for UI components
+// export { JOBS_SORT_KEYS };
+// export type { JobsSortKey, ListJobsQuery };
+// UI query params mirror the API ListJobsQuery schema
 
 // TODO: Import actual schemas from API and infer types via api-client when available
 // export type SortBy = "definitionNL" | "createdAt" | "updatedAt" | "nextRunAt";
