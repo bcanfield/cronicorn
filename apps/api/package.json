@@ -5,7 +5,18 @@
   "private": true,
   "exports": {
     "./routes": "./src/routes/index.ts",
-    "./schema": "./src/db/schema.ts"
+    "./schema": "./src/db/schema.ts",
+    "./db/query-schemas": {
+      "types": "./dist/src/db/query-schemas.d.ts",
+      "import": "./dist/src/db/query-schemas.js",
+      "require": "./dist/src/db/query-schemas.js"
+    }
+  },
+  "types": "dist/src/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "db/*": ["dist/src/db/*.d.ts"]
+    }
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",

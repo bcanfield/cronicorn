@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { listJobsQuerySchema } from "@tasks-app/api/schema";
+import { listJobsQuerySchema } from "@tasks-app/api/db/query-schemas";
 
 import RoutePending from "@/web/components/route-pending";
 import { JobsSortingContainer } from "@/web/features/sorting/SortingContainer";

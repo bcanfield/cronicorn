@@ -11,6 +11,9 @@ export type Client = typeof client;
 export default (...args: Parameters<typeof hc>): Client =>
   hc<router>(...args);
 
+// Re-export schemas and types from the API package for client-side use
+export { listJobsQuerySchema, type ListJobsQuery } from "@tasks-app/api/db/query-schemas";
+
 export type ErrorSchema = {
   error: {
     issues: {
