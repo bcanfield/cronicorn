@@ -10,15 +10,16 @@ export const Route = createFileRoute("/dashboard/")({
   validateSearch: listJobsQuerySchema,
   component: DashboardPage,
   pendingComponent: RoutePending,
-  loaderDeps: ({ search }) => (search),
+  // parse and validate search params to match the query schema (provides defaults)
+  loaderDeps: ({ search }) => listJobsQuerySchema.parse(search),
   loader: ({ deps }) =>
     queryClient.ensureQueryData(jobsQueryOptions(deps)),
 
 });
 
 function DashboardPage() {
-  const params = Route.useParams();
-  console.log("DashboardPage params:", params);
+  // get validated search params (page, pageSize, sortDirection, etc.)
+  const params = Route.useSearch();
   return (
     <div>
       {/* <DataTableDemo /> */}

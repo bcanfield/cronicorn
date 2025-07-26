@@ -2,7 +2,8 @@
 
 import { z } from "@hono/zod-openapi";
 
-import { createAdvancedFilteringParamsSchema, createSortingParamsSchema, paginationParamsSchema } from "@/api/lib/query-params";
+// Use relative import to align with TS resolution without path aliases
+import { createAdvancedFilteringParamsSchema, createSortingParamsSchema, paginationParamsSchema } from "../lib/query-params";
 
 // Allowed sorting & filtering fields for jobs
 export const JOBS_SORT_KEYS = ["definitionNL", "createdAt", "updatedAt", "nextRunAt"] as const;

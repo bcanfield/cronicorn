@@ -31,7 +31,7 @@ function RouteComponent() {
   const updateMutation = useMutation({
     mutationFn: (job: patchJobsSchema) => updateJob({ id: jobId, job }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.LIST_JOBS.queryKey });
+      await queryClient.invalidateQueries(queryKeys.LIST_JOB(jobId));
       navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
     },
   });

@@ -21,7 +21,7 @@ export default function JobForm() {
     mutationFn: createJob,
     onSuccess: () => {
       form.reset();
-      queryClient.invalidateQueries(queryKeys.LIST_JOBS);
+      queryClient.invalidateQueries({ queryKey: queryKeys.LIST_JOBS() });
     },
     onSettled: () => setTimeout(() => form.setFocus("definitionNL")),
   });

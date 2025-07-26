@@ -21,7 +21,7 @@ function RouteComponent() {
   const deleteMutation = useMutation({
     mutationFn: () => deleteJob(jobId),
     onSuccess: async () => {
-      await queryClient.invalidateQueries(queryKeys.LIST_JOBS);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.LIST_JOBS() });
       navigate({ to: "/dashboard" });
     },
   });

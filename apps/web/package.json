@@ -10,7 +10,7 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --max-warnings 0 --fix",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --project tsconfig.app.json --noEmit",
     "playwright:install": "playwright install",
     "test": "vitest"
   },
