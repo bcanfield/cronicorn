@@ -5,7 +5,8 @@ import { z } from "@hono/zod-openapi";
  */
 export const paginationParamsSchema = z.object({
     page: z.coerce.number().int().positive().default(1),
-    pageSize: z.coerce.number().int().positive().default(20),
+    pageSize: z.coerce.number().int().positive().default(20).transform(val => Math.min(val, 50)),
+
     // page: z
     //     .string()
     //     .optional()

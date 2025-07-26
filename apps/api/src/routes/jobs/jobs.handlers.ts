@@ -13,24 +13,28 @@ import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } fro
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const params = c.req.valid("query");
-  console.log({ params });
   // Build full query options (pagination, sorting, filtering)
+  // Build query options (pagination, sorting, filtering)
   const options = buildQueryOptions(
     params,
     jobs,
     JOBS_SORT_KEYS,
     JOBS_FILTER_KEYS,
   );
-  console.log({ options });
-  const records = await db.query.jobs.findMany(options);
-  return c.json(records);
+  // Fetch one extra item to detect if there is a next page
+  const extraLimit = params.pageSize + 1;
+  const queryOptions = { ...options, limit: extraLimit };
+  const recordsPlus = await db.query.jobs.findMany(queryOptions);
+  // Determine hasNext and slice to requested pageSize
+  const hasNext = recordsPlus.length > params.pageSize;
+  const items = hasNext ? recordsPlus.slice(0, params.pageSize) : recordsPlus;
+  return c.json({ items, hasNext });
 };
 
 // TODO: Get user from authUser
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   // const authUser = c.get("authUser");
   const jobInput = c.req.valid("json");
-  console.log({ jobInput });
   const [inserted] = await db.insert(jobs).values({ ...jobInput }).returning();
 
   // const [inserted] = await db.insert(jobs).values({ ...jobInput, userId: authUser.user!.id }).returning();

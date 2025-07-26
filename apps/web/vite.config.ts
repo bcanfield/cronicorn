@@ -7,14 +7,14 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 /** @type {import('vite').UserConfig} */
 export default defineConfig({
-  resolve: {
-    alias: {
-      // `@/web/foo` → `<projectRoot>/src/foo`
-      "@/web": path.resolve(__dirname, "src"),
-      // if you import `@workspace/ui/...`
-      "@workspace/ui": path.resolve(__dirname, "../../packages/ui/src"),
-    },
-  },
+  // resolve: {
+  //   alias: {
+  //     // `@/web/foo` → `<projectRoot>/src/foo`
+  //     "@/web": path.resolve(__dirname, "src"),
+  //     // if you import `@workspace/ui/...`
+  //     "@workspace/ui": path.resolve(__dirname, "../../packages/ui/src"),
+  //   },
+  // },
   plugins: [
     tsconfigPaths(),
     tailwindcss(),

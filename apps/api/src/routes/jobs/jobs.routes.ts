@@ -12,6 +12,12 @@ const tags = ["Jobs"];
 // Composite query schema: pagination, sorting, filtering
 const listQuerySchema = listJobsQuerySchema; // uses JOBS_SORT_KEYS and JOBS_FILTER_KEYS
 
+// Response schema for paginated job list
+const listResponseSchema = z.object({
+  items: z.array(selectJobsSchema),
+  hasNext: z.boolean(),
+});
+
 // Type for validated query parameters of GET /jobs
 export type ListJobsQuery = z.infer<typeof listQuerySchema>;
 
@@ -22,8 +28,8 @@ export const list = createRoute({
   request: { query: listQuerySchema },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      z.array(selectJobsSchema),
-      "The list of jobs",
+      listResponseSchema,
+      "The paginated list of jobs",
     ),
   },
 });

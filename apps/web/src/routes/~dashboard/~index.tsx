@@ -1,20 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { listJobsQuerySchema } from "@tasks-app/api/schema";
 
-import { JobsDataTable } from "@/web/components/jobs-data-table";
 import RoutePending from "@/web/components/route-pending";
 import { JobsSortingContainer } from "@/web/features/sorting/SortingContainer";
+import { jobsQueryOptions } from "@/web/lib/queries/jobs.queries";
+import queryClient from "@/web/lib/query-client";
 
 export const Route = createFileRoute("/dashboard/")({
   validateSearch: listJobsQuerySchema,
   component: DashboardPage,
   pendingComponent: RoutePending,
+  loaderDeps: ({ search }) => (search),
+  loader: ({ deps }) =>
+    queryClient.ensureQueryData(jobsQueryOptions(deps)),
 
 });
 
 function DashboardPage() {
-  const params = Route.useSearch();
-
+  const params = Route.useParams();
+  console.log("DashboardPage params:", params);
   return (
     <div>
       {/* <DataTableDemo /> */}

@@ -62,9 +62,10 @@ describe("jobs routes", () => {
     const response = await client.api.jobs.$get({ query: {} });
     expect(response.status).toBe(200);
     if (response.status === 200) {
-      const json = await response.json();
-      expect(Array.isArray(json)).toBe(true);
-      expect(json.some(j => j.id === createdId && j.definitionNL === definitionNL)).toBe(true);
+      const { items, hasNext } = await response.json();
+      expect(Array.isArray(items)).toBe(true);
+      expect(items.some(j => j.id === createdId && j.definitionNL === definitionNL)).toBe(true);
+      expect(hasNext).toBe(false);
     }
   });
 
@@ -165,34 +166,34 @@ describe("jobs routes", () => {
     });
 
     it("paginates results", async () => {
-      const response = await client.api.jobs.$get({ query: { page: "1", pageSize: "2" } });
+      const response = await client.api.jobs.$get({ query: { page: 1, pageSize: 2 } });
       expect(response.status).toBe(200);
-      const list = await response.json();
-      expect(list).toHaveLength(2);
-      expect(list[0].definitionNL).toBe("A-job");
-      expect(list[1].definitionNL).toBe("B-job");
+      const { items, hasNext } = await response.json();
+      expect(items).toHaveLength(2);
+      expect(items[0].definitionNL).toBe("A-job");
+      expect(items[1].definitionNL).toBe("B-job");
+      expect(hasNext).toBe(true);
     });
 
     it("sorts results by createdAt desc", async () => {
       const response = await client.api.jobs.$get({ query: { sortBy: "createdAt", sortDirection: "desc" } });
       expect(response.status).toBe(200);
-      const list = await response.json();
-      expect(list[0].definitionNL).toBe("C-job");
-      expect(list[2].definitionNL).toBe("A-job");
+      const { items } = await response.json();
+      expect(items[0].definitionNL).toBe("C-job");
+      expect(items[2].definitionNL).toBe("A-job");
     });
 
     it("filters results by status", async () => {
       const response = await client.api.jobs.$get({ query: { status: "ACTIVE" } });
       expect(response.status).toBe(200);
-      const list = await response.json();
-      expect(list.length).toBe(1);
-      expect(list[0].status).toBe("ACTIVE");
+      const { items } = await response.json();
+      expect(items.length).toBe(1);
+      expect(items[0].status).toBe("ACTIVE");
     });
   });
 
   // Advanced filtering tests
   describe("get /jobs with advanced filtering", () => {
-    let uid: string;
     const times = [
       "2025-01-01T00:00:00.000Z",
       "2025-06-01T00:00:00.000Z",
@@ -224,71 +225,71 @@ describe("jobs routes", () => {
     it("filters eq via status=ACTIVE", async () => {
       const res = await client.api.jobs.$get({ query: { status: "ACTIVE" } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list).toHaveLength(1);
-      expect(list.every((j: any) => j.status === "ACTIVE")).toBe(true);
+      const { items } = await res.json();
+      expect(items).toHaveLength(1);
+      expect(items.every((j: any) => j.status === "ACTIVE")).toBe(true);
     });
     it("filters eq via userId=<id>", async () => {
       const resAll = await client.api.jobs.$get({ query: {} });
       const all = await resAll.json();
-      const uid = all[0].userId as string;
+      const uid = all.items[0].userId as string;
       const res = await client.api.jobs.$get({ query: { userId: uid } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list.every((j: any) => j.userId === uid)).toBe(true);
+      const { items } = await res.json();
+      expect(items.every((j: any) => j.userId === uid)).toBe(true);
     });
     it("filters ne via status_ne=PAUSED", async () => {
       const res = await client.api.jobs.$get({ query: { status_ne: "PAUSED" } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list).toHaveLength(2);
-      expect(list.every((j: any) => j.status !== "PAUSED")).toBe(true);
+      const { items } = await res.json();
+      expect(items).toHaveLength(2);
+      expect(items.every((j: any) => j.status !== "PAUSED")).toBe(true);
     });
     it("filters contains via definitionNL_contains=foo", async () => {
       const res = await client.api.jobs.$get({ query: { definitionNL_contains: "foo" } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list).toHaveLength(2);
-      expect(list.every((j: any) => j.definitionNL.includes("foo"))).toBe(true);
+      const { items } = await res.json();
+      expect(items).toHaveLength(2);
+      expect(items.every((j: any) => j.definitionNL.includes("foo"))).toBe(true);
     });
     it("filters gt via createdAt_gt", async () => {
       const threshold = times[1];
       const res = await client.api.jobs.$get({ query: { createdAt_gt: threshold } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list).toHaveLength(1);
-      expect(list.every((j: any) => new Date(j.createdAt) > new Date(threshold))).toBe(true);
+      const { items } = await res.json();
+      expect(items).toHaveLength(1);
+      expect(items.every((j: any) => new Date(j.createdAt) > new Date(threshold))).toBe(true);
     });
     it("filters lt via createdAt_lt", async () => {
       const threshold = times[1];
       const res = await client.api.jobs.$get({ query: { createdAt_lt: threshold } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list).toHaveLength(1);
-      expect(list.every((j: any) => new Date(j.createdAt) < new Date(threshold))).toBe(true);
+      const { items } = await res.json();
+      expect(items).toHaveLength(1);
+      expect(items.every((j: any) => new Date(j.createdAt) < new Date(threshold))).toBe(true);
     });
     it("filters gte via createdAt_gte", async () => {
       const threshold = times[0];
       const res = await client.api.jobs.$get({ query: { createdAt_gte: threshold } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list).toHaveLength(3);
-      expect(list.every((j: any) => new Date(j.createdAt) >= new Date(threshold))).toBe(true);
+      const { items } = await res.json();
+      expect(items).toHaveLength(3);
+      expect(items.every((j: any) => new Date(j.createdAt) >= new Date(threshold))).toBe(true);
     });
     it("filters lte via createdAt_lte", async () => {
       const threshold = times[2];
       const res = await client.api.jobs.$get({ query: { createdAt_lte: threshold } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list).toHaveLength(3);
-      expect(list.every((j: any) => new Date(j.createdAt) <= new Date(threshold))).toBe(true);
+      const { items } = await res.json();
+      expect(items).toHaveLength(3);
+      expect(items.every((j: any) => new Date(j.createdAt) <= new Date(threshold))).toBe(true);
     });
     it("combines filters status_ne=ARCHIVED and definitionNL_contains=bar", async () => {
       const res = await client.api.jobs.$get({ query: { status_ne: "ARCHIVED", definitionNL_contains: "bar" } });
       expect(res.status).toBe(200);
-      const list = await res.json();
-      expect(list).toHaveLength(1);
-      expect(list.every((j: any) => j.status !== "ARCHIVED" && j.definitionNL.includes("bar"))).toBe(true);
+      const { items } = await res.json();
+      expect(items).toHaveLength(1);
+      expect(items.every((j: any) => j.status !== "ARCHIVED" && j.definitionNL.includes("bar"))).toBe(true);
     });
   });
 });

@@ -8,10 +8,11 @@ import { SortControls } from "./sort-controls";
 
 export type JobsSortingContainerProps = {
   params: ListJobsQuery;
+  hasNext?: boolean;
 };
 const routeApi = getRouteApi("/dashboard/");
 
-export function JobsSortingContainer({ params }: JobsSortingContainerProps) {
+export function JobsSortingContainer({ params, hasNext = false }: JobsSortingContainerProps) {
   const navigate = routeApi.useNavigate();
 
   const setParams = (newParams: Partial<ListJobsQuery>) => {
@@ -21,7 +22,7 @@ export function JobsSortingContainer({ params }: JobsSortingContainerProps) {
 
   return (
     <div>
-      <h1 className="mb-4">Sorting container</h1>
+      <h1 className="mb-4">Jobs List</h1>
       <FilterControls filters={params} onChange={setParams} />
       <SortControls
         sortBy={params.sortBy}
@@ -31,9 +32,10 @@ export function JobsSortingContainer({ params }: JobsSortingContainerProps) {
       <PaginationControls
         page={params.page}
         pageSize={params.pageSize}
+        hasNext={hasNext}
         onChange={setParams}
       />
-      <pre>{JSON.stringify(params, null, 2)}</pre>
+
     </div>
   );
 }
