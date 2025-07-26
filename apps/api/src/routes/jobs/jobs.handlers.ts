@@ -7,33 +7,18 @@ import type { AppRouteHandler } from "@/api/lib/types";
 import db from "@/api/db";
 import { jobs, JOBS_FILTER_KEYS, JOBS_SORT_KEYS } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
-import { buildQueryOptions } from "@/api/lib/query-utils";
+import { createListHandler } from "@/api/lib/list-handler";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./jobs.routes";
 
-export const list: AppRouteHandler<ListRoute> = async (c) => {
-  const params = c.req.valid("query");
-  // Build full query options (pagination, sorting, filtering)
-  // Build query options (pagination, sorting, filtering)
-  const options = buildQueryOptions(
-    params,
-    jobs,
-    JOBS_SORT_KEYS,
-    JOBS_FILTER_KEYS,
-  );
-  // Fetch one extra item to detect if there is a next page
-  const extraLimit = params.pageSize + 1;
-  const queryOptions = { ...options, limit: extraLimit };
-  const recordsPlus = await db.query.jobs.findMany(queryOptions);
-  // Determine hasNext and slice to requested pageSize
-  const hasNext = recordsPlus.length > params.pageSize;
-  const items = hasNext ? recordsPlus.slice(0, params.pageSize) : recordsPlus;
-  return c.json({ items, hasNext });
-};
+export const list: AppRouteHandler<ListRoute> = createListHandler(
+  opts => db.query.jobs.findMany(opts as any),
+  jobs,
+  JOBS_SORT_KEYS,
+  JOBS_FILTER_KEYS,
+);
 
-// TODO: Get user from authUser
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
-  // const authUser = c.get("authUser");
   const jobInput = c.req.valid("json");
   const [inserted] = await db.insert(jobs).values({ ...jobInput }).returning();
 
