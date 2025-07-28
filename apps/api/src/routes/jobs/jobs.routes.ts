@@ -3,14 +3,13 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdUUIDParamsSchema } from "stoker/openapi/schemas";
 
-import { listJobsQuerySchema } from "@/api/db/query-schemas";
-import { insertJobsSchema, patchJobsSchema, selectJobsSchema } from "@/api/db/schema";
+// import { listJobsQuerySchema } from "@/api/db/query-schemas";
+import { insertJobsSchema, listJobsSchema, patchJobsSchema, selectJobsSchema } from "@/api/db/schema";
 import { notFoundSchema } from "@/api/lib/constants";
 
 const tags = ["Jobs"];
 
 // Composite query schema: pagination, sorting, filtering
-const listQuerySchema = listJobsQuerySchema; // uses JOBS_SORT_KEYS and JOBS_FILTER_KEYS
 
 // Response schema for paginated job list
 const listResponseSchema = z.object({
@@ -18,14 +17,11 @@ const listResponseSchema = z.object({
   hasNext: z.boolean(),
 });
 
-// Type for validated query parameters of GET /jobs
-export type ListJobsQuery = z.infer<typeof listQuerySchema>;
-
 export const list = createRoute({
   path: "/jobs",
   method: "get",
   tags,
-  request: { query: listQuerySchema },
+  request: { query: listJobsSchema },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       listResponseSchema,

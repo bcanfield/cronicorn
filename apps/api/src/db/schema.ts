@@ -1,10 +1,9 @@
 /* eslint-disable ts/no-redeclare */
 
-import type { z } from "zod";
-
 import { sql } from "drizzle-orm";
 import { boolean, integer, json, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 
 import { users } from "./auth-schema";
 
@@ -92,8 +91,18 @@ export type insertJobsSchema = z.infer<typeof insertJobsSchema>;
 export const patchJobsSchema = insertJobsSchema.partial();
 export type patchJobsSchema = z.infer<typeof patchJobsSchema>;
 
-// Re-export query-schemas so UI can import ListJobsQuery
-export * from "./query-schemas";
+export const JOB_SORT_KEYS = ["definitionNL", "createdAt", "updatedAt", "nextRunAt"] as const;
+
+// LIST JOBS QUERY SCHEMA
+export const listJobsSchema = z.object({
+  sortBy: z.enum(JOB_SORT_KEYS).default("createdAt"),
+  sortDirection: z.enum(["asc", "desc"]).default("desc"),
+  page: z.coerce.number().default(1),
+  pageSize: z.coerce.number().default(20),
+  searchQuery: z.string().optional(),
+});
+
+export type listJobsSchema = z.infer<typeof listJobsSchema>;
 
 export const contextEntries = pgTable(
   "ContextEntry",
