@@ -5,18 +5,34 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import type { AppRouteHandler } from "@/api/lib/types";
 
 import db from "@/api/db";
-import { jobs, JOBS_FILTER_KEYS, JOBS_SORT_KEYS } from "@/api/db/schema";
+import { jobs } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
-import { createListHandler } from "@/api/lib/list-handler";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./jobs.routes";
 
-export const list: AppRouteHandler<ListRoute> = createListHandler(
-  opts => db.query.jobs.findMany(opts as any),
-  jobs,
-  JOBS_SORT_KEYS,
-  JOBS_FILTER_KEYS,
-);
+export const list: AppRouteHandler<ListRoute> = async (c) => {
+  const { page, pageSize, sortBy, sortDirection, searchQuery } = c.req.valid("query");
+  // Calculate pagination offsets
+  const offset = (page - 1) * pageSize;
+  const limit = pageSize + 1;
+  // Fetch with optional search, sorting, and pagination
+  // Fetch jobs with pagination, sorting, and optional search
+  const items = await db.query.jobs.findMany({
+    where: searchQuery
+      ? (fields, { ilike }) => ilike(fields.definitionNL, `%${searchQuery}%`)
+      : undefined,
+    orderBy: (fields, { asc, desc }) =>
+      sortDirection === "asc"
+        ? asc(fields[sortBy as keyof typeof fields])
+        : desc(fields[sortBy as keyof typeof fields]),
+    limit,
+    offset,
+  });
+  // Determine if there is a next page
+  const hasNext = items.length > pageSize;
+  const resultItems = hasNext ? items.slice(0, pageSize) : items;
+  return c.json({ items: resultItems, hasNext }, HttpStatusCodes.OK);
+};
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const jobInput = c.req.valid("json");

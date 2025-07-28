@@ -95,11 +95,12 @@ export const JOB_SORT_KEYS = ["definitionNL", "createdAt", "updatedAt", "nextRun
 
 // LIST JOBS QUERY SCHEMA
 export const listJobsSchema = z.object({
-  sortBy: z.enum(JOB_SORT_KEYS).default("createdAt"),
-  sortDirection: z.enum(["asc", "desc"]).default("desc"),
-  page: z.coerce.number().default(1),
-  pageSize: z.coerce.number().default(20),
-  searchQuery: z.string().optional(),
+  // Default to show latest items first
+  sortBy: z.enum(JOB_SORT_KEYS).default("createdAt").describe("Field to sort by"),
+  sortDirection: z.enum(["asc", "desc"]).default("desc").describe("Sort direction"),
+  page: z.coerce.number().default(1).describe("Page number for pagination"),
+  pageSize: z.coerce.number().default(20).describe("Number of items per page"),
+  searchQuery: z.string().optional().describe("Search query for job definitions"),
 });
 
 export type listJobsSchema = z.infer<typeof listJobsSchema>;

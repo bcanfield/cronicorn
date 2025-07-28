@@ -1,14 +1,14 @@
-import type { JobsSortKey } from "@tasks-app/api/schema";
-
-import { JOBS_SORT_KEYS } from "@tasks-app/api/schema";
-
-export type SortControlsProps = {
-  sortBy?: JobsSortKey;
+// Props for the sort controls: only changes to sortBy/sortDirection are emitted
+export type SortControlsProps<K extends string> = {
+  sortKeys: readonly K[];
+  sortBy?: K;
   sortDirection?: "asc" | "desc";
-  onChange: (params: { sortBy?: JobsSortKey; sortDirection?: "asc" | "desc" }) => void;
+  onChange: (change: Partial<{
+    sortBy: K;
+    sortDirection: "asc" | "desc";
+  }>) => void;
 };
-
-export function SortControls({ sortBy, sortDirection, onChange }: SortControlsProps) {
+export function SortControls<K extends string>({ sortKeys, sortBy, sortDirection, onChange }: SortControlsProps<K>) {
   return (
     <div className="flex items-center space-x-4">
       <label>
@@ -16,10 +16,10 @@ export function SortControls({ sortBy, sortDirection, onChange }: SortControlsPr
         <select
           className="ml-2 border rounded px-2 py-1"
           value={sortBy ?? ""}
-          onChange={e => onChange({ sortBy: e.target.value as JobsSortKey })}
+          onChange={e => onChange({ sortBy: e.target.value as K })}
         >
           <option value="">--</option>
-          {JOBS_SORT_KEYS.map(key => (
+          {sortKeys.map(key => (
             <option key={key} value={key}>
               {key}
             </option>
@@ -30,7 +30,7 @@ export function SortControls({ sortBy, sortDirection, onChange }: SortControlsPr
         Direction:
         <select
           className="ml-2 border rounded px-2 py-1"
-          value={sortDirection ?? "asc"}
+          value={sortDirection ?? "desc"}
           onChange={e => onChange({ sortDirection: e.target.value as "asc" | "desc" })}
         >
           <option value="asc">asc</option>

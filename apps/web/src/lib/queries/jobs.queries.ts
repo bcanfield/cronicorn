@@ -1,4 +1,4 @@
-import type { insertJobsSchema, ListJobsQuery, patchJobsSchema } from "@tasks-app/api/schema";
+import type { insertJobsSchema, listJobsSchema, patchJobsSchema } from "@tasks-app/api/schema";
 
 import { queryOptions } from "@tanstack/react-query";
 
@@ -13,7 +13,7 @@ export const queryKeys = {
 /**
  * React-Query options for listing jobs with dynamic query params
  */
-export function jobsQueryOptions(params: ListJobsQuery) {
+export function jobsQueryOptions(params: listJobsSchema) {
   // ⬇️ build a stable tuple key
   const key = [...queryKeys.LIST_JOBS(), params] as const;
 
