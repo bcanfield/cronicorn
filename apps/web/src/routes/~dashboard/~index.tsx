@@ -39,10 +39,6 @@ function DashboardPage() {
       <JobList jobs={items} />
 
     </SortingContainer>
-    // <div>
-    //   {/* <DataTableDemo /> */}
-    //   {/* <JobsSortingContainer params={params} /> */}
-    //   {/* <JobsDataTable /> */}
-    // </div>
+
   );
 }

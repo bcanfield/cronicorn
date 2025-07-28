@@ -1,11 +1,3 @@
-export type SortAndFilterParams<K extends string = string> = {
-    page?: number;
-    pageSize?: number;
-    searchQuery?: string;
-    sortBy?: K;
-    sortDirection?: "asc" | "desc";
-};
-
 /**
  * Represents a change request for sorting controls.
  */
@@ -43,12 +35,12 @@ export type PaginationControlsProps = {
  */
 export type SortingContainerProps<
     K extends string,
-    P extends { page?: number; pageSize?: number; sortBy?: K; sortDirection?: "asc" | "desc" },
+    P extends { page?: number; pageSize?: number; searchQuery?: string; sortBy?: K; sortDirection?: "asc" | "desc" },
 > = {
     /** List of available sort keys */
     sortKeys: readonly K[];
     /** All query params including page, pageSize, sortBy and sortDirection */
-    params: P;
+    params: P & { searchQuery?: string };
     /** Callback to replace all params at once */
     onChange: (params: P) => void;
     /** Show or hide pagination next button */
