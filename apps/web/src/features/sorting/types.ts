@@ -38,11 +38,6 @@ export type PaginationControlsProps = {
 
 /**
  * Props for the combined sorting container.
- * @template K - union of allowed sort keys
- * @template P - parent query params including optional sortBy and sortDirection of type K
- */
-/**
- * Props for the combined sorting container.
  * @template K - sort key type
  * @template P - parent params including optional page, pageSize, sortBy, sortDirection
  */
