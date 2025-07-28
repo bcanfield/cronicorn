@@ -1,9 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { listJobsSchema } from "@tasks-app/api/schema";
+import { JOB_SORT_KEYS, listJobsSchema } from "@tasks-app/api/schema";
 
 import RoutePending from "@/web/components/route-pending";
-import { createJobQueryOptions, jobsQueryOptions } from "@/web/lib/queries/jobs.queries";
+import { SortingContainer } from "@/web/features/sorting/sorting-container";
+import { jobsQueryOptions } from "@/web/lib/queries/jobs.queries";
 import queryClient from "@/web/lib/query-client";
 import JobList from "@/web/routes/~dashboard/components/list";
 
@@ -21,10 +22,23 @@ export const Route = createFileRoute("/dashboard/")({
 function DashboardPage() {
   // get validated search params (page, pageSize, sortDirection, etc.)
   const params = Route.useSearch();
-  const { data: { items } } = useSuspenseQuery(jobsQueryOptions(params));
+  const navigate = Route.useNavigate();
+  const { data: { items, hasNext } } = useSuspenseQuery(jobsQueryOptions(params));
+
+  const setParams = (newParams: listJobsSchema) => {
+    navigate({ search: newParams });
+  };
 
   return (
-    <JobList params={params} jobs={items} />
+    <SortingContainer
+      hasNext={hasNext}
+      onChange={setParams}
+      params={params}
+      sortKeys={JOB_SORT_KEYS}
+    >
+      <JobList jobs={items} />
+
+    </SortingContainer>
     // <div>
     //   {/* <DataTableDemo /> */}
     //   {/* <JobsSortingContainer params={params} /> */}

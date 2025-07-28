@@ -1,13 +1,6 @@
 // Props for the sort controls: only changes to sortBy/sortDirection are emitted
-export type SortControlsProps<K extends string> = {
-  sortKeys: readonly K[];
-  sortBy?: K;
-  sortDirection?: "asc" | "desc";
-  onChange: (change: Partial<{
-    sortBy: K;
-    sortDirection: "asc" | "desc";
-  }>) => void;
-};
+import type { SortControlsProps } from "./types";
+
 export function SortControls<K extends string>({ sortKeys, sortBy, sortDirection, onChange }: SortControlsProps<K>) {
   return (
     <div className="flex items-center space-x-4">

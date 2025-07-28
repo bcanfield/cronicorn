@@ -1,21 +1,13 @@
-import type { ListJobsQuery } from "@tasks-app/api/schema";
+import type { PaginationControlsProps } from "./types";
 
-export type PaginationControlsProps = {
-  page?: number;
-  pageSize?: number;
-  onChange: (newParams: Partial<ListJobsQuery>) => void;
-  /** Whether there are more pages after the current one */
-  hasNext?: boolean;
-};
-
-export function PaginationControls({ page = 1, pageSize = 10, onChange, hasNext }: PaginationControlsProps) {
+export function PaginationControls({ page, pageSize, hasNext, onChange }: PaginationControlsProps) {
   return (
     <div className="flex items-center space-x-4 mt-4">
       <button
         type="button"
         className="px-2 py-1 border rounded disabled:opacity-50"
-        disabled={page <= 1}
-        onClick={() => onChange({ page: page - 1 })}
+        disabled={!!page && page <= 1}
+        onClick={() => onChange({ page: page ? page - 1 : 1 })}
       >
         Prev
       </button>
@@ -27,7 +19,7 @@ export function PaginationControls({ page = 1, pageSize = 10, onChange, hasNext 
         type="button"
         className="px-2 py-1 border rounded disabled:opacity-50"
         disabled={hasNext === false}
-        onClick={() => onChange({ page: page + 1 })}
+        onClick={() => onChange({ page: page ? page + 1 : 1 })}
       >
         Next
       </button>
