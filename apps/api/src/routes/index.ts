@@ -8,6 +8,7 @@ import { BASE_PATH } from "../lib/constants";
 import endpoints from "./endpoints/endpoints.index";
 import index from "./index.route";
 import jobs from "./jobs/jobs.index";
+import messages from "./messages/messages.index";
 import tasks from "./tasks/tasks.index";
 
 export function registerRoutes(app: AppOpenAPI) {
@@ -15,7 +16,8 @@ export function registerRoutes(app: AppOpenAPI) {
     .route("/", index)
     .route("/", tasks)
     .route("/", jobs)
-    .route("/", endpoints);
+    .route("/", endpoints)
+    .route("/", messages);
 }
 
 // stand alone router type used for api client
