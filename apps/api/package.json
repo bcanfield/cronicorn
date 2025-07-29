@@ -15,7 +15,9 @@
   "types": "dist/src/index.d.ts",
   "typesVersions": {
     "*": {
-      "db/*": ["dist/src/db/*.d.ts"]
+      "db/*": [
+        "dist/src/db/*.d.ts"
+      ]
     }
   },
   "scripts": {
@@ -25,7 +27,7 @@
     "build": "tsc && tsc-alias",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --max-warnings 0 --fix",
-    "test": "cross-env NODE_ENV=test vitest",
+    "test": "cross-env NODE_ENV=test vitest --coverage",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -59,6 +61,7 @@
   },
   "devDependencies": {
     "@types/node": "~22.10.2",
+    "@vitest/coverage-v8": "2.1.9",
     "cross-env": "~7.0.3",
     "drizzle-kit": "~0.30.1",
     "eslint": "~9.31.0",

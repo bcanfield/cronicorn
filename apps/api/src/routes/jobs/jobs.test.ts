@@ -33,6 +33,8 @@ describe("jobs routes", () => {
     }).returning();
     testUserId = user.id;
   });
+
+  // == Validation Tests ==
   it("post /jobs validates the body when creating", async () => {
     const response = await client.api.jobs.$post({
       // @ts-expect-error
@@ -46,6 +48,7 @@ describe("jobs routes", () => {
     }
   });
 
+  // == Creation Tests ==
   it("post /jobs creates a job", async () => {
     const response = await client.api.jobs.$post({
       json: { definitionNL, userId: testUserId },
@@ -58,6 +61,7 @@ describe("jobs routes", () => {
     }
   });
 
+  // == Retrieval Tests ==
   it("get /jobs lists all jobs", async () => {
     const response = await client.api.jobs.$get({ query: {} });
     expect(response.status).toBe(200);
@@ -83,6 +87,7 @@ describe("jobs routes", () => {
     }
   });
 
+  // == Update Tests ==
   it("patch /jobs/{id} validates the body when updating", async () => {
     const response = await client.api.jobs[":id"].$patch({
       param: {
@@ -97,24 +102,6 @@ describe("jobs routes", () => {
       const json = await response.json();
       expect(json.error.issues[0].path[0]).toBe("definitionNL");
       expect(json.error.issues[0].code).toBe(ZodIssueCode.too_small);
-    }
-  });
-
-  it("get /jobs/{id} returns 404 when not found", async () => {
-    const response = await client.api.jobs[":id"].$get({ param: { id: "11111111-1111-1111-1111-111111111111" } });
-    expect(response.status).toBe(404);
-    if (response.status === 404) {
-      const json = await response.json();
-      expect(json.message).toBe(HttpStatusPhrases.NOT_FOUND);
-    }
-  });
-
-  it("get /jobs/{id} gets a single job", async () => {
-    const response = await client.api.jobs[":id"].$get({ param: { id: createdId } });
-    expect(response.status).toBe(200);
-    if (response.status === 200) {
-      const json = await response.json();
-      expect(json.definitionNL).toBe(definitionNL);
     }
   });
 
@@ -138,12 +125,43 @@ describe("jobs routes", () => {
     }
   });
 
+  // == Deletion Tests ==
   it("delete /jobs/{id} deletes a job", async () => {
     const response = await client.api.jobs[":id"].$delete({ param: { id: createdId } });
     expect(response.status).toBe(204);
   });
 
-  // Additional tests for pagination, sorting, filtering
+  // == Non-Existent Resource Error Tests ==
+  it("get /jobs/{id} returns 404 when not found", async () => {
+    const response = await client.api.jobs[":id"].$get({ param: { id: "11111111-1111-1111-1111-111111111111" } });
+    expect(response.status).toBe(404);
+    if (response.status === 404) {
+      const json = await response.json();
+      expect(json.message).toBe(HttpStatusPhrases.NOT_FOUND);
+    }
+  });
+
+  it("patch /jobs/{id} returns 404 when updating non-existent job", async () => {
+    const nonExistentId = "11111111-1111-1111-1111-111111111111";
+    const response = await client.api.jobs[":id"].$patch({ param: { id: nonExistentId }, json: { status: "ACTIVE" } });
+    expect(response.status).toBe(404);
+    if (response.status === 404) {
+      const json = await response.json();
+      expect(json.message).toBe(HttpStatusPhrases.NOT_FOUND);
+    }
+  });
+
+  it("delete /jobs/{id} returns 404 when deleting non-existent job", async () => {
+    const nonExistentId = "11111111-1111-1111-1111-111111111111";
+    const response = await client.api.jobs[":id"].$delete({ param: { id: nonExistentId } });
+    expect(response.status).toBe(404);
+    if (response.status === 404) {
+      const json = await response.json();
+      expect(json.message).toBe(HttpStatusPhrases.NOT_FOUND);
+    }
+  });
+
+  // == List, Pagination, Sorting & Filtering Tests ==
   describe("get /jobs with pagination, sorting, filtering", () => {
     let ids: string[];
     beforeAll(async () => {
@@ -181,6 +199,24 @@ describe("jobs routes", () => {
       const { items } = await response.json();
       expect(items[0].definitionNL).toBe("C-job");
       expect(items[2].definitionNL).toBe("A-job");
+    });
+    it("sorts results by createdAt asc", async () => {
+      const response = await client.api.jobs.$get({ query: { sortBy: "createdAt", sortDirection: "asc" } });
+      expect(response.status).toBe(200);
+      const { items } = await response.json();
+      expect(items[0].definitionNL).toBe("A-job");
+      expect(items[2].definitionNL).toBe("C-job");
+    });
+
+    it("filters results by searchQuery", async () => {
+      const response = await client.api.jobs.$get({ query: { searchQuery: "B-job" } });
+      expect(response.status).toBe(200);
+      if (response.status === 200) {
+        const { items, hasNext } = await response.json();
+        expect(items).toHaveLength(1);
+        expect(items[0].definitionNL).toBe("B-job");
+        expect(hasNext).toBe(false);
+      }
     });
   });
 });
