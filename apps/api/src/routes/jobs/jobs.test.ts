@@ -7,6 +7,7 @@ import { ZodIssueCode } from "zod";
 
 import db from "@/api/db";
 import resetDb from "@/api/db/reset";
+import { jobs as jobsTable } from "@/api/db/schema";
 import { users } from "@/api/db/schema/auth";
 import env from "@/api/env";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
@@ -25,15 +26,12 @@ describe("jobs routes", () => {
   let testUserId: string;
   const definitionNL = "Test job definition";
 
+  // Seed a test user for all jobs tests
   beforeAll(async () => {
     await resetDb();
-    // Create a test user and store the ID for later use
-    const [user] = await db.insert(users).values({
-      email: "asdf@asdf.com",
-    }).returning();
+    const [user] = await db.insert(users).values({ email: "test@jobs.com" }).returning();
     testUserId = user.id;
   });
-
   // == Validation Tests ==
   it("post /jobs validates the body when creating", async () => {
     const response = await client.api.jobs.$post({
@@ -51,8 +49,9 @@ describe("jobs routes", () => {
   // == Creation Tests ==
   it("post /jobs creates a job", async () => {
     const response = await client.api.jobs.$post({
-      json: { definitionNL, userId: testUserId },
+      json: { definitionNL },
     });
+
     expect(response.status).toBe(200);
     if (response.status === 200) {
       const json = await response.json();
@@ -84,6 +83,16 @@ describe("jobs routes", () => {
     if (response.status === 422) {
       const json = await response.json();
       expect(json.error.issues[0].path[0]).toBe("id");
+    }
+  });
+
+  it("get /jobs/{id} returns a job", async () => {
+    const response = await client.api.jobs[":id"].$get({ param: { id: createdId } });
+    expect(response.status).toBe(200);
+    if (response.status === 200) {
+      const json = await response.json();
+      expect(json.id).toBe(createdId);
+      expect(json.definitionNL).toBe(definitionNL);
     }
   });
 
@@ -165,7 +174,8 @@ describe("jobs routes", () => {
   describe("get /jobs with pagination, sorting, filtering", () => {
     let ids: string[];
     beforeAll(async () => {
-      await resetDb();
+      // Seed additional jobs for pagination tests using existing user
+      ids = [];
       // Seed three jobs
       ids = [];
       for (const name of ["A-job", "B-job", "C-job"]) {
@@ -218,5 +228,28 @@ describe("jobs routes", () => {
         expect(hasNext).toBe(false);
       }
     });
+  });
+
+  // == Auth Enforcement Tests ==
+  it("returns 404 when fetching a job not owned by DEV_USER", async () => {
+    const [{ id: otherJobId }] = await db.insert(jobsTable)
+      .values({ definitionNL: "Other Job", userId: testUserId })
+      .returning();
+    const response = await client.api.jobs[":id"].$get({ param: { id: otherJobId } });
+    expect(response.status).toBe(404);
+  });
+  it("returns 404 when updating a job not owned by DEV_USER", async () => {
+    const [{ id: otherJobId }] = await db.insert(jobsTable)
+      .values({ definitionNL: "Other Job 2", userId: testUserId })
+      .returning();
+    const response = await client.api.jobs[":id"].$patch({ param: { id: otherJobId }, json: { definitionNL: "X" } });
+    expect(response.status).toBe(404);
+  });
+  it("returns 404 when deleting a job not owned by DEV_USER", async () => {
+    const [{ id: otherJobId }] = await db.insert(jobsTable)
+      .values({ definitionNL: "Other Job 3", userId: testUserId })
+      .returning();
+    const response = await client.api.jobs[":id"].$delete({ param: { id: otherJobId } });
+    expect(response.status).toBe(404);
   });
 });

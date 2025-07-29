@@ -33,7 +33,7 @@ export default function createApp() {
     )
     .use("/auth/*", authHandler());
 
-  // In non-production (dev/test), allow bypassing auth
+  // Bypass authentication in non-production environments (including test)
   if (env.NODE_ENV === "production" || !env.FAKE_AUTH) {
     app.use("*", verifyAuth());
   }
@@ -44,7 +44,6 @@ export default function createApp() {
         session: {
           expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toDateString(), // 7 days
         },
-
       };
       c.set("authUser", authUser);
       return next();

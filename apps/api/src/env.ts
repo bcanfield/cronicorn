@@ -4,6 +4,13 @@ import { expand } from "dotenv-expand";
 import path from "node:path";
 import { z } from "zod";
 
+// Load env files from the apps/api directory
+// expand(config({
+//   path: path.resolve(
+//     __dirname,
+//     process.env.NODE_ENV === "test" ? "../.env.test" : "../.env",
+//   ),
+// }));
 expand(config({
   path: path.resolve(
     process.cwd(),
