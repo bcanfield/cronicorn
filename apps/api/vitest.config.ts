@@ -21,6 +21,7 @@ export default defineConfig({
         "src/db/migrations/**",
         "src/db/reset.ts",
         "src/db/seed/seed.ts",
+        "src/db/run-seed.ts",
       ],
     },
   },

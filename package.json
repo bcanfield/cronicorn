@@ -14,6 +14,7 @@
     "db:push": "pnpm run -r --parallel db:push",
     "db:generate": "pnpm run -r --parallel db:generate",
     "db:seed": "pnpm run -r --parallel db:seed",
+    "db:studio": "pnpm run -r --parallel db:studio",
     "typecheck": "pnpm run -r --parallel typecheck",
     "sync:check": "syncpack lint",
     "sync:fix": "syncpack fix",

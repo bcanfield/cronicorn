@@ -5,11 +5,13 @@ import seed from "@/api/db/seed/seed";
 
 import * as schema from "./schema";
 
-async function resetDb() {
+async function resetDb(seedData = false) {
   // eslint-disable-next-line no-console
   console.log("Resetting database...");
   await reset(db, schema);
-  await seed();
+  if (seedData) {
+    await seed();
+  }
   // eslint-disable-next-line no-console
   console.log("Database reset completed.");
 }
