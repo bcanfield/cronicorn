@@ -156,8 +156,8 @@ describe("messages routes", () => {
                     json: {
                         role: roles[i],
                         content: { text: `Message ${i + 1}` },
-                        jobId
-                    }
+                        jobId,
+                    },
                 });
                 expect(response.status).toBe(200);
                 if (response.status === 200) {
@@ -205,6 +205,12 @@ describe("messages routes", () => {
             expect(items.length).toBeGreaterThan(0);
             expect(items.every(m => m.jobId === jobId)).toBe(true);
         });
+
+        it("handles invalid sortBy gracefully", async () => {
+            // @ts-expect-error: testing invalid sortBy
+            const response = await client.api.messages.$get({ query: { sortBy: "INVALID", sortDirection: "asc" } });
+            expect(response.status).toBe(422);
+        });
     });
 
     it("returns 404 when fetching a message for a job not owned by DEV_USER", async () => {
@@ -228,7 +234,7 @@ describe("messages routes", () => {
             .returning();
         const response = await client.api.messages[":id"].$patch({
             param: { id: otherMessageId },
-            json: { role: "assistant" }
+            json: { role: "assistant" },
         });
         expect(response.status).toBe(404);
     });

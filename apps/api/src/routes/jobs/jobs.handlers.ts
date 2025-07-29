@@ -90,7 +90,6 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
     .set(updates)
     .where(and(eq(jobs.id, id), eq(jobs.userId, userId)))
     .returning();
-
   if (!updated) {
     return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
   }

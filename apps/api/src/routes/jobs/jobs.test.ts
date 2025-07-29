@@ -217,6 +217,11 @@ describe("jobs routes", () => {
       expect(items[0].definitionNL).toBe("A-job");
       expect(items[2].definitionNL).toBe("C-job");
     });
+    it("handles invalid sortBy gracefully", async () => {
+      // @ts-expect-error: testing invalid sortBy
+      const response = await client.api.jobs.$get({ query: { sortBy: "INVALID", sortDirection: "asc" } });
+      expect(response.status).toBe(422);
+    });
 
     it("filters results by searchQuery", async () => {
       const response = await client.api.jobs.$get({ query: { searchQuery: "B-job" } });

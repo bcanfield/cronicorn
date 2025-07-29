@@ -44,5 +44,5 @@ export const listMessagesSchema = z.object({
     pageSize: pageSizeSchema,
     searchQuery: z.string().optional().describe("Search query for message content"),
     jobId: z.string().optional().describe("Filter by job ID"),
-})
+});
 export type listMessagesSchema = z.infer<typeof listMessagesSchema>;

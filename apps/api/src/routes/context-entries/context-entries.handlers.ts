@@ -5,35 +5,37 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import type { AppRouteHandler } from "@/api/lib/types";
 
 import db from "@/api/db";
-import { jobs, messages } from "@/api/db/schema";
+import { contextEntries, jobs } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 
-import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./messages.routes";
+import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./context-entries.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-    // List messages for authenticated user's jobs
+    // List context entries for authenticated user's jobs
     const authUser = c.get("authUser");
     const userId = authUser.user!.id;
     const { page, pageSize, sortBy, sortDirection, searchQuery, jobId } = c.req.valid("query");
     const offset = (page - 1) * pageSize;
     const limit = pageSize + 1;
 
-    const cols = getTableColumns(messages);
+    const cols = getTableColumns(contextEntries);
     const sortColumn = cols[sortBy as keyof typeof cols];
 
     const whereConditions = [eq(jobs.userId, userId)];
     if (jobId) {
-        whereConditions.push(eq(messages.jobId, jobId));
+        whereConditions.push(eq(contextEntries.jobId, jobId));
     }
     if (searchQuery) {
-        // Note: this is a simplistic approach - searching JSON content would need more advanced handling
-        whereConditions.push(ilike(messages.role, `%${searchQuery}%`));
+        // Search in key or value - using OR to match either field
+        whereConditions.push(
+            ilike(contextEntries.key, `%${searchQuery}%`),
+        );
     }
 
     const result = await db
         .select()
         .from(jobs)
-        .innerJoin(messages, eq(jobs.id, messages.jobId))
+        .innerJoin(contextEntries, eq(jobs.id, contextEntries.jobId))
         .where(and(...whereConditions))
         .orderBy(
             sortDirection === "asc"
@@ -42,7 +44,7 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
         )
         .limit(limit)
         .offset(offset);
-    const items = result.map(r => r.Message);
+    const items = result.map(r => r.ContextEntry);
 
     const hasNext = items.length > pageSize;
     return c.json({ items: items.slice(0, pageSize), hasNext }, HttpStatusCodes.OK);
@@ -57,7 +59,7 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
     if (!jobRec || jobRec.userId !== userId) {
         return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
     }
-    const [inserted] = await db.insert(messages).values({ jobId, ...rest }).returning();
+    const [inserted] = await db.insert(contextEntries).values({ jobId, ...rest }).returning();
     return c.json(inserted, HttpStatusCodes.OK);
 };
 
@@ -69,12 +71,12 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
     const [found] = await db
         .select()
         .from(jobs)
-        .innerJoin(messages, eq(jobs.id, messages.jobId))
-        .where(and(eq(messages.id, id), eq(jobs.userId, userId)));
-    if (!found?.Message) {
+        .innerJoin(contextEntries, eq(jobs.id, contextEntries.jobId))
+        .where(and(eq(contextEntries.id, id), eq(jobs.userId, userId)));
+    if (!found?.ContextEntry) {
         return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
     }
-    return c.json(found.Message, HttpStatusCodes.OK);
+    return c.json(found.ContextEntry, HttpStatusCodes.OK);
 };
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
@@ -94,23 +96,23 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
             HttpStatusCodes.UNPROCESSABLE_ENTITY,
         );
     }
-    // ensure message belongs to authenticated user via job ownership
+    // ensure context entry belongs to authenticated user via job ownership
     const authUser = c.get("authUser");
     const userId = authUser.user!.id;
     const check = await db
         .select()
-        .from(messages)
-        .innerJoin(jobs, eq(messages.jobId, jobs.id))
+        .from(contextEntries)
+        .innerJoin(jobs, eq(contextEntries.jobId, jobs.id))
         .where(
             and(
-                eq(messages.id, id),
+                eq(contextEntries.id, id),
                 eq(jobs.userId, userId),
             ),
         );
     if (check.length === 0) {
         return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
     }
-    const [updated] = await db.update(messages).set(updates).where(eq(messages.id, id)).returning();
+    const [updated] = await db.update(contextEntries).set(updates).where(eq(contextEntries.id, id)).returning();
     return c.json(updated, HttpStatusCodes.OK);
 };
 
@@ -121,11 +123,11 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 
     const result = await db
         .select()
-        .from(messages)
-        .innerJoin(jobs, eq(messages.jobId, jobs.id))
+        .from(contextEntries)
+        .innerJoin(jobs, eq(contextEntries.jobId, jobs.id))
         .where(
             and(
-                eq(messages.id, id),
+                eq(contextEntries.id, id),
                 eq(jobs.userId, userId),
             ),
         );
@@ -134,6 +136,6 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
         return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
     }
 
-    await db.delete(messages).where(eq(messages.id, id));
+    await db.delete(contextEntries).where(eq(contextEntries.id, id));
     return c.body(null, HttpStatusCodes.NO_CONTENT);
 };

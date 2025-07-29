@@ -196,6 +196,12 @@ describe("endpoints routes", () => {
             expect(items[0].name).toBe("B-endpoint");
             expect(hasNext).toBe(false);
         });
+
+        it("handles invalid sortBy gracefully", async () => {
+            // @ts-expect-error: testing invalid sortBy
+            const response = await client.api.endpoints.$get({ query: { sortBy: "INVALID", sortDirection: "asc" } });
+            expect(response.status).toBe(422);
+        });
     });
 
     it("returns 404 when fetching an endpoint for a job not owned by DEV_USER", async () => {

@@ -19,7 +19,7 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
     const limit = pageSize + 1;
 
     const cols = getTableColumns(endpoints);
-    const sortColumn = cols[sortBy as keyof typeof cols] || endpoints.name;
+    const sortColumn = cols[sortBy as keyof typeof cols];
     const result = await db
         .select()
         .from(jobs)
@@ -106,9 +106,6 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
         return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
     }
     const [updated] = await db.update(endpoints).set(updates).where(eq(endpoints.id, id)).returning();
-    if (!updated) {
-        return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
-    }
     return c.json(updated, HttpStatusCodes.OK);
 };
 
