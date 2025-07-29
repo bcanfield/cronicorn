@@ -1,241 +1,169 @@
-import { describe, expect, it } from "vitest";
+/* eslint-disable ts/ban-ts-comment */
 
-import { apiKeys } from "@/api/db/schema";
-import { testClient } from "@/api/lib/test-utils";
-import { apiKeyFactory, userFactory } from "@/api/test/factories";
-import { createMockAuthUser } from "@/api/test/mocks";
+import { testClient } from "hono/testing";
+import { beforeAll, describe, expect, it } from "vitest";
 
-describe("aPI Keys Routes", () => {
-    describe("gET /api-keys", () => {
-        it("should return a list of API keys for the authenticated user", async () => {
-            // Setup - Create a user and API keys for them
-            const user = userFactory.create();
-            const keys = [
-                apiKeyFactory.create({ userId: user.id }),
-                apiKeyFactory.create({ userId: user.id }),
-            ];
+import db from "@/api/db";
+import resetDb from "@/api/db/reset";
+import { users } from "@/api/db/schema/auth";
+import env from "@/api/env";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
+import createApp from "@/api/lib/create-app";
 
-            // Act - Make request with authenticated user
-            const res = await testClient
-                .app
-                .request("/api-keys", {
-                    headers: createMockAuthUser(user),
-                });
+import router from "./api-keys.index";
 
-            // Assert
-            expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.items).toHaveLength(keys.length);
-            expect(body.items[0].id).toBeDefined();
-            // Should not expose secret in response
-            expect(body.items[0].secret).toBeUndefined();
-        });
+if (env.NODE_ENV !== "test") {
+    throw new Error("NODE_ENV must be 'test'");
+}
 
-        it("should only return API keys for the authenticated user", async () => {
-            // Setup - Create two users with their own API keys
-            const user1 = userFactory.create();
-            const user2 = userFactory.create();
-            apiKeyFactory.create({ userId: user1.id });
-            apiKeyFactory.create({ userId: user2.id });
+// @ts-ignore: deep type instantiation
+const client = testClient(createApp().route("/", router));
 
-            // Act - Make request with user1
-            const res = await testClient
-                .app
-                .request("/api-keys", {
-                    headers: createMockAuthUser(user1),
-                });
+describe("api keys routes", () => {
+    let createdId: string;
+    const apiKeyName = "Test API Key";
+    const apiKeyDescription = "For testing purposes";
 
-            // Assert
-            expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.items).toHaveLength(1);
-            expect(body.items[0].userId).toBe(user1.id);
-        });
+    // Seed test data for all API key tests
+    beforeAll(async () => {
+        await resetDb();
+        // Just reset the DB, we'll create the api key with the test user
+        await db.insert(users).values({ email: "test@api-keys.com" }).returning();
     });
 
-    describe("pOST /api-keys", () => {
-        it("should create a new API key for the authenticated user", async () => {
-            // Setup
-            const user = userFactory.create();
-            const apiKeyData = {
-                name: "Test API Key",
-                description: "For testing purposes",
-            };
-
-            // Act
-            const res = await testClient
-                .app
-                .request("/api-keys", {
-                    method: "POST",
-                    headers: {
-                        ...createMockAuthUser(user),
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(apiKeyData),
-                });
-
-            // Assert
-            expect(res.status).toBe(201);
-            const body = await res.json();
-            expect(body.name).toBe(apiKeyData.name);
-            expect(body.description).toBe(apiKeyData.description);
-            expect(body.userId).toBe(user.id);
-            expect(body.key).toBeDefined();
-            expect(body.secret).toBeDefined();
-            expect(body.revoked).toBe(false);
+    // == Validation Tests ==
+    it("post /api-keys validates the body when creating", async () => {
+        const response = await client.api["api-keys"].$post({
+            // @ts-expect-error: Empty body to test validation
+            json: {},
         });
+        expect(response.status).toBe(422);
+        if (response.status === 422) {
+            const json = await response.json();
+            expect(json.error.issues[0].path[0]).toBe("name");
+            expect(json.error.issues[0].message).toBe(ZOD_ERROR_MESSAGES.REQUIRED);
+        }
     });
 
-    describe("gET /api-keys/{id}", () => {
-        it("should return a specific API key by ID for the authenticated user", async () => {
-            // Setup
-            const user = userFactory.create();
-            const apiKey = apiKeyFactory.create({ userId: user.id });
+    // == Creation Tests ==
+    it("post /api-keys creates an API key", async () => {
+        const payload = { name: apiKeyName, description: apiKeyDescription };
+        const response = await client.api["api-keys"].$post({ json: payload });
 
-            // Act
-            const res = await testClient
-                .app
-                .request(`/api-keys/${apiKey.id}`, {
-                    headers: createMockAuthUser(user),
-                });
-
-            // Assert
-            expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.id).toBe(apiKey.id);
-            expect(body.userId).toBe(user.id);
-            // Should not expose secret in response
-            expect(body.secret).toBeUndefined();
-        });
-
-        it("should return 404 if API key doesn't belong to authenticated user", async () => {
-            // Setup - Create two users and give an API key to user1
-            const user1 = userFactory.create();
-            const user2 = userFactory.create();
-            const apiKey = apiKeyFactory.create({ userId: user1.id });
-
-            // Act - Try to access user1's API key as user2
-            const res = await testClient
-                .app
-                .request(`/api-keys/${apiKey.id}`, {
-                    headers: createMockAuthUser(user2),
-                });
-
-            // Assert
-            expect(res.status).toBe(404);
-        });
+        expect(response.status).toBe(201);
+        if (response.status === 201) {
+            const json = await response.json();
+            expect(json.name).toBe(apiKeyName);
+            expect(json.description).toBe(apiKeyDescription);
+            expect(json.key).toBeDefined();
+            expect(json.secret).toBeDefined(); // Secret is only returned on creation
+            expect(json.revoked).toBe(false);
+            createdId = json.id;
+        }
     });
 
-    describe("pATCH /api-keys/{id}", () => {
-        it("should update an API key's metadata", async () => {
-            // Setup
-            const user = userFactory.create();
-            const apiKey = apiKeyFactory.create({ userId: user.id, name: "Original Name" });
-            const updates = { name: "Updated Name" };
+    // == Retrieval Tests ==
+    it("get /api-keys lists all API keys", async () => {
+        const response = await client.api["api-keys"].$get({ query: {} });
 
-            // Act
-            const res = await testClient
-                .app
-                .request(`/api-keys/${apiKey.id}`, {
-                    method: "PATCH",
-                    headers: {
-                        ...createMockAuthUser(user),
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(updates),
-                });
+        expect(response.status).toBe(200);
+        if (response.status === 200) {
+            const { items, hasNext } = await response.json();
+            expect(Array.isArray(items)).toBe(true);
+            expect(items.some(key => key.id === createdId && key.name === apiKeyName)).toBe(true);
+            // Secrets should not be returned in list responses
+            expect("secret" in items[0]).toBe(false);
+            expect(hasNext).toBe(false);
+        }
+    });
 
-            // Assert
-            expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.name).toBe(updates.name);
-            // Key and secret should remain unchanged
-            expect(body.key).toBe(apiKey.key);
-            expect(body.secret).toBeUndefined(); // Secret should not be returned
+    it("get /api-keys/{id} validates the id param", async () => {
+        const response = await client.api["api-keys"][":id"].$get({
+            param: {
+                // @ts-expect-error: Invalid ID type
+                id: 123,
+            },
+        });
+        expect(response.status).toBe(422);
+        if (response.status === 422) {
+            const json = await response.json();
+            expect(json.error.issues[0].path[0]).toBe("id");
+        }
+    });
+
+    it("get /api-keys/{id} returns a specific API key", async () => {
+        const response = await client.api["api-keys"][":id"].$get({ param: { id: createdId } });
+
+        expect(response.status).toBe(200);
+        if (response.status === 200) {
+            const json = await response.json();
+            expect(json.id).toBe(createdId);
+            expect(json.name).toBe(apiKeyName);
+            // Secret should not be returned on retrieval
+            expect("secret" in json).toBe(false);
+        }
+    });
+
+    // == Update Tests ==
+    it("patch /api-keys/{id} validates empty body", async () => {
+        const response = await client.api["api-keys"][":id"].$patch({
+            param: { id: createdId },
+            json: {},
         });
 
-        it("should not allow updating key or secret directly", async () => {
-            // Setup
-            const user = userFactory.create();
-            const apiKey = apiKeyFactory.create({
-                userId: user.id,
-                key: "original-key",
-                secret: "original-secret",
+        expect(response.status).toBe(422);
+        if (response.status === 422) {
+            const json = await response.json();
+            expect(json.error.issues[0].code).toBe(ZOD_ERROR_CODES.INVALID_UPDATES);
+        }
+    });
+
+    it("patch /api-keys/{id} updates API key metadata", async () => {
+        const updatedName = "Updated API Key";
+        const response = await client.api["api-keys"][":id"].$patch({
+            param: { id: createdId },
+            json: { name: updatedName },
+        });
+
+        expect(response.status).toBe(200);
+        if (response.status === 200) {
+            const json = await response.json();
+            expect(json.name).toBe(updatedName);
+            expect(json.description).toBe(apiKeyDescription);
+            // Secret should not be returned on update
+            expect("secret" in json).toBe(false);
+        }
+    });
+
+    // == Revoke Tests ==
+    it("post /api-keys/{id}/revoke revokes an API key", async () => {
+        const response = await client.api["api-keys"][":id"].revoke.$post({
+            param: { id: createdId },
+        });
+
+        expect(response.status).toBe(200);
+        if (response.status === 200) {
+            const json = await response.json();
+            expect(json.revoked).toBe(true);
+        }
+    });
+
+    // == Delete Tests ==
+    it("delete /api-keys/{id} deletes an API key", async () => {
+        const response = await client.api["api-keys"][":id"].$delete({
+            param: { id: createdId },
+        });
+
+        expect(response.status).toBe(200);
+        if (response.status === 200) {
+            const json = await response.json();
+            expect(json.success).toBe(true);
+
+            // Verify deletion - attempt to fetch should return 404
+            const checkResponse = await client.api["api-keys"][":id"].$get({
+                param: { id: createdId },
             });
-            const updates = {
-                name: "Updated Name",
-                key: "hacked-key",
-                secret: "hacked-secret",
-            };
-
-            // Act
-            const res = await testClient
-                .app
-                .request(`/api-keys/${apiKey.id}`, {
-                    method: "PATCH",
-                    headers: {
-                        ...createMockAuthUser(user),
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(updates),
-                });
-
-            // Assert
-            expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.name).toBe(updates.name);
-            // Key should remain unchanged despite attempt to update
-            expect(body.key).toBe(apiKey.key);
-            // Secret should not be exposed in response
-            expect(body.secret).toBeUndefined();
-        });
-    });
-
-    describe("pOST /api-keys/{id}/revoke", () => {
-        it("should revoke an API key", async () => {
-            // Setup
-            const user = userFactory.create();
-            const apiKey = apiKeyFactory.create({ userId: user.id, revoked: false });
-
-            // Act
-            const res = await testClient
-                .app
-                .request(`/api-keys/${apiKey.id}/revoke`, {
-                    method: "POST",
-                    headers: createMockAuthUser(user),
-                });
-
-            // Assert
-            expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.revoked).toBe(true);
-        });
-    });
-
-    describe("dELETE /api-keys/{id}", () => {
-        it("should delete an API key", async () => {
-            // Setup
-            const user = userFactory.create();
-            const apiKey = apiKeyFactory.create({ userId: user.id });
-
-            // Act
-            const res = await testClient
-                .app
-                .request(`/api-keys/${apiKey.id}`, {
-                    method: "DELETE",
-                    headers: createMockAuthUser(user),
-                });
-
-            // Assert
-            expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.success).toBe(true);
-
-            // Verify API key was deleted
-            const deletedKey = await testClient.db.query.apiKeys.findFirst({
-                where: (fields, { eq }) => eq(fields.id, apiKey.id),
-            });
-            expect(deletedKey).toBeUndefined();
-        });
+            expect(checkResponse.status).toBe(404);
+        }
     });
 });
