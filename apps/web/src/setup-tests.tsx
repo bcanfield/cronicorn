@@ -1,4 +1,3 @@
-// test-utils.tsx
 import "@testing-library/jest-dom";
 import type { RenderOptions } from "@testing-library/react";
 
@@ -40,7 +39,4 @@ const customRender = (
   return rtlRender(ui, { wrapper: Wrapper, ...renderOptions });
 };
 
-// re‑export everything
-export * from "@testing-library/react";
-// override render
 export { customRender as render };

@@ -6,8 +6,8 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { ZodIssueCode } from "zod";
 
 import db from "@/api/db";
-import { users } from "@/api/db/auth-schema";
 import resetDb from "@/api/db/reset";
+import { users } from "@/api/db/schema/auth";
 import env from "@/api/env";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 import createApp from "@/api/lib/create-app";
