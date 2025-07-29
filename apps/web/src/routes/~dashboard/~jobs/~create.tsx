@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import PageHeader from "@/web/components/re-usables/page-header";
 import JobForm from "@/web/routes/~dashboard/components/form";
 
 export const Route = createFileRoute("/dashboard/jobs/create")({
@@ -7,5 +8,12 @@ export const Route = createFileRoute("/dashboard/jobs/create")({
 });
 
 function RouteComponent() {
-  return <JobForm />;
+  return (
+    <>
+
+      <PageHeader title="Create New Job" description="Configure a new job" />
+
+      <JobForm />
+    </>
+  );
 }

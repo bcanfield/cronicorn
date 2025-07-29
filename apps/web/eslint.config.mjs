@@ -19,7 +19,7 @@ export default createConfig({
     "@tanstack/query/exhaustive-deps": "error",
     "unicorn/filename-case": ["error", {
       case: "kebabCase",
-      ignore: ["README.md", "~__root.tsx"],
+      ignore: ["README.md", /^~.*/],
     }],
   },
 });
