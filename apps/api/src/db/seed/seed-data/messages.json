@@ -1,0 +1,257 @@
+[
+  {
+    "role": "system",
+    "content": "You are a helpful AI assistant. Be concise and accurate.",
+    "providerOptions": {
+      "temperature": 0.7,
+      "customSystemFlag": true
+    }
+  },
+  {
+    "role": "user",
+    "content": "Hello, how are you today?"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "What do you see in this image?",
+        "providerOptions": {
+          "priority": "high"
+        }
+      },
+      {
+        "type": "image",
+        "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
+        "mediaType": "image/png"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Please analyze this document:"
+      },
+      {
+        "type": "file",
+        "data": "https://example.com/document.pdf",
+        "filename": "report.pdf",
+        "mediaType": "application/pdf",
+        "providerOptions": {
+          "extractText": true
+        }
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "image",
+        "image": "https://example.com/chart.jpg",
+        "mediaType": "image/jpeg"
+      },
+      {
+        "type": "file",
+        "data": "data:text/plain;base64,SGVsbG8gV29ybGQ=",
+        "filename": "notes.txt",
+        "mediaType": "text/plain"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": "I can see a small transparent pixel in the image. How can I help you further?"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "reasoning",
+        "text": "The user is asking about an image. I should analyze what I can see and provide a helpful response.",
+        "providerOptions": {
+          "showReasoning": true
+        }
+      },
+      {
+        "type": "text",
+        "text": "I can see this appears to be a very small transparent image (1x1 pixel). This is often used as a placeholder or tracking pixel."
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "I'll help you search for information about that topic."
+      },
+      {
+        "type": "tool-call",
+        "toolCallId": "call_abc123",
+        "toolName": "web_search",
+        "input": {
+          "query": "artificial intelligence latest developments",
+          "maxResults": 5
+        },
+        "providerOptions": {
+          "timeout": 30000
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": [
+      {
+        "type": "tool-result",
+        "toolCallId": "call_abc123",
+        "toolName": "web_search",
+        "output": {
+          "results": [
+            {
+              "title": "AI Breakthrough in 2024",
+              "url": "https://example.com/ai-news",
+              "snippet": "Recent developments in AI technology..."
+            }
+          ],
+          "totalResults": 1
+        },
+        "providerOptions": {
+          "cached": false,
+          "executionTime": 1250
+        }
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "reasoning",
+        "text": "Based on the search results, I can provide current information about AI developments."
+      },
+      {
+        "type": "text",
+        "text": "Based on my search, here are the latest AI developments:"
+      },
+      {
+        "type": "tool-result",
+        "toolCallId": "call_abc123",
+        "toolName": "web_search",
+        "output": {
+          "summary": "AI has made significant progress in 2024 with new breakthroughs in reasoning and multimodal capabilities."
+        }
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Can you create a chart for this data?"
+      },
+      {
+        "type": "file",
+        "data": "data:text/csv;base64,TmFtZSxBZ2UKSm9obiwzMApKYW5lLDI1",
+        "filename": "data.csv",
+        "mediaType": "text/csv"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "reasoning",
+        "text": "The user wants me to create a chart from CSV data. I should use a chart creation tool."
+      },
+      {
+        "type": "text",
+        "text": "I'll create a chart from your CSV data."
+      },
+      {
+        "type": "tool-call",
+        "toolCallId": "call_chart_456",
+        "toolName": "create_chart",
+        "input": {
+          "data": "Name,Age\nJohn,30\nJane,25",
+          "chartType": "bar",
+          "title": "Age Distribution"
+        },
+        "providerExecuted": true
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "content": [
+      {
+        "type": "tool-result",
+        "toolCallId": "call_chart_456",
+        "toolName": "create_chart",
+        "output": {
+          "chartUrl": "https://example.com/generated-chart.png",
+          "chartData": {
+            "type": "bar",
+            "labels": ["John", "Jane"],
+            "values": [30, 25]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "I've created a bar chart from your data showing the age distribution."
+      },
+      {
+        "type": "file",
+        "data": "https://example.com/generated-chart.png",
+        "filename": "age_chart.png",
+        "mediaType": "image/png",
+        "providerOptions": {
+          "generated": true,
+          "toolId": "call_chart_456"
+        }
+      }
+    ]
+  },
+  {
+    "role": "system",
+    "content": "Context updated: User is working with data visualization."
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Thanks! Can you also show me the raw data?"
+      }
+    ]
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "reasoning",
+        "text": "The user wants to see the original CSV data in a readable format."
+      },
+      {
+        "type": "text",
+        "text": "Here's the data from your CSV file:\n\n| Name | Age |\n|------|-----|\n| John | 30  |\n| Jane | 25  |"
+      }
+    ],
+    "providerOptions": {
+      "model": "gpt-4",
+      "temperature": 0.1
+    }
+  }
+]

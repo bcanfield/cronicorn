@@ -2,7 +2,7 @@
 import db from "@/api/db/index";
 import { DEV_USER } from "@/api/lib/dev-user";
 
-import * as schema from "./schema";
+import * as schema from "../schema";
 
 async function seed() {
   console.log("🌱 Starting database seed...");

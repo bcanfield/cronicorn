@@ -20,7 +20,7 @@ export default defineConfig({
         "src/**/*.d.ts",
         "src/db/migrations/**",
         "src/db/reset.ts",
-        "src/db/seed.ts",
+        "src/db/seed/seed.ts",
       ],
     },
   },

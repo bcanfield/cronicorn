@@ -1,7 +1,7 @@
 import { reset } from "drizzle-seed";
 
 import db from "@/api/db";
-import seed from "@/api/db/seed";
+import seed from "@/api/db/seed/seed";
 
 import * as schema from "./schema";
 

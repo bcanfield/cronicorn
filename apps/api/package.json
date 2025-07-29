@@ -32,7 +32,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:reset": "tsx --env-file=.env src/db/reset.ts",
-    "db:seed": "tsx --env-file=.env src/db/seed.ts"
+    "db:seed": "tsx --env-file=.env src/db/seed/seed.ts"
   },
   "dependencies": {
     "@auth/core": "0.40.0",

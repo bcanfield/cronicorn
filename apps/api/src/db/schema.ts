@@ -1,3 +1,4 @@
+export * from "./schema/api-keys";
 export * from "./schema/auth";
 export * from "./schema/context-entries";
 export * from "./schema/endpoints";
