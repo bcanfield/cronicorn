@@ -6,17 +6,20 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import queryClient from "@/web/lib/query-client";
+import { ThemeProvider } from "@workspace/ui/components/theme-provider";
 
 import App from "./app";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <SessionProvider>
-        <NuqsAdapter>
-          <App />
-        </NuqsAdapter>
-      </SessionProvider>
-    </QueryClientProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <NuqsAdapter>
+            <App />
+          </NuqsAdapter>
+        </SessionProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </StrictMode>,
 );
