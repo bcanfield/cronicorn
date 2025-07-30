@@ -15,6 +15,13 @@
       "when": 1753128838846,
       "tag": "0001_useful_timeslip",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1753812644996,
+      "tag": "0002_wide_paladin",
+      "breakpoints": true
     }
   ]
 }

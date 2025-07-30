@@ -1,5 +1,7 @@
 {
+
   "compilerOptions": {
+    // "baseUrl": ".",
     "paths": {
       "@/web/*": ["./src/*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"]

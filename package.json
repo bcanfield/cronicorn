@@ -8,13 +8,17 @@
     "clean": "pnpm run -r --parallel clean && rm -rf node_modules",
     "build": "pnpm run -r build",
     "test": "pnpm run -r --parallel test",
+    "test:ui": "pnpm run --filter @tasks-app/web test",
     "lint": "pnpm run -r --parallel lint",
     "lint:fix": "pnpm run -r --parallel lint:fix",
     "db:push": "pnpm run -r --parallel db:push",
     "db:generate": "pnpm run -r --parallel db:generate",
+    "db:seed": "pnpm run -r --parallel db:seed",
+    "db:studio": "pnpm run -r --parallel db:studio",
     "typecheck": "pnpm run -r --parallel typecheck",
     "sync:check": "syncpack lint",
-    "sync:fix": "syncpack fix"
+    "sync:fix": "syncpack fix",
+    "kill": "pnpx kill-port 3000 9999"
   },
   "dependencies": {
     "turbo": "2.5.5"

@@ -1,0 +1,96 @@
+name: 🧪 Test Coverage
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-coverage:
+    name: Test Coverage
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.7.0
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Start PostgreSQL database
+        run: docker compose --env-file .env.test up -d cronicorn-dev-db
+      
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          # Wait for PostgreSQL to be ready
+          echo "Waiting for PostgreSQL to be ready..."
+          timeout=60
+          while ! docker exec cronicorn-dev-db pg_isready -U user -d db -h localhost > /dev/null 2>&1; do
+            timeout=$((timeout - 1))
+            if [ $timeout -eq 0 ]; then
+              echo "Timed out waiting for PostgreSQL to be ready"
+              exit 1
+            fi
+            echo "PostgreSQL is not ready yet. Waiting..."
+            sleep 1
+          done
+          echo "PostgreSQL is ready!"
+      
+      - name: Run database migrations and reset
+        run: pnpm db:push
+      
+      - name: Run Tests with coverage
+        run: pnpm test
+      
+      - name: Generate API Coverage Badge
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          base-path: apps/api
+          path-to-lcov: ./apps/api/coverage/lcov.info
+          flag-name: api
+          parallel: true
+
+      - name: Generate Web Coverage Badge
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          base-path: apps/web
+          path-to-lcov: ./apps/web/coverage/lcov.info
+          flag-name: web
+          parallel: true
+          
+      - name: Finalize Coveralls parallel runs
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true

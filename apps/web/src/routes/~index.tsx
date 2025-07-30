@@ -11,7 +11,7 @@ export const Route = createFileRoute("/")({
 
 });
 
-function HomeComponent() {
+export function HomeComponent() {
   return (
     <div className="p-2 grid gap-2">
       <h1 className="text-xl">Welcome!</h1>

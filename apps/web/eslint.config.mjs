@@ -4,6 +4,13 @@ import createConfig from "@tasks-app/eslint-config/create-config";
 export default createConfig({
   react: true,
 }, {
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
   plugins: {
     "@tanstack/query": pluginQuery,
   },
@@ -12,7 +19,7 @@ export default createConfig({
     "@tanstack/query/exhaustive-deps": "error",
     "unicorn/filename-case": ["error", {
       case: "kebabCase",
-      ignore: ["README.md", "~__root.tsx"],
+      ignore: ["README.md", /^~.*/],
     }],
   },
 });

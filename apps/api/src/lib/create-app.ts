@@ -1,8 +1,12 @@
+import type { AuthUser } from "@hono/auth-js";
+
 import { authHandler, verifyAuth } from "@hono/auth-js";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 
+import env from "@/api/env";
+import { DEV_USER } from "@/api/lib/dev-user";
 import { pinoLogger } from "@/api/middlewares/pino-logger";
 
 import type { AppBindings, AppOpenAPI } from "./types";
@@ -27,15 +31,29 @@ export default function createApp() {
         return next();
       },
     )
-    .use("/auth/*", authHandler())
-    .use("*", verifyAuth())
-    .notFound(notFound)
-    .onError(onError);
-  app.use(serveEmojiFavicon("📝"));
-  app.use(pinoLogger());
+    .use("/auth/*", authHandler());
 
-  app.notFound(notFound);
-  app.onError(onError);
+  // Bypass authentication in non-production environments (including test)
+  if (env.NODE_ENV === "production" || !env.FAKE_AUTH) {
+    app.use("*", verifyAuth());
+  }
+  else {
+    app.use("*", async (c, next) => {
+      const authUser: AuthUser = {
+        user: DEV_USER,
+        session: {
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toDateString(), // 7 days
+        },
+      };
+      c.set("authUser", authUser);
+      return next();
+    });
+  }
+  app.notFound(notFound)
+    .onError(onError)
+    .use(serveEmojiFavicon("📝"))
+    .use(pinoLogger());
+
   return app;
 }
 

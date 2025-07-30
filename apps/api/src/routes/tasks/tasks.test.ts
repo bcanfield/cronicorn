@@ -1,10 +1,9 @@
 /* eslint-disable ts/ban-ts-comment */
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { ZodIssueCode } from "zod";
 
-import resetDb from "@/api/db/reset";
 import env from "@/api/env";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 import createApp from "@/api/lib/create-app";
@@ -18,10 +17,6 @@ if (env.NODE_ENV !== "test") {
 const client = testClient(createApp().route("/", router));
 
 describe("tasks routes", () => {
-  beforeAll(async () => {
-    await resetDb();
-  });
-
   it("post /tasks validates the body when creating", async () => {
     const response = await client.api.tasks.$post({
       // @ts-expect-error

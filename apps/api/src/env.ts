@@ -4,10 +4,19 @@ import { expand } from "dotenv-expand";
 import path from "node:path";
 import { z } from "zod";
 
+// Load env files from the apps/api directory
+// expand(config({
+//   path: path.resolve(
+//     __dirname,
+//     process.env.NODE_ENV === "test" ? "../.env.test" : "../.env",
+//   ),
+// }));
 expand(config({
   path: path.resolve(
     process.cwd(),
-    process.env.NODE_ENV === "test" ? ".env.test" : ".env",
+    // process.env.NODE_ENV === "test" ? ".env.test" : ".env",
+
+    process.env.NODE_ENV === "test" ? "../../.env.test" : "../../.env",
   ),
 }));
 
@@ -20,6 +29,7 @@ const EnvSchema = z.object({
   AUTH_URL: z.string().url().default("http://localhost:3000/api/auth"),
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
+  FAKE_AUTH: z.coerce.boolean().default(false),
 });
 
 export type env = z.infer<typeof EnvSchema>;

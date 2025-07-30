@@ -1,8 +1,14 @@
 {
     "$schema": "./node_modules/syncpack/dist/schema.json",
-    "source": ["package.json", "packages/*/package.json"],
-    "dependencyTypes": ["prod", "dev"],
-    "semverGroups": [
+  
+
+  "source": [
+    "package.json",
+    "packages/*/package.json",
+    "apps/*/package.json"
+  ],
+
+  "semverGroups": [
     {
       "dependencyTypes": [
         "prod",
@@ -21,6 +27,27 @@
       "dependencyTypes": ["peer"],
       "range": "^"
     }
+  ],
+  "versionGroups": [
+    {
+        "label": "Use workspace protocol when developing local packages",
+        "dependencies": [
+          "@tasks-app/eslint-config",
+          "@tasks-app/api",
+          "@workspace/ui",
+            "@tasks-app/api-client"
+        ],
+        "dependencyTypes": ["dev", "prod"],
+        "pinVersion": "workspace:*"
+      },
+    {
+        "packages": ["**"],
+
+        "dependencies": ["prod", "dev", "peer"],
+        "dependencyTypes": ["**"],
+
+        "policy": "sameRange"
+      }
+    
   ]
-  }
-  
+}

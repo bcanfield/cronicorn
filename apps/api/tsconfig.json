@@ -8,6 +8,8 @@
       "@/api/*": ["./src/*"]
     },
     "typeRoots": ["./node_modules/@types"],
+    "declaration": true,
+    "declarationMap": true,
     "outDir": "dist"
   }
 }

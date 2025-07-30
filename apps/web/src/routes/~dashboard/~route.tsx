@@ -46,7 +46,9 @@ function AuthLayout() {
         </Button>
       </div>
       <hr />
-      <Outlet />
+      <main className="space-y-6">
+        <Outlet />
+      </main>
     </div>
   );
 }

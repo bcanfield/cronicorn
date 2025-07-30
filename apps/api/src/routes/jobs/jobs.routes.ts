@@ -3,19 +3,29 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdUUIDParamsSchema } from "stoker/openapi/schemas";
 
-import { insertJobsSchema, patchJobsSchema, selectJobsSchema } from "@/api/db/schema";
+// import { listJobsQuerySchema } from "@/api/db/query-schemas";
+import { insertJobsSchema, listJobsSchema, patchJobsSchema, selectJobsSchema } from "@/api/db/schema";
 import { notFoundSchema } from "@/api/lib/constants";
 
 const tags = ["Jobs"];
+
+// Composite query schema: pagination, sorting, filtering
+
+// Response schema for paginated job list
+const listResponseSchema = z.object({
+  items: z.array(selectJobsSchema),
+  hasNext: z.boolean(),
+});
 
 export const list = createRoute({
   path: "/jobs",
   method: "get",
   tags,
+  request: { query: listJobsSchema },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      z.array(selectJobsSchema),
-      "The list of jobs",
+      listResponseSchema,
+      "The paginated list of jobs",
     ),
   },
 });

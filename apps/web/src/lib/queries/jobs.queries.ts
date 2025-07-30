@@ -1,4 +1,4 @@
-import type { insertJobsSchema, patchJobsSchema } from "@tasks-app/api/schema";
+import type { insertJobsSchema, listJobsSchema, patchJobsSchema } from "@tasks-app/api/schema";
 
 import { queryOptions } from "@tanstack/react-query";
 
@@ -6,18 +6,29 @@ import apiClient from "../api-client";
 import formatApiError from "../format-api-error";
 
 export const queryKeys = {
-  LIST_JOBS: { queryKey: ["list-jobs"] },
+  LIST_JOBS: () => ["list-jobs"] as const,
   LIST_JOB: (id: string) => ({ queryKey: [`list-job-${id}`] }),
 };
 
-export const jobsQueryOptions = queryOptions({
-  ...queryKeys.LIST_JOBS,
-  queryFn: async () => {
-    const response = await apiClient.api.jobs.$get();
-    return response.json();
-  },
-});
+/**
+ * React-Query options for listing jobs with dynamic query params
+ */
+export function jobsQueryOptions(params: listJobsSchema) {
+  // ⬇️ build a stable tuple key
+  const key = [...queryKeys.LIST_JOBS(), params] as const;
 
+  return queryOptions({
+    queryKey: key,
+    // React-Query will pass { queryKey } into your fn
+    queryFn: async ({ queryKey: [, q] }) => {
+      const resp = await apiClient.api.jobs.$get({ query: q });
+      return resp.json();
+    },
+
+    // // optional: don’t refetch for 60s if you re-mount
+    // staleTime: 1000 * 60,
+  });
+}
 export const createJobQueryOptions = (id: string) =>
   queryOptions({
     ...queryKeys.LIST_JOB(id),
@@ -63,4 +74,6 @@ export const updateJob = async ({ id, job }: { id: string; job: patchJobsSchema 
     }
     throw new Error(formatApiError(json));
   }
+  const json = await response.json();
+  return json;
 };
