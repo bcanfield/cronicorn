@@ -3,6 +3,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
 import { AppSidebar } from "@/web/components/app-sidebar";
+import { useConfirmationDialog } from "@/web/components/confirmation-dialog/use-confirmation-dialog";
 import { UserAvatar } from "@/web/components/user-avatar";
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { Separator } from "@workspace/ui/components/separator";
@@ -29,9 +30,17 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function AuthLayout() {
-  const handleLogout = () => {
-    // eslint-disable-next-line no-alert
-    if (window.confirm("Are you sure you want to logout?")) {
+  const { confirm } = useConfirmationDialog();
+
+  const handleLogout = async () => {
+    const confirmed = await confirm({
+      title: "Sign Out",
+      description: "Are you sure you want to logout?",
+      confirmText: "Sign Out",
+      variant: "destructive",
+    });
+
+    if (confirmed) {
       signOut();
     }
   };

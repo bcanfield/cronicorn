@@ -28,6 +28,7 @@ export default function JobForm({ initialData, mode, onCancel, onSubmit, onDelet
 
   const handleFormSubmit = async (data: insertJobsSchema) => {
     setIsLoading(true);
+    form.reset(data);
     await onSubmit(data);
     setIsLoading(false);
   };
@@ -69,7 +70,7 @@ export default function JobForm({ initialData, mode, onCancel, onSubmit, onDelet
                 <X className="size-4" />
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading || !form.formState.isDirty}>
                 <Save className="size-4" />
                 {isLoading ? "Saving..." : mode === "update" ? "Update Job" : "Create Job"}
               </Button>

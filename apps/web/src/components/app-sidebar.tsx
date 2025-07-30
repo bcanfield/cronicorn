@@ -49,7 +49,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-4 py-2">
+        <Link to="/" className="flex items-center gap-2 px-4 py-2">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Settings className="size-4" />
           </div>
@@ -57,7 +57,7 @@ export function AppSidebar() {
             <span className="font-semibold">Dashboard</span>
             <span className="text-xs text-muted-foreground">v1.0.0</span>
           </div>
-        </div>
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

@@ -3,6 +3,7 @@ import type { insertJobsSchema } from "@tasks-app/api/schema";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
+import { useConfirmationDialog } from "@/web/components/confirmation-dialog/use-confirmation-dialog";
 import PageHeader from "@/web/components/re-usables/page-header";
 import RoutePending from "@/web/components/route-pending";
 import { createJobQueryOptions, deleteJob, queryKeys, updateJob } from "@/web/lib/queries/jobs.queries";
@@ -19,6 +20,8 @@ export const Route = createFileRoute("/dashboard/jobs/$jobId")({
 function RouteComponent() {
   const { jobId } = Route.useParams();
   const { data } = useSuspenseQuery(createJobQueryOptions(jobId));
+  const { confirm } = useConfirmationDialog();
+
   const navigate = useNavigate();
 
   const updateMutation = useMutation({
@@ -31,6 +34,7 @@ function RouteComponent() {
     mutationFn: () => deleteJob(jobId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.LIST_JOBS() });
+      navigate({ to: "/dashboard/jobs" });
     },
   });
 
@@ -44,8 +48,16 @@ function RouteComponent() {
   };
 
   const handleDelete = async () => {
-    await deleteMutation.mutateAsync();
-    navigate({ to: "/dashboard/jobs" });
+    const confirmed = await confirm({
+      title: "Delete Job",
+      description: "Are you sure you want to delete this job?",
+      confirmText: "Delete Job",
+      variant: "destructive",
+    });
+
+    if (confirmed) {
+      await deleteMutation.mutateAsync();
+    }
   };
 
   return (
