@@ -44,7 +44,7 @@ jobs:
         run: pnpm install
 
       - name: Start PostgreSQL database
-        run: docker compose up -d cronicorn-dev-db
+        run: docker compose --env-file .env.test up -d cronicorn-dev-db
       
       - name: Wait for PostgreSQL to be ready
         run: |
