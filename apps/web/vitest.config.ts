@@ -32,5 +32,17 @@ export default defineConfig({
     setupFiles: "src/test/setup-tests.tsx",
     // inline ESM‑only deps if necessary
     // deps: { inline: [/solid-js/, /@testing-library/] },
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov", "html"],
+      reportsDirectory: "./coverage",
+      all: true,
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.d.ts",
+        "src/test/**",
+        "src/vite-env.d.ts",
+      ],
+    },
   },
 });
