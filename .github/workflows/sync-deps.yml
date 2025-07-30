@@ -8,15 +8,16 @@ on:
 
 jobs:
   sync-deps:
+    name: Dependency Consistency Check
     runs-on: ubuntu-latest
     steps:
       # 1️⃣ Check out your code
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # 2️⃣ Install pnpm (optional, but recommended for pnpm workspaces)
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 10.7.0
 
       # 3️⃣ Install all dependencies
       - run: pnpm install
