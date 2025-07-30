@@ -6,12 +6,6 @@
   "exports": {
     "./routes": "./src/routes/index.ts",
     "./schema": "./src/db/schema.ts",
-
-    "./app": {
-      "types": "./dist/src/app.d.ts",
-      "import": "./dist/src/app.js",
-      "require": "./dist/src/app.js"
-    },
     "./db/query-schemas": {
       "types": "./dist/src/db/query-schemas.d.ts",
       "import": "./dist/src/db/query-schemas.js",

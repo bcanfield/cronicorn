@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { Activity, Calendar, Edit, Lock, User } from "lucide-react";
 
 import { formatDate } from "@/web/lib/date-formatter";
-import { Badge, badgeVariants } from "@workspace/ui/components/badge";
+import { Badge } from "@workspace/ui/components/badge";
 import { buttonVariants } from "@workspace/ui/components/button";
 import { Card, CardContent } from "@workspace/ui/components/card";
 

@@ -11,6 +11,7 @@ async function resetDb(seedData = false) {
   console.log("Resetting database...");
   await reset(db, schema);
   // Insert dev user
+  // eslint-disable-next-line no-console
   console.log("📝 Seeding dev user...");
   await db.insert(schema.users).values({ ...DEV_USER }).onConflictDoNothing();
   if (seedData) {
