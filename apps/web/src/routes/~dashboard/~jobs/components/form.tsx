@@ -1,80 +1,40 @@
 import type { selectJobsSchema } from "@tasks-app/api/schema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { insertJobsSchema } from "@tasks-app/api/schema";
 import { Save, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { createJob, deleteJob, queryKeys, updateJob } from "@/web/lib/queries/jobs.queries";
-import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { Button } from "@workspace/ui/components/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@workspace/ui/components/form";
 import { Separator } from "@workspace/ui/components/separator";
 import { Textarea } from "@workspace/ui/components/textarea";
 
 type JobFormProps = {
-  // If a jobId is provided, the form will be in update mode
-  jobId?: string;
   initialData?: selectJobsSchema;
+  mode: "create" | "update";
   onCancel: () => void;
-  onSuccess?: (data?: insertJobsSchema) => void;
+  onSubmit: (data: insertJobsSchema) => Promise<any>;
+  onDelete?: () => void;
 };
-export default function JobForm({ jobId, initialData, onCancel, onSuccess }: JobFormProps) {
-  const queryClient = useQueryClient();
+export default function JobForm({ initialData, mode, onCancel, onSubmit, onDelete }: JobFormProps) {
   const form = useForm<insertJobsSchema>({
     defaultValues: initialData,
     resolver: zodResolver(insertJobsSchema),
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const createMutation = useMutation({
-    mutationFn: createJob,
-    onSuccess: (data) => {
-      form.reset();
-      queryClient.invalidateQueries({ queryKey: queryKeys.LIST_JOBS() });
-      onSuccess?.(data);
-    },
-    onSettled: () => setTimeout(() => form.setFocus("definitionNL")),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: updateJob,
-    onSuccess: (data) => {
-      form.reset();
-      queryClient.invalidateQueries({ queryKey: queryKeys.LIST_JOBS() });
-      onSuccess?.(data);
-    },
-    onSettled: () => setTimeout(() => form.setFocus("definitionNL")),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: () => jobId ? deleteJob(jobId) : Promise.resolve(),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.LIST_JOBS() });
-    },
-  });
 
   const handleFormSubmit = async (data: insertJobsSchema) => {
     setIsLoading(true);
-    if (jobId) {
-      await updateMutation.mutateAsync({ id: jobId, job: data });
-    }
-    else {
-      await createMutation.mutate(data);
-    }
+    await onSubmit(data);
     setIsLoading(false);
   };
 
   return (
     <>
-      {createMutation.error && (
-        <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{createMutation.error.message}</AlertDescription>
-        </Alert>
-      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
           <FormField
@@ -94,15 +54,10 @@ export default function JobForm({ jobId, initialData, onCancel, onSuccess }: Job
           <Separator />
           {/* Form Actions */}
           <div className="flex items-center justify-between space-x-2">
-            {/* If jobId is provided, show the delete button */}
-            {jobId && (
+            {onDelete && (
               <Button
                 variant="destructive"
-                onClick={() => {
-                  if (window.confirm("Are you sure you want to delete this job?")) {
-                    deleteMutation.mutate();
-                  }
-                }}
+                onClick={onDelete}
                 disabled={isLoading}
               >
                 <X className="size-4" />
@@ -116,7 +71,7 @@ export default function JobForm({ jobId, initialData, onCancel, onSuccess }: Job
               </Button>
               <Button type="submit" disabled={isLoading}>
                 <Save className="size-4" />
-                {isLoading ? "Saving..." : jobId ? "Update Job" : "Create Job"}
+                {isLoading ? "Saving..." : mode === "update" ? "Update Job" : "Create Job"}
               </Button>
             </div>
           </div>
