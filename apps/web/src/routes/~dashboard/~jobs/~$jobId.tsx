@@ -5,7 +5,7 @@ import PageHeader from "@/web/components/re-usables/page-header";
 import RoutePending from "@/web/components/route-pending";
 import { createJobQueryOptions } from "@/web/lib/queries/jobs.queries";
 import queryClient from "@/web/lib/query-client";
-import JobForm from "@/web/routes/~dashboard/components/form";
+import JobForm from "@/web/routes/~dashboard/~jobs/components/form";
 
 export const Route = createFileRoute("/dashboard/jobs/$jobId")({
   loader: ({ params }) =>
