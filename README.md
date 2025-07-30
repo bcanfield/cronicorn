@@ -1,7 +1,7 @@
 # Hono + React / Vite + Cloudflare + pnpm workspaces monorepo
 
-[![API Coverage](https://coveralls.io/repos/github/bcanfield/cronicorn/badge.svg?branch=main&flag=api)](https://coveralls.io/github/bcanfield/cronicorn?branch=main)
-[![Web Coverage](https://coveralls.io/repos/github/bcanfield/cronicorn/badge.svg?branch=main&flag=web)](https://coveralls.io/github/bcanfield/cronicorn?branch=main)
+![API Codecov](https://img.shields.io/codecov/c/github/bcanfield/cronicorn?flag=api&logo=codecov&label=API)
+![API Codecov](https://img.shields.io/codecov/c/github/bcanfield/cronicorn?flag=web&logo=codecov&label=Web)
 
 A monorepo setup using pnpm workspaces with a Hono API and React / vite client deployed to Cloudflare Workers / Static Assets / D1.
 
