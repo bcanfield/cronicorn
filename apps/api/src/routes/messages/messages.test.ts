@@ -4,6 +4,8 @@ import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
 
+import type { insertMessagesSchema } from "@/api/db/schema/messages";
+
 import db from "@/api/db";
 import resetDb from "@/api/db/reset";
 import { users } from "@/api/db/schema";
@@ -27,8 +29,8 @@ describe("messages routes", () => {
   let jobId: string;
   let createdId: string;
   let testUserId: string;
-  const testRole = "user";
-  const testContent = { text: "Hello, world!" };
+  const testRole: insertMessagesSchema["role"] = "user";
+  const testContent = "Hello, world!";
 
   beforeAll(async () => {
     await resetDb();
@@ -150,12 +152,12 @@ describe("messages routes", () => {
     beforeAll(async () => {
       // Seed three messages
       ids = [];
-      const roles = ["user", "assistant", "system"];
+      const roles: insertMessagesSchema["role"][] = ["user", "assistant", "system"];
       for (let i = 0; i < roles.length; i++) {
         const response = await client.api.messages.$post({
           json: {
             role: roles[i],
-            content: { text: `Message ${i + 1}` },
+            content: `Message ${i + 1}`,
             jobId,
           },
         });
@@ -179,14 +181,14 @@ describe("messages routes", () => {
       const response = await client.api.messages.$get({ query: { sortBy: "createdAt", sortDirection: "desc" } });
       expect(response.status).toBe(200);
       const { items } = await response.json();
-      expect(items[0].content.text).toBe("Message 3");
+      expect(items[0].content).toBe("Message 3");
     });
 
     it("sorts results by createdAt asc", async () => {
       const response = await client.api.messages.$get({ query: { sortBy: "createdAt", sortDirection: "asc" } });
       expect(response.status).toBe(200);
       const { items } = await response.json();
-      expect(items[0].content.text).toBe("Message 1");
+      expect(items[0].content).toBe("Message 1");
     });
 
     it("filters results by role", async () => {
@@ -219,7 +221,7 @@ describe("messages routes", () => {
       .returning();
     // seed a message under that job
     const [{ id: otherMessageId }] = await db.insert(messagesTable)
-      .values({ role: "user", content: { text: "Hello" }, jobId: otherJobId })
+      .values({ role: "user", content: "Hello", jobId: otherJobId })
       .returning();
     const response = await client.api.messages[":id"].$get({ param: { id: otherMessageId } });
     expect(response.status).toBe(404);
@@ -230,7 +232,7 @@ describe("messages routes", () => {
       .values({ definitionNL: "Other Job 2", userId: testUserId })
       .returning();
     const [{ id: otherMessageId }] = await db.insert(messagesTable)
-      .values({ role: "user", content: { text: "Hello 2" }, jobId: otherJobId })
+      .values({ role: "user", content: "Hello 2", jobId: otherJobId })
       .returning();
     const response = await client.api.messages[":id"].$patch({
       param: { id: otherMessageId },
@@ -244,7 +246,7 @@ describe("messages routes", () => {
       .values({ definitionNL: "Other Job 3", userId: testUserId })
       .returning();
     const [{ id: otherMessageId }] = await db.insert(messagesTable)
-      .values({ role: "user", content: { text: "Hello 3" }, jobId: otherJobId })
+      .values({ role: "user", content: "Hello 3", jobId: otherJobId })
       .returning();
     const response = await client.api.messages[":id"].$delete({ param: { id: otherMessageId } });
     expect(response.status).toBe(404);
@@ -254,7 +256,7 @@ describe("messages routes", () => {
     const [{ id: otherJobId }] = await db.insert(jobs)
       .values({ definitionNL: "Unauthorized Job", userId: testUserId })
       .returning();
-    const payload = { role: "user", content: { text: "New message" }, jobId: otherJobId };
+    const payload: insertMessagesSchema = { role: "user", content: "New message", jobId: otherJobId };
     const response = await client.api.messages.$post({ json: payload });
     expect(response.status).toBe(404);
   });

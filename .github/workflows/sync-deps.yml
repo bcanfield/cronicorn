@@ -1,4 +1,3 @@
-# .github/workflows/sync-deps.yml
 name: 📦 Dependency consistency
 
 on:

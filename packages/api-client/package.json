@@ -4,12 +4,13 @@
   "version": "1.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
- 
+
   "scripts": {
     "dev": "tsc --watch",
     "clean": "rm -rf node_modules dist",
     "build": "rm -rf dist && tsc",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --max-warnings 0 --fix",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -19,6 +20,8 @@
     "hono": "4.8.5"
   },
   "devDependencies": {
+    "eslint": "~9.31.0",
     "typescript": "~5.8.3"
+
   }
 }
