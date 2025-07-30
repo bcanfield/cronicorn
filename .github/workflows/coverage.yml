@@ -71,26 +71,24 @@ jobs:
       - name: Run Tests with coverage
         run: pnpm test
       
-      - name: Generate API Coverage Badge
-        uses: coverallsapp/github-action@v2
+      # Upload API coverage to Codecov
+      - name: Upload API Coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          base-path: apps/api
-          path-to-lcov: ./apps/api/coverage/lcov.info
-          flag-name: api
-          parallel: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./apps/api/coverage/lcov.info
+          flags: api
+          name: api-coverage
+          fail_ci_if_error: false
+          verbose: true
 
-      - name: Generate Web Coverage Badge
-        uses: coverallsapp/github-action@v2
+      # Upload Web coverage to Codecov
+      - name: Upload Web Coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          base-path: apps/web
-          path-to-lcov: ./apps/web/coverage/lcov.info
-          flag-name: web
-          parallel: true
-          
-      - name: Finalize Coveralls parallel runs
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./apps/web/coverage/lcov.info
+          flags: web
+          name: web-coverage
+          fail_ci_if_error: false
+          verbose: true
