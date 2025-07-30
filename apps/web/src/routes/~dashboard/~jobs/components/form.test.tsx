@@ -85,7 +85,7 @@ describe("job form", () => {
   });
 
   describe("form submission", () => {
-    it("validates required fields and shows error messages", async () => {
+    it("validates minimum length and shows error messages", async () => {
       renderWithQueryClient(
         <JobForm
           mode="create"
@@ -94,11 +94,13 @@ describe("job form", () => {
         />,
       );
 
-      // Submit without filling the required field
+      // Type text shorter than the minimum length (5 characters)
+      await user.type(screen.getByLabelText(/Prompt/i), "test");
+      // Now the form is dirty but still invalid
       await user.click(screen.getByRole("button", { name: /Create Job/i }));
 
-      // Check for validation error
-      expect(await screen.findByText(/required/i)).toBeInTheDocument();
+      // Check for validation error - looking for a message about minimum length
+      expect(await screen.findByText(/must contain at least 5 character/i)).toBeInTheDocument();
       expect(mockOnSubmit).not.toHaveBeenCalled();
     });
 

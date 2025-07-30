@@ -247,7 +247,7 @@ describe("jobs routes", () => {
     const [{ id: otherJobId }] = await db.insert(jobsTable)
       .values({ definitionNL: "Other Job 2", userId: testUserId })
       .returning();
-    const response = await client.api.jobs[":id"].$patch({ param: { id: otherJobId }, json: { definitionNL: "X" } });
+    const response = await client.api.jobs[":id"].$patch({ param: { id: otherJobId }, json: { definitionNL: "Updated Job Text" } });
     expect(response.status).toBe(404);
   });
   it("returns 404 when deleting a job not owned by DEV_USER", async () => {

@@ -41,7 +41,7 @@ export type selectJobsSchema = z.infer<typeof selectJobsSchema>;
 export const insertJobsSchema = createInsertSchema(
   jobs,
   {
-    definitionNL: schema => schema.min(1).max(1000),
+    definitionNL: schema => schema.min(5).max(1000),
   },
 )
   .omit({ id: true, createdAt: true, updatedAt: true })
