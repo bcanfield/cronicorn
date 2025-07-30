@@ -15,8 +15,8 @@ export function SortingContainer<
   const handlePageChange = (change: PaginationChange) => onChange({ ...params, ...change } as P);
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <SortControls
           sortKeys={sortKeys}
           sortBy={params.sortBy}

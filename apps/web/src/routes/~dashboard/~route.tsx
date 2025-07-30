@@ -1,9 +1,12 @@
 import { signOut } from "@hono/auth-js/react";
-import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
+import { AppSidebar } from "@/web/components/app-sidebar";
+import { UserAvatar } from "@/web/components/user-avatar";
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
-import { Button } from "@workspace/ui/components/button";
+import { Separator } from "@workspace/ui/components/separator";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@workspace/ui/components/sidebar";
 
 export const Route = createFileRoute("/dashboard")({
   pendingComponent: () => (
@@ -34,21 +37,27 @@ function AuthLayout() {
   };
 
   return (
-    <div className="p-2 h-full">
-      <h1>Authenticated Route</h1>
-      <p>This route's content is only visible to authenticated users.</p>
-      <div className="py-2 flex gap-2">
-        <Button asChild variant="ghost">
-          <Link to="/dashboard">Dashboard</Link>
-        </Button>
-        <Button variant="destructive" onClick={handleLogout}>
-          Logout
-        </Button>
-      </div>
-      <hr />
-      <main className="space-y-6">
-        <Outlet />
-      </main>
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <div className="flex flex-1 items-center justify-end">
+            <UserAvatar onLogout={handleLogout} />
+          </div>
+        </header>
+        <main className="flex flex-1 flex-col gap-4 p-4">
+          <Outlet />
+        </main>
+        <footer className="border-t px-4 py-3">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>Dashboard Interface</span>
+            <span>Built with Shadcn UI</span>
+          </div>
+        </footer>
+      </SidebarInset>
+    </SidebarProvider>
+
   );
 }

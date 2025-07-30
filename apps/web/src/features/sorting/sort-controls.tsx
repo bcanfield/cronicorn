@@ -10,13 +10,13 @@ import type { SortControlsProps } from "./types";
 export function SortControls<K extends string>({ sortKeys, sortBy, sortDirection, onChange }: SortControlsProps<K>) {
   return (
     <div className="flex items-center gap-2">
-      <div className="flex items-center gap-2">
-        <Label>Sort By:</Label>
+      <div className="flex items-center gap-2 flex-nowrap">
+        <Label className="text-nowrap">Sort By:</Label>
         <Select
           value={sortBy ?? ""}
           onValueChange={value => onChange({ sortBy: value as K })}
         >
-          <SelectTrigger className="mt-1">
+          <SelectTrigger>
             <SelectValue placeholder="--" />
           </SelectTrigger>
           <SelectContent>
