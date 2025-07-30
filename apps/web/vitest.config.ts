@@ -1,6 +1,17 @@
+/* eslint-disable node/no-process-env */
+
+import { config } from "dotenv";
+import { expand } from "dotenv-expand";
 import path from "node:path";
 // vitest.config.ts (or add to vite.config.ts)
 import { defineConfig } from "vitest/config";
+
+expand(config({
+  path: path.resolve(
+    process.cwd(),
+    process.env.NODE_ENV === "test" ? "../../.env.test" : "../../.env",
+  ),
+}));
 
 export default defineConfig({
   resolve: {
@@ -18,7 +29,7 @@ export default defineConfig({
     // where to find your tests
     include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}"],
     // run any setup code (e.g. jest-dom)
-    setupFiles: "src/setup-tests.tsx",
+    setupFiles: "src/test/setup-tests.tsx",
     // inline ESM‑only deps if necessary
     // deps: { inline: [/solid-js/, /@testing-library/] },
   },

@@ -17,10 +17,6 @@ async function seed() {
   console.log("🌱 Starting database seed...");
 
   try {
-    // Insert dev user
-    console.log("📝 Seeding dev user...");
-    await db.insert(schema.users).values({ ...DEV_USER }).onConflictDoNothing();
-
     // Get the actual user from the database
     const devUser = await db.query.users.findFirst({
       where: eq(schema.users.email, DEV_USER.email),

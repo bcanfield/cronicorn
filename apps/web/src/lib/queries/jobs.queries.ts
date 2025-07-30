@@ -74,4 +74,6 @@ export const updateJob = async ({ id, job }: { id: string; job: patchJobsSchema 
     }
     throw new Error(formatApiError(json));
   }
+  const json = await response.json();
+  return json;
 };

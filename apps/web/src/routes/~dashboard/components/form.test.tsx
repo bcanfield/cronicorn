@@ -1,9 +1,9 @@
 import { it } from "vitest";
 
 import JobForm from "@/web/routes/~dashboard/components/form";
-import { render } from "@/web/setup-tests";
+import { renderWithQueryClient } from "@/web/test/test-utils";
 
 it("renders the form component", () => {
-  render(<JobForm />);
+  renderWithQueryClient(<JobForm />);
   // screen.debug();
 });
