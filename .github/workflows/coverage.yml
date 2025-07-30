@@ -13,6 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -40,7 +43,29 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run tests with coverage
+      - name: Start PostgreSQL database
+        run: docker-compose up -d cronicorn-dev-db
+      
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          # Wait for PostgreSQL to be ready
+          echo "Waiting for PostgreSQL to be ready..."
+          timeout=60
+          while ! docker exec cronicorn-dev-db pg_isready -U user -d db -h localhost > /dev/null 2>&1; do
+            timeout=$((timeout - 1))
+            if [ $timeout -eq 0 ]; then
+              echo "Timed out waiting for PostgreSQL to be ready"
+              exit 1
+            fi
+            echo "PostgreSQL is not ready yet. Waiting..."
+            sleep 1
+          done
+          echo "PostgreSQL is ready!"
+      
+      - name: Run database migrations and reset
+        run: pnpm db:push
+      
+      - name: Run Tests with coverage
         run: pnpm test
       
       - name: Generate API Coverage Badge
