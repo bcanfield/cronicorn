@@ -92,7 +92,7 @@ importers:
         specifier: ~22.10.2
         version: 22.10.2
       '@vitest/coverage-v8':
-        specifier: 2.1.9
+        specifier: ~2.1.9
         version: 2.1.9(vitest@2.1.9(@types/node@22.10.2)(jsdom@26.1.0)(lightningcss@1.30.1))
       cross-env:
         specifier: ~7.0.3
@@ -158,7 +158,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/eslint-config
       '@testing-library/user-event':
-        specifier: ^14.6.1
+        specifier: 14.6.1
         version: 14.6.1(@testing-library/dom@10.4.0)
       '@types/node':
         specifier: 22.10.2
@@ -213,10 +213,10 @@ importers:
         specifier: ~1.129.5
         version: 1.129.5(@tanstack/react-router@1.129.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@7.0.5(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.30.1)(tsx@4.20.3)(yaml@2.8.0))
       '@testing-library/jest-dom':
-        specifier: ^6.6.3
+        specifier: ~6.6.3
         version: 6.6.3
       '@testing-library/react':
-        specifier: ^16.3.0
+        specifier: ~16.3.0
         version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@types/react':
         specifier: ~19.1.8
@@ -228,7 +228,7 @@ importers:
         specifier: ~4.7.0
         version: 4.7.0(vite@7.0.5(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.30.1)(tsx@4.20.3)(yaml@2.8.0))
       '@vitest/coverage-v8':
-        specifier: 2.1.9
+        specifier: ~2.1.9
         version: 2.1.9(vitest@2.1.9(@types/node@22.10.2)(jsdom@26.1.0)(lightningcss@1.30.1))
       eslint:
         specifier: ~9.31.0
@@ -243,10 +243,10 @@ importers:
         specifier: ~16.3.0
         version: 16.3.0
       install:
-        specifier: ^0.13.0
+        specifier: ~0.13.0
         version: 0.13.0
       jsdom:
-        specifier: ^26.1.0
+        specifier: ~26.1.0
         version: 26.1.0
       typescript:
         specifier: ~5.8.3
