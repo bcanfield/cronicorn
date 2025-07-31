@@ -67,7 +67,7 @@ describe("messages routes", () => {
   });
 
   it("get /messages lists all messages", async () => {
-    const response = await client.api.messages.$get({ query: {} });
+    const response = await client.api.messages.$get({ query: {}, param: { jobId } });
     expect(response.status).toBe(200);
     if (response.status === 200) {
       const { items, hasNext } = await response.json();
@@ -95,7 +95,8 @@ describe("messages routes", () => {
   });
 
   it("patch /messages/{id} validates empty body", async () => {
-    const response = await client.api.messages[":id"].$patch({ param: { id: createdId }, json: {} });
+    // @ts-expect-error: empty body
+    const response = await client.api.messages[":id"].$patch({ param: { id: createdId }, json: { jobId } });
     expect(response.status).toBe(422);
     if (response.status === 422) {
       const json = await response.json();
@@ -104,8 +105,8 @@ describe("messages routes", () => {
   });
 
   it("patch /messages/{id} updates a property", async () => {
-    const newRole = "assistant";
-    const response = await client.api.messages[":id"].$patch({ param: { id: createdId }, json: { role: newRole } });
+    const newRole = "user";
+    const response = await client.api.messages[":id"].$patch({ param: { id: createdId }, json: { jobId, role: newRole, content: "Test Content" } });
     expect(response.status).toBe(200);
     if (response.status === 200) {
       const json = await response.json();
@@ -129,7 +130,7 @@ describe("messages routes", () => {
 
   it("patch /messages/{id} returns 404 when updating non-existent message", async () => {
     const nonExistentId = "11111111-1111-1111-1111-111111111111";
-    const response = await client.api.messages[":id"].$patch({ param: { id: nonExistentId }, json: { role: testRole } });
+    const response = await client.api.messages[":id"].$patch({ param: { id: nonExistentId }, json: { role: testRole, jobId, content: "Test Content" } });
     expect(response.status).toBe(404);
     if (response.status === 404) {
       const json = await response.json();
@@ -152,11 +153,10 @@ describe("messages routes", () => {
     beforeAll(async () => {
       // Seed three messages
       ids = [];
-      const roles: insertMessagesSchema["role"][] = ["user", "assistant", "system"];
-      for (let i = 0; i < roles.length; i++) {
+      for (let i = 0; i < 3; i++) {
         const response = await client.api.messages.$post({
           json: {
-            role: roles[i],
+            role: "user",
             content: `Message ${i + 1}`,
             jobId,
           },
@@ -170,7 +170,7 @@ describe("messages routes", () => {
     });
 
     it("paginates results", async () => {
-      const response = await client.api.messages.$get({ query: { page: 1, pageSize: 2 } });
+      const response = await client.api.messages.$get({ query: { page: 1, pageSize: 2 }, param: { jobId } });
       expect(response.status).toBe(200);
       const { items, hasNext } = await response.json();
       expect(items).toHaveLength(2);
@@ -178,21 +178,21 @@ describe("messages routes", () => {
     });
 
     it("sorts results by createdAt desc", async () => {
-      const response = await client.api.messages.$get({ query: { sortBy: "createdAt", sortDirection: "desc" } });
+      const response = await client.api.messages.$get({ query: { sortBy: "createdAt", sortDirection: "desc" }, param: { jobId } });
       expect(response.status).toBe(200);
       const { items } = await response.json();
       expect(items[0].content).toBe("Message 3");
     });
 
     it("sorts results by createdAt asc", async () => {
-      const response = await client.api.messages.$get({ query: { sortBy: "createdAt", sortDirection: "asc" } });
+      const response = await client.api.messages.$get({ query: { sortBy: "createdAt", sortDirection: "asc" }, param: { jobId } });
       expect(response.status).toBe(200);
       const { items } = await response.json();
       expect(items[0].content).toBe("Message 1");
     });
 
     it("filters results by role", async () => {
-      const response = await client.api.messages.$get({ query: { searchQuery: "assistant" } });
+      const response = await client.api.messages.$get({ query: { searchQuery: "assistant" }, param: { jobId } });
       expect(response.status).toBe(200);
       const { items, hasNext } = await response.json();
       expect(items).toHaveLength(1);
@@ -201,7 +201,7 @@ describe("messages routes", () => {
     });
 
     it("filters results by jobId", async () => {
-      const response = await client.api.messages.$get({ query: { jobId } });
+      const response = await client.api.messages.$get({ query: {}, param: { jobId } });
       expect(response.status).toBe(200);
       const { items } = await response.json();
       expect(items.length).toBeGreaterThan(0);
@@ -236,7 +236,7 @@ describe("messages routes", () => {
       .returning();
     const response = await client.api.messages[":id"].$patch({
       param: { id: otherMessageId },
-      json: { role: "assistant" },
+      json: { role: "user", content: "Updated content", jobId: otherJobId },
     });
     expect(response.status).toBe(404);
   });

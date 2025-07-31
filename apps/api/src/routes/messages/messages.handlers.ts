@@ -14,7 +14,8 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
   // List messages for authenticated user's jobs
   const authUser = c.get("authUser");
   const userId = authUser.user!.id;
-  const { page, pageSize, sortBy, sortDirection, searchQuery, jobId } = c.req.valid("query");
+  const { page, pageSize, sortBy, sortDirection, searchQuery } = c.req.valid("query");
+  const jobId = c.req.valid("param").jobId;
   const offset = (page - 1) * pageSize;
   const limit = pageSize + 1;
 

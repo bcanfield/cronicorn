@@ -44,7 +44,7 @@ function RouteComponent() {
 
   const handleSubmit = async (data: insertJobsSchema) => {
     await updateMutation.mutateAsync({ id: jobId, job: data });
-    navigate({ to: `/dashboard/jobs/${jobId}` });
+    navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
   };
 
   const handleDelete = async () => {

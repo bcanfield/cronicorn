@@ -1,4 +1,4 @@
-import type { insertMessagesSchema, listMessagesByJobIdSchema, listMessagesSchema } from "@tasks-app/api/schema";
+import type { insertMessagesSchema, listMessagesSchema } from "@tasks-app/api/schema";
 
 import { queryOptions } from "@tanstack/react-query";
 
@@ -13,14 +13,14 @@ export const queryKeys = {
 /**
  * React-Query options for listing messages with dynamic query params
  */
-export function messagesQueryOptions(params: listMessagesSchema | listMessagesByJobIdSchema) {
+export function messagesQueryOptions(params: listMessagesSchema, jobId?: string) {
     // ⬇️ build a stable tuple key
-    const key = [...queryKeys.LIST_MESSAGES(), params] as const;
+    const key = [...queryKeys.LIST_MESSAGES(), params, jobId] as const;
 
     return queryOptions({
         queryKey: key,
-        queryFn: async ({ queryKey: [, q] }) => {
-            const resp = await apiClient.api.messages.$get({ query: q });
+        queryFn: async ({ queryKey: [, q, currentJobId] }) => {
+            const resp = await apiClient.api.messages.$get({ query: q, param: { jobId: currentJobId } });
             return resp.json();
         },
     });

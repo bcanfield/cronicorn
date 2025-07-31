@@ -17,7 +17,7 @@ export const list = createRoute({
   path: "/messages",
   method: "get",
   tags,
-  request: { query: listMessagesSchema },
+  request: { query: listMessagesSchema, params: z.object({ jobId: z.string().uuid().optional() }) },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(listResponseSchema, "The paginated list of messages"),
   },
