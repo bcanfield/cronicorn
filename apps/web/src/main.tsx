@@ -5,7 +5,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { ConfirmationProvider } from "@/web/components/confirmation-dialog/confirmation-dialog";
+import { DialogProvider } from "@/web/components/simple-dialog/simple-dialog";
 import queryClient from "@/web/lib/query-client";
+import { Toaster } from "@workspace/ui/components/sonner";
 import { ThemeProvider } from "@workspace/ui/components/theme-provider";
 
 import App from "./app";
@@ -16,7 +18,10 @@ createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <SessionProvider>
           <ConfirmationProvider>
-            <App />
+            <DialogProvider>
+              <App />
+              <Toaster />
+            </DialogProvider>
           </ConfirmationProvider>
         </SessionProvider>
       </QueryClientProvider>

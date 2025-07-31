@@ -10,10 +10,11 @@ export const Route = createRootRouteWithContext<{
 }>()({
   component: () => (
     <>
-      <main className="mx-auto">
+      <div className="mx-auto">
         <Outlet />
         <TanStackRouterDevtools />
-      </main>
+
+      </div>
 
     </>
   ),

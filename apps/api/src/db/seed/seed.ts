@@ -120,7 +120,7 @@ async function seedApiKeys(userId: string) {
       secret: crypto.randomUUID().replace(/-/g, ""),
       scopes: ["read", "write"],
       description: "Used for local development",
-      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
       userId,
     },
     {
@@ -129,7 +129,7 @@ async function seedApiKeys(userId: string) {
       secret: crypto.randomUUID().replace(/-/g, ""),
       scopes: ["read", "write", "admin"],
       description: "Used for production environment",
-      expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 6 months
+      expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(), // 6 months
       userId,
     },
     {
@@ -138,7 +138,7 @@ async function seedApiKeys(userId: string) {
       secret: crypto.randomUUID().replace(/-/g, ""),
       scopes: ["read"],
       description: "Used for read-only access",
-      expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 3 months
+      expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // 3 months
       userId,
     },
   ];

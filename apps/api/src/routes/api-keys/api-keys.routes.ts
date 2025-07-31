@@ -3,14 +3,14 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdUUIDParamsSchema } from "stoker/openapi/schemas";
 
-import { insertApiKeysSchema, listApiKeysSchema, patchApiKeysSchema, selectApiKeysSchema } from "@/api/db/schema/api-keys.schema";
+import { createApiKeysSchema, insertApiKeysSchema, listApiKeysSchema, patchApiKeysSchema, selectApiKeysSchema } from "@/api/db/schema";
 import { notFoundSchema } from "@/api/lib/constants";
 
 const tags = ["API Keys"];
 
 // Response schema for paginated API keys list
 const listResponseSchema = z.object({
-  items: z.array(selectApiKeysSchema.omit({ secret: true })),
+  items: z.array(selectApiKeysSchema),
   hasNext: z.boolean(),
 });
 
@@ -44,7 +44,7 @@ export const create = createRoute({
   },
   responses: {
     [HttpStatusCodes.CREATED]: jsonContent(
-      selectApiKeysSchema,
+      createApiKeysSchema,
       "The created API key",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
@@ -63,7 +63,7 @@ export const getOne = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectApiKeysSchema.omit({ secret: true }),
+      selectApiKeysSchema,
       "The requested API key",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
@@ -90,7 +90,7 @@ export const patch = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectApiKeysSchema.omit({ secret: true }),
+      selectApiKeysSchema,
       "The updated API key",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
@@ -113,7 +113,7 @@ export const revoke = createRoute({
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      selectApiKeysSchema.omit({ secret: true }),
+      selectApiKeysSchema,
       "The revoked API key",
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
