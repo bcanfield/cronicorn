@@ -37,7 +37,7 @@
       },
       {
         "type": "file",
-        "data": "https://example.com/document.pdf",
+        "data": "data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsO4w6A=",
         "filename": "report.pdf",
         "mediaType": "application/pdf",
         "providerOptions": {
@@ -51,7 +51,7 @@
     "content": [
       {
         "type": "image",
-        "image": "https://example.com/chart.jpg",
+        "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/wA==",
         "mediaType": "image/jpeg"
       },
       {
@@ -214,7 +214,7 @@
       },
       {
         "type": "file",
-        "data": "https://example.com/generated-chart.png",
+        "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
         "filename": "age_chart.png",
         "mediaType": "image/png",
         "providerOptions": {

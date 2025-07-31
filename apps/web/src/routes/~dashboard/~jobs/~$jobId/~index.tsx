@@ -10,7 +10,7 @@ import { createJobQueryOptions, deleteJob, queryKeys, updateJob } from "@/web/li
 import queryClient from "@/web/lib/query-client";
 import JobForm from "@/web/routes/~dashboard/~jobs/components/form";
 
-export const Route = createFileRoute("/dashboard/jobs/$jobId")({
+export const Route = createFileRoute("/dashboard/jobs/$jobId/")({
   loader: ({ params }) =>
     queryClient.ensureQueryData(createJobQueryOptions(params.jobId)),
   component: RouteComponent,

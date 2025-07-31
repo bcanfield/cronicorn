@@ -12,10 +12,13 @@ import { Route as DashboardRouteRouteImport } from './routes/~dashboard/~route'
 import { Route as IndexRouteImport } from './routes/~index'
 import { Route as DashboardIndexRouteImport } from './routes/~dashboard/~index'
 import { Route as DashboardJobsCreateRouteImport } from './routes/~dashboard/~jobs/~create'
-import { Route as DashboardJobsJobIdRouteImport } from './routes/~dashboard/~jobs/~$jobId'
+import { Route as DashboardJobsJobIdRouteRouteImport } from './routes/~dashboard/~jobs/~$jobId/~route'
 import { Route as DashboardApiKeysCreateRouteImport } from './routes/~dashboard/~api-keys/~create'
 import { Route as DashboardJobsIndexRouteImport } from './routes/~dashboard/~jobs/~index'
 import { Route as DashboardApiKeysIndexRouteImport } from './routes/~dashboard/~api-keys/~index'
+import { Route as DashboardJobsJobIdIndexRouteImport } from './routes/~dashboard/~jobs/~$jobId/~index'
+import { Route as DashboardJobsJobIdMessagesCreateRouteImport } from './routes/~dashboard/~jobs/~$jobId/~messages/~create'
+import { Route as DashboardJobsJobIdMessagesIndexRouteImport } from './routes/~dashboard/~jobs/~$jobId/~messages/~index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -42,7 +45,7 @@ const DashboardJobsCreateRoute = DashboardJobsCreateRouteImport.update({
   path: '/jobs/create',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const DashboardJobsJobIdRoute = DashboardJobsJobIdRouteImport.update({
+const DashboardJobsJobIdRouteRoute = DashboardJobsJobIdRouteRouteImport.update({
   id: '/jobs/$jobId',
   path: '/jobs/$jobId',
   getParentRoute: () => DashboardRouteRoute,
@@ -62,6 +65,23 @@ const DashboardApiKeysIndexRoute = DashboardApiKeysIndexRouteImport.update({
   path: '/api-keys/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardJobsJobIdIndexRoute = DashboardJobsJobIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardJobsJobIdRouteRoute,
+} as any)
+const DashboardJobsJobIdMessagesCreateRoute =
+  DashboardJobsJobIdMessagesCreateRouteImport.update({
+    id: '/messages/create',
+    path: '/messages/create',
+    getParentRoute: () => DashboardJobsJobIdRouteRoute,
+  } as any)
+const DashboardJobsJobIdMessagesIndexRoute =
+  DashboardJobsJobIdMessagesIndexRouteImport.update({
+    id: '/messages/',
+    path: '/messages/',
+    getParentRoute: () => DashboardJobsJobIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -71,8 +91,11 @@ export interface FileRoutesByFullPath {
   '/dashboard/api-keys': typeof DashboardApiKeysIndexRoute
   '/dashboard/jobs': typeof DashboardJobsIndexRoute
   '/dashboard/api-keys/create': typeof DashboardApiKeysCreateRoute
-  '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRoute
+  '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRouteRouteWithChildren
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
+  '/dashboard/jobs/$jobId/': typeof DashboardJobsJobIdIndexRoute
+  '/dashboard/jobs/$jobId/messages': typeof DashboardJobsJobIdMessagesIndexRoute
+  '/dashboard/jobs/$jobId/messages/create': typeof DashboardJobsJobIdMessagesCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -81,8 +104,10 @@ export interface FileRoutesByTo {
   '/dashboard/api-keys': typeof DashboardApiKeysIndexRoute
   '/dashboard/jobs': typeof DashboardJobsIndexRoute
   '/dashboard/api-keys/create': typeof DashboardApiKeysCreateRoute
-  '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRoute
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
+  '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdIndexRoute
+  '/dashboard/jobs/$jobId/messages': typeof DashboardJobsJobIdMessagesIndexRoute
+  '/dashboard/jobs/$jobId/messages/create': typeof DashboardJobsJobIdMessagesCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,8 +118,11 @@ export interface FileRoutesById {
   '/dashboard/api-keys/': typeof DashboardApiKeysIndexRoute
   '/dashboard/jobs/': typeof DashboardJobsIndexRoute
   '/dashboard/api-keys/create': typeof DashboardApiKeysCreateRoute
-  '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRoute
+  '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRouteRouteWithChildren
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
+  '/dashboard/jobs/$jobId/': typeof DashboardJobsJobIdIndexRoute
+  '/dashboard/jobs/$jobId/messages/': typeof DashboardJobsJobIdMessagesIndexRoute
+  '/dashboard/jobs/$jobId/messages/create': typeof DashboardJobsJobIdMessagesCreateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,6 +136,9 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys/create'
     | '/dashboard/jobs/$jobId'
     | '/dashboard/jobs/create'
+    | '/dashboard/jobs/$jobId/'
+    | '/dashboard/jobs/$jobId/messages'
+    | '/dashboard/jobs/$jobId/messages/create'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -116,8 +147,10 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys'
     | '/dashboard/jobs'
     | '/dashboard/api-keys/create'
-    | '/dashboard/jobs/$jobId'
     | '/dashboard/jobs/create'
+    | '/dashboard/jobs/$jobId'
+    | '/dashboard/jobs/$jobId/messages'
+    | '/dashboard/jobs/$jobId/messages/create'
   id:
     | '__root__'
     | '/'
@@ -129,6 +162,9 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys/create'
     | '/dashboard/jobs/$jobId'
     | '/dashboard/jobs/create'
+    | '/dashboard/jobs/$jobId/'
+    | '/dashboard/jobs/$jobId/messages/'
+    | '/dashboard/jobs/$jobId/messages/create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -178,7 +214,7 @@ declare module '@tanstack/react-router' {
       id: '/dashboard/jobs/$jobId'
       path: '/jobs/$jobId'
       fullPath: '/dashboard/jobs/$jobId'
-      preLoaderRoute: typeof DashboardJobsJobIdRouteImport
+      preLoaderRoute: typeof DashboardJobsJobIdRouteRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/api-keys/create': {
@@ -202,15 +238,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardApiKeysIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/jobs/$jobId/': {
+      id: '/dashboard/jobs/$jobId/'
+      path: '/'
+      fullPath: '/dashboard/jobs/$jobId/'
+      preLoaderRoute: typeof DashboardJobsJobIdIndexRouteImport
+      parentRoute: typeof DashboardJobsJobIdRouteRoute
+    }
+    '/dashboard/jobs/$jobId/messages/create': {
+      id: '/dashboard/jobs/$jobId/messages/create'
+      path: '/messages/create'
+      fullPath: '/dashboard/jobs/$jobId/messages/create'
+      preLoaderRoute: typeof DashboardJobsJobIdMessagesCreateRouteImport
+      parentRoute: typeof DashboardJobsJobIdRouteRoute
+    }
+    '/dashboard/jobs/$jobId/messages/': {
+      id: '/dashboard/jobs/$jobId/messages/'
+      path: '/messages'
+      fullPath: '/dashboard/jobs/$jobId/messages'
+      preLoaderRoute: typeof DashboardJobsJobIdMessagesIndexRouteImport
+      parentRoute: typeof DashboardJobsJobIdRouteRoute
+    }
   }
 }
+
+interface DashboardJobsJobIdRouteRouteChildren {
+  DashboardJobsJobIdIndexRoute: typeof DashboardJobsJobIdIndexRoute
+  DashboardJobsJobIdMessagesIndexRoute: typeof DashboardJobsJobIdMessagesIndexRoute
+  DashboardJobsJobIdMessagesCreateRoute: typeof DashboardJobsJobIdMessagesCreateRoute
+}
+
+const DashboardJobsJobIdRouteRouteChildren: DashboardJobsJobIdRouteRouteChildren =
+  {
+    DashboardJobsJobIdIndexRoute: DashboardJobsJobIdIndexRoute,
+    DashboardJobsJobIdMessagesIndexRoute: DashboardJobsJobIdMessagesIndexRoute,
+    DashboardJobsJobIdMessagesCreateRoute:
+      DashboardJobsJobIdMessagesCreateRoute,
+  }
+
+const DashboardJobsJobIdRouteRouteWithChildren =
+  DashboardJobsJobIdRouteRoute._addFileChildren(
+    DashboardJobsJobIdRouteRouteChildren,
+  )
 
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardApiKeysIndexRoute: typeof DashboardApiKeysIndexRoute
   DashboardJobsIndexRoute: typeof DashboardJobsIndexRoute
   DashboardApiKeysCreateRoute: typeof DashboardApiKeysCreateRoute
-  DashboardJobsJobIdRoute: typeof DashboardJobsJobIdRoute
+  DashboardJobsJobIdRouteRoute: typeof DashboardJobsJobIdRouteRouteWithChildren
   DashboardJobsCreateRoute: typeof DashboardJobsCreateRoute
 }
 
@@ -219,7 +295,7 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardApiKeysIndexRoute: DashboardApiKeysIndexRoute,
   DashboardJobsIndexRoute: DashboardJobsIndexRoute,
   DashboardApiKeysCreateRoute: DashboardApiKeysCreateRoute,
-  DashboardJobsJobIdRoute: DashboardJobsJobIdRoute,
+  DashboardJobsJobIdRouteRoute: DashboardJobsJobIdRouteRouteWithChildren,
   DashboardJobsCreateRoute: DashboardJobsCreateRoute,
 }
 

@@ -3,6 +3,7 @@ import createApp from "@/api/lib/create-app";
 import apiKeys from "@/api/routes/api-keys/api-keys.index";
 import index from "@/api/routes/index.route";
 import jobs from "@/api/routes/jobs/jobs.index";
+import messages from "@/api/routes/messages/messages.index";
 import tasks from "@/api/routes/tasks/tasks.index";
 
 const app = createApp();
@@ -14,6 +15,7 @@ const routes = [
   tasks,
   jobs,
   apiKeys,
+  messages,
 ] as const;
 
 routes.forEach((route) => {

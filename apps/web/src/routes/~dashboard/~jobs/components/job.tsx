@@ -1,7 +1,7 @@
 import type { selectJobsSchema } from "@tasks-app/api/schema";
 
 import { Link } from "@tanstack/react-router";
-import { Activity, Calendar, Edit, Lock, User } from "lucide-react";
+import { Activity, Calendar, Edit, Lock, MessageSquare, User } from "lucide-react";
 
 import { formatDate } from "@/web/lib/date-formatter";
 import { Badge } from "@workspace/ui/components/badge";
@@ -40,10 +40,16 @@ export default function Job({ job }: { job: selectJobsSchema }) {
                   {/* <span className={getStatusBadgeClass(job.status)}>{job.status.toLowerCase()}</span> */}
                 </div>
               </div>
-              <Link to="/dashboard/jobs/$jobId" params={{ jobId: job.id }} className={buttonVariants({ variant: "outline", size: "sm", className: "shrink-0 flex gap-2 items-center" })}>
-                <Edit className="size-4" />
-                Edit
-              </Link>
+              <div className="flex gap-2">
+                <Link to="/dashboard/jobs/$jobId" params={{ jobId: job.id }} className={buttonVariants({ variant: "outline", size: "sm", className: "shrink-0 flex gap-2 items-center" })}>
+                  <Edit className="size-4" />
+                  Edit
+                </Link>
+                <Link to="/dashboard/jobs/$jobId/messages" params={{ jobId: job.id }} className={buttonVariants({ variant: "outline", size: "sm", className: "shrink-0 flex gap-2 items-center" })}>
+                  <MessageSquare className="size-4" />
+                  Messages
+                </Link>
+              </div>
 
             </div>
 

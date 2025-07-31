@@ -43,7 +43,7 @@ function RouteComponent() {
       />
       <ApiKeyForm
         onSubmit={async (data) => {
-          await mutateAsync(data as insertApiKeysSchema);
+          await mutateAsync(data);
         }}
         onCancel={handleCancel}
       />

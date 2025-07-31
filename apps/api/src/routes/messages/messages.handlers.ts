@@ -5,7 +5,7 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import type { AppRouteHandler } from "@/api/lib/types";
 
 import db from "@/api/db";
-import { jobs, messages } from "@/api/db/schema";
+import { createdMessagesSchema, jobs, messages } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./messages.routes";
@@ -58,7 +58,20 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
     return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
   }
   const [inserted] = await db.insert(messages).values({ jobId, ...rest }).returning();
-  return c.json(inserted, HttpStatusCodes.OK);
+  const { success, data, error } = createdMessagesSchema.safeParse(inserted);
+  if (!success) {
+    return c.json(
+      {
+        success: false,
+        error: {
+          issues: error.issues,
+          name: "ZodError",
+        },
+      },
+      HttpStatusCodes.UNPROCESSABLE_ENTITY,
+    );
+  }
+  return c.json(data, HttpStatusCodes.OK);
 };
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {

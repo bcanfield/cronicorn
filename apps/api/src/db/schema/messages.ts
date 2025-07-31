@@ -123,28 +123,41 @@ export const contentPartSchema = z.union([
 // Content can be string or array of parts
 export const messageContentSchema = z.union([z.string(), z.array(contentPartSchema)]);
 
-export const insertMessagesSchema = z.object({
-  role: messageRoleSchema,
-  content: messageContentSchema,
+// For user messages, we want to enforce a string content
+const userMessageSchema = z.object({
+  role: z.literal("user"),
+  content: z.string(),
   jobId: z.string().uuid(),
 });
-export type insertMessagesSchema = z.infer<typeof insertMessagesSchema>;
-// export const insertMessagesSchema = createInsertSchema(messages, {})
-//   .omit({ id: true, createdAt: true, updatedAt: true })
-//   .required({ role: true, content: true, jobId: true });
-// export type insertMessagesSchema = z.infer<typeof insertMessagesSchema>;
 
-export const patchMessagesSchema = insertMessagesSchema.partial();
+// For insert / update from web ui, the role has to be user
+export const insertMessagesSchema = userMessageSchema;
+export type insertMessagesSchema = z.infer<typeof insertMessagesSchema>;
+
+// We have a created schema for messages that includes the ID - but is strictly scoped to the user role and content
+export const createdMessagesSchema = z.object({
+  ...userMessageSchema.shape,
+  id: z.string().uuid(),
+});
+export type createdMessagesSchema = z.infer<typeof createdMessagesSchema>;
+
+export const patchMessagesSchema = userMessageSchema;
 export type patchMessagesSchema = z.infer<typeof patchMessagesSchema>;
 
 // Schema for listing messages with pagination, sorting, and optional search
-export const messageSortKeys = ["role", "createdAt", "updatedAt"] as const;
+export const MESSAGE_SORT_KEYS = ["role", "createdAt", "updatedAt"] as const;
 export const listMessagesSchema = z.object({
-  sortBy: z.enum(messageSortKeys).default("createdAt").describe("Field to sort by"),
+  sortBy: z.enum(MESSAGE_SORT_KEYS).default("createdAt").describe("Field to sort by"),
   sortDirection: sortDirectionSchema,
   page: pageSchema,
   pageSize: pageSizeSchema,
   searchQuery: z.string().optional().describe("Search query for message content"),
-  jobId: z.string().optional().describe("Filter by job ID"),
 });
+
 export type listMessagesSchema = z.infer<typeof listMessagesSchema>;
+
+export const listMessagesByJobIdSchema = z.object({
+  jobId: z.string().uuid().describe("Filter messages by job ID"),
+  ...listMessagesSchema.shape, // Include pagination and sorting
+});
+export type listMessagesByJobIdSchema = z.infer<typeof listMessagesByJobIdSchema>;
