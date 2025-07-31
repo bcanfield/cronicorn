@@ -53,7 +53,6 @@ export default function JobForm({ initialData, mode, onCancel, onSubmit, onDelet
             )}
           />
           <Separator />
-          {/* Form Actions */}
           <div className="flex items-center justify-between space-x-2">
             {onDelete && (
               <Button

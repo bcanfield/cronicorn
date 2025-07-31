@@ -18,7 +18,7 @@ function RouteComponent() {
   const navigate = Route.useNavigate();
   const { showDialog } = useDialog();
 
-  const { mutateAsync, isPending } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: async (data: insertApiKeysSchema) => createApiKey(data),
     onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.LIST_API_KEYS() });
@@ -32,7 +32,9 @@ function RouteComponent() {
       ), title: "API Key Created" });
     },
   });
-
+  const handleCancel = () => {
+    navigate({ to: "/dashboard/api-keys" });
+  };
   return (
     <>
       <PageHeader
@@ -43,7 +45,7 @@ function RouteComponent() {
         onSubmit={async (data) => {
           await mutateAsync(data as insertApiKeysSchema);
         }}
-        isLoading={isPending}
+        onCancel={handleCancel}
       />
     </>
   );
