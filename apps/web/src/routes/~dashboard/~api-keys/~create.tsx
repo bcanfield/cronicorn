@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { CodeBlock } from "@/web/components/code-block";
-import { useConfirmationDialog } from "@/web/components/confirmation-dialog/use-confirmation-dialog";
 import PageHeader from "@/web/components/re-usables/page-header";
 import { useDialog } from "@/web/components/simple-dialog/use-dialog";
 import { createApiKey, queryKeys } from "@/web/lib/queries/api-keys.queries";
@@ -31,8 +30,6 @@ function RouteComponent() {
           <CodeBlock code={data.secret} />
         </div>
       ), title: "API Key Created" });
-      // Navigate to the API key detail page
-    //   navigate({ to: "/dashboard/api-keys/$apiKeyId", params: { apiKeyId: data.id } });
     },
   });
 
@@ -42,14 +39,12 @@ function RouteComponent() {
         title="Create API Key"
         description="Create a new API key for accessing the API"
       />
-      <div className="max-w-2xl">
-        <ApiKeyForm
-          onSubmit={async (data) => {
-            await mutateAsync(data as insertApiKeysSchema);
-          }}
-          isLoading={isPending}
-        />
-      </div>
+      <ApiKeyForm
+        onSubmit={async (data) => {
+          await mutateAsync(data as insertApiKeysSchema);
+        }}
+        isLoading={isPending}
+      />
     </>
   );
 }

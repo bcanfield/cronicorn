@@ -14,7 +14,6 @@ import { Route as DashboardIndexRouteImport } from './routes/~dashboard/~index'
 import { Route as DashboardJobsCreateRouteImport } from './routes/~dashboard/~jobs/~create'
 import { Route as DashboardJobsJobIdRouteImport } from './routes/~dashboard/~jobs/~$jobId'
 import { Route as DashboardApiKeysCreateRouteImport } from './routes/~dashboard/~api-keys/~create'
-import { Route as DashboardApiKeysApiKeyIdRouteImport } from './routes/~dashboard/~api-keys/~$apiKeyId'
 import { Route as DashboardJobsIndexRouteImport } from './routes/~dashboard/~jobs/~index'
 import { Route as DashboardApiKeysIndexRouteImport } from './routes/~dashboard/~api-keys/~index'
 
@@ -53,12 +52,6 @@ const DashboardApiKeysCreateRoute = DashboardApiKeysCreateRouteImport.update({
   path: '/api-keys/create',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const DashboardApiKeysApiKeyIdRoute =
-  DashboardApiKeysApiKeyIdRouteImport.update({
-    id: '/api-keys/$apiKeyId',
-    path: '/api-keys/$apiKeyId',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
 const DashboardJobsIndexRoute = DashboardJobsIndexRouteImport.update({
   id: '/jobs/',
   path: '/jobs/',
@@ -77,7 +70,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/api-keys': typeof DashboardApiKeysIndexRoute
   '/dashboard/jobs': typeof DashboardJobsIndexRoute
-  '/dashboard/api-keys/$apiKeyId': typeof DashboardApiKeysApiKeyIdRoute
   '/dashboard/api-keys/create': typeof DashboardApiKeysCreateRoute
   '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRoute
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
@@ -88,7 +80,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/api-keys': typeof DashboardApiKeysIndexRoute
   '/dashboard/jobs': typeof DashboardJobsIndexRoute
-  '/dashboard/api-keys/$apiKeyId': typeof DashboardApiKeysApiKeyIdRoute
   '/dashboard/api-keys/create': typeof DashboardApiKeysCreateRoute
   '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRoute
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
@@ -101,7 +92,6 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/api-keys/': typeof DashboardApiKeysIndexRoute
   '/dashboard/jobs/': typeof DashboardJobsIndexRoute
-  '/dashboard/api-keys/$apiKeyId': typeof DashboardApiKeysApiKeyIdRoute
   '/dashboard/api-keys/create': typeof DashboardApiKeysCreateRoute
   '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRoute
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
@@ -115,7 +105,6 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/api-keys'
     | '/dashboard/jobs'
-    | '/dashboard/api-keys/$apiKeyId'
     | '/dashboard/api-keys/create'
     | '/dashboard/jobs/$jobId'
     | '/dashboard/jobs/create'
@@ -126,7 +115,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/api-keys'
     | '/dashboard/jobs'
-    | '/dashboard/api-keys/$apiKeyId'
     | '/dashboard/api-keys/create'
     | '/dashboard/jobs/$jobId'
     | '/dashboard/jobs/create'
@@ -138,7 +126,6 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/api-keys/'
     | '/dashboard/jobs/'
-    | '/dashboard/api-keys/$apiKeyId'
     | '/dashboard/api-keys/create'
     | '/dashboard/jobs/$jobId'
     | '/dashboard/jobs/create'
@@ -201,13 +188,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardApiKeysCreateRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/api-keys/$apiKeyId': {
-      id: '/dashboard/api-keys/$apiKeyId'
-      path: '/api-keys/$apiKeyId'
-      fullPath: '/dashboard/api-keys/$apiKeyId'
-      preLoaderRoute: typeof DashboardApiKeysApiKeyIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
     '/dashboard/jobs/': {
       id: '/dashboard/jobs/'
       path: '/jobs'
@@ -229,7 +209,6 @@ interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardApiKeysIndexRoute: typeof DashboardApiKeysIndexRoute
   DashboardJobsIndexRoute: typeof DashboardJobsIndexRoute
-  DashboardApiKeysApiKeyIdRoute: typeof DashboardApiKeysApiKeyIdRoute
   DashboardApiKeysCreateRoute: typeof DashboardApiKeysCreateRoute
   DashboardJobsJobIdRoute: typeof DashboardJobsJobIdRoute
   DashboardJobsCreateRoute: typeof DashboardJobsCreateRoute
@@ -239,7 +218,6 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardApiKeysIndexRoute: DashboardApiKeysIndexRoute,
   DashboardJobsIndexRoute: DashboardJobsIndexRoute,
-  DashboardApiKeysApiKeyIdRoute: DashboardApiKeysApiKeyIdRoute,
   DashboardApiKeysCreateRoute: DashboardApiKeysCreateRoute,
   DashboardJobsJobIdRoute: DashboardJobsJobIdRoute,
   DashboardJobsCreateRoute: DashboardJobsCreateRoute,

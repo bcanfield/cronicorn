@@ -1,11 +1,10 @@
 import type { selectApiKeysSchema } from "@tasks-app/api/schema";
 
-import { Link } from "@tanstack/react-router";
-import { KeyRound, PencilIcon, Trash2Icon } from "lucide-react";
+import { KeyRound, Trash2Icon } from "lucide-react";
 
 import { formatDate } from "@/web/lib/date-formatter";
 import { Badge } from "@workspace/ui/components/badge";
-import { buttonVariants } from "@workspace/ui/components/button";
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
@@ -15,7 +14,7 @@ import {
 } from "@workspace/ui/components/card";
 import { cn } from "@workspace/ui/lib/utils";
 
-export default function ApiKey({ apiKey }: { apiKey: selectApiKeysSchema }) {
+export default function ApiKey({ apiKey, onDelete }: { apiKey: selectApiKeysSchema; onDelete: (id: string) => void }) {
   const isExpired = apiKey.expiresAt && new Date(apiKey.expiresAt) < new Date();
   const isRevoked = apiKey.revoked;
 
@@ -42,23 +41,11 @@ export default function ApiKey({ apiKey }: { apiKey: selectApiKeysSchema }) {
           </CardDescription>
         </div>
         <div className="flex gap-2">
-          <Link
-            to="/dashboard/api-keys/$apiKeyId"
-            params={{ apiKeyId: apiKey.id }}
-            className={cn(buttonVariants({ variant: "outline", size: "icon" }))}
-          >
-            <PencilIcon className="size-4" />
-            <span className="sr-only">Edit</span>
-          </Link>
-
-          <Link
-            to="/dashboard/api-keys/$apiKeyId"
-            params={{ apiKeyId: apiKey.id }}
-            className={cn(buttonVariants({ variant: "destructive", size: "icon" }))}
-          >
+          <Button variant="destructive" size="icon" onClick={() => onDelete?.(apiKey.id)}>
             <Trash2Icon className="size-4" />
             <span className="sr-only">Delete</span>
-          </Link>
+          </Button>
+
         </div>
       </CardHeader>
       <CardContent>
@@ -75,12 +62,11 @@ export default function ApiKey({ apiKey }: { apiKey: selectApiKeysSchema }) {
                 : "Never"}
             </p>
           </div>
-          {apiKey.expiresAt && (
-            <div>
-              <p className="text-muted-foreground">Expires</p>
-              <p>{formatDate(apiKey.expiresAt, "PPP")}</p>
-            </div>
-          )}
+          <div>
+            <p className="text-muted-foreground">Expires</p>
+            <p>{apiKey.expiresAt ? formatDate(apiKey.expiresAt, "PPP") : "Never"}</p>
+          </div>
+
           {apiKey.scopes && apiKey.scopes.length > 0 && (
             <div>
               <p className="text-muted-foreground">Scopes</p>
