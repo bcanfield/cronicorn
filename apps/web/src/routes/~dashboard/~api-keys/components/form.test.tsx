@@ -65,9 +65,8 @@ describe("api key form", () => {
 
       expect(screen.getByLabelText(/Name/i)).toHaveValue("Existing API Key");
       expect(screen.getByLabelText(/Description/i)).toHaveValue("An existing API key");
-      // Button text is always "Create API Key" regardless of default values
-      expect(screen.getByRole("button", { name: /Create API Key/i })).toBeInTheDocument();
       // Button should be disabled initially because form is not dirty
+      expect(screen.getByRole("button", { name: /Create API Key/i })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /Create API Key/i })).toBeDisabled();
     });
   });

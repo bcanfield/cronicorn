@@ -22,7 +22,6 @@ import { Textarea } from "@workspace/ui/components/textarea";
 type ApiKeyFormProps = {
   defaultValues?: insertApiKeysSchema;
   onCancel: () => void;
-
   onSubmit: (data: insertApiKeysSchema) => Promise<void>;
 };
 
@@ -30,7 +29,6 @@ export default function ApiKeyForm({ defaultValues, onSubmit, onCancel }: ApiKey
   const form = useForm<insertApiKeysSchema>({
     resolver: zodResolver(insertApiKeysSchema),
     defaultValues,
-
   });
 
   const [isLoading, setIsLoading] = useState(false);
