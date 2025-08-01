@@ -76,7 +76,7 @@ describe("endpoint form", () => {
       expect(screen.getByLabelText(/Bearer Token/i)).toHaveValue(sampleEndpoint.bearerToken);
       expect(screen.getByLabelText(/Request Schema/i)).toHaveValue(JSON.stringify(sampleEndpoint.requestSchema, null, 2));
       expect(screen.getByLabelText(/Timeout/i)).toHaveValue(sampleEndpoint.timeoutMs);
-      
+
       // Check update mode buttons
       expect(screen.getByRole("button", { name: /Update Endpoint/i })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /Delete Endpoint/i })).toBeInTheDocument();
@@ -330,12 +330,12 @@ describe("endpoint form", () => {
 
       // Button starts disabled
       expect(screen.getByRole("button", { name: /Update Endpoint/i })).toBeDisabled();
-      
+
       // Edit a field
       const nameInput = screen.getByLabelText(/Name/i);
       await user.clear(nameInput);
       await user.type(nameInput, "Changed Name");
-      
+
       // Button should now be enabled
       expect(screen.getByRole("button", { name: /Update Endpoint/i })).not.toBeDisabled();
     });
