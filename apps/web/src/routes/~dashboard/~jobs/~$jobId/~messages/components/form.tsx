@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMessagesSchema } from "@tasks-app/api/schema";
+import { Save, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -13,7 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@workspace/ui/components/form";
-import { Input } from "@workspace/ui/components/input";
 import { Textarea } from "@workspace/ui/components/textarea";
 
 type FormProps = {
@@ -21,6 +21,8 @@ type FormProps = {
   onSubmit: (data: insertMessagesSchema) => Promise<void>;
   mode?: "create" | "update";
   onCancel?: () => void;
+  onDelete?: () => void;
+
 };
 
 export default function MessageForm({
@@ -28,6 +30,7 @@ export default function MessageForm({
   onSubmit,
   mode = "create",
   onCancel,
+  onDelete,
 }: FormProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -69,46 +72,29 @@ export default function MessageForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="jobId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Job ID</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Job ID"
-                  disabled={isLoading}
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                The ID of the job this message is associated with.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex gap-2 justify-end">
-          {onCancel && (
+        <div className="flex items-center justify-between space-x-2">
+          {onDelete && (
             <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
+              variant="destructive"
+              onClick={onDelete}
               disabled={isLoading}
             >
-              Cancel
+              <X className="size-4" />
+              Delete Message
             </Button>
           )}
-          <Button type="submit" disabled={isLoading}>
-            {isLoading
-              ? "Submitting..."
-              : mode === "create"
-                ? "Create Message"
-                : "Update Message"}
-          </Button>
+          <div className="flex items-center gap-2 flex-auto justify-end">
+            <Button variant="outline" disabled={isLoading} onClick={onCancel}>
+              <X className="size-4" />
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading || !form.formState.isDirty}>
+              <Save className="size-4" />
+              {isLoading ? "Saving..." : mode === "update" ? "Update Message" : "Create Message"}
+            </Button>
+          </div>
         </div>
+
       </form>
     </Form>
   );

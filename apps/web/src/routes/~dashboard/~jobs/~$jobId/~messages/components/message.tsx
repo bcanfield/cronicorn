@@ -1,24 +1,11 @@
 import type { selectMessagesSchema } from "@tasks-app/api/schema";
 
 import { Link } from "@tanstack/react-router";
-import { Trash } from "lucide-react";
+import { Edit } from "lucide-react";
 
 import { formatDate } from "@/web/lib/date-formatter";
-import { deleteMessage } from "@/web/lib/queries/messages.queries";
-import queryClient from "@/web/lib/query-client";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@workspace/ui/components/alert-dialog";
 import { Badge } from "@workspace/ui/components/badge";
-import { Button } from "@workspace/ui/components/button";
+import { buttonVariants } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
@@ -55,11 +42,6 @@ export default function Message({ message }: { message: selectMessagesSchema }) 
         })
       : <p>[Unsupported content format]</p>;
 
-  const handleDelete = async () => {
-    await deleteMessage(id);
-    queryClient.invalidateQueries({ queryKey: ["list-messages"] });
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -80,26 +62,11 @@ export default function Message({ message }: { message: selectMessagesSchema }) 
               {role}
             </Badge>
           </div>
-          <div>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Trash className="size-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the message.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+          <div className="flex">
+            <Link to="/dashboard/jobs/$jobId/messages/$messagesId" params={{ jobId, messagesId: id }} className={buttonVariants({ variant: "outline", size: "sm", className: "shrink-0 flex gap-2 items-center" })}>
+              <Edit className="size-4" />
+              Edit
+            </Link>
           </div>
         </div>
         <CardDescription>

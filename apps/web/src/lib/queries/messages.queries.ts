@@ -1,4 +1,4 @@
-import type { insertMessagesSchema, listMessagesSchema } from "@tasks-app/api/schema";
+import type { insertMessagesSchema, listMessagesSchema, patchMessagesSchema } from "@tasks-app/api/schema";
 
 import { queryOptions } from "@tanstack/react-query";
 
@@ -52,18 +52,32 @@ export const deleteMessage = async (id: string) => {
     const response = await apiClient.api.messages[":id"].$delete({
         param: { id },
     });
-    const json = await response.json();
-
-    // Handle potential error responses
-    if (typeof json === "object" && json !== null) {
-        if ("message" in json && typeof json.message === "string") {
-            throw new Error(json.message);
-        }
-        if ("success" in json && json.success === false) {
-            throw new Error("Failed to delete message");
+    if (response.status !== 204) {
+        const json = await response.json();
+        // Handle potential error responses
+        if (typeof json === "object" && json !== null) {
+            if ("message" in json && typeof json.message === "string") {
+                throw new Error(json.message);
+            }
+            if ("success" in json && json.success === false) {
+                throw new Error("Failed to delete endpoint");
+            }
         }
     }
+};
 
+export const updateMessage = async ({ id, message }: { id: string; message: patchMessagesSchema }) => {
+    const response = await apiClient.api.messages[":id"].$patch({
+        param: { id },
+        json: message,
+    });
+    const json = await response.json();
+    if ("message" in json) {
+        throw new Error(json.message);
+    }
+    if ("success" in json) {
+        throw new Error(formatApiError(json));
+    }
     return json;
 };
 
