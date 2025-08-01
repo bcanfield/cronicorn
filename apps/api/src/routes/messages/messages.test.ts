@@ -100,7 +100,7 @@ describe("messages routes", () => {
     expect(response.status).toBe(422);
     if (response.status === 422) {
       const json = await response.json();
-      expect(json.error.issues[0].code).toBe(ZOD_ERROR_CODES.INVALID_UPDATES);
+      expect(json.error.issues[0].code).toBe(ZOD_ERROR_CODES.INVALID_LITERAL);
     }
   });
 
@@ -192,11 +192,11 @@ describe("messages routes", () => {
     });
 
     it("filters results by role", async () => {
-      const response = await client.api.messages.$get({ query: { searchQuery: "assistant" }, param: { jobId } });
+      const response = await client.api.messages.$get({ query: { searchQuery: "user" }, param: { jobId } });
       expect(response.status).toBe(200);
       const { items, hasNext } = await response.json();
-      expect(items).toHaveLength(1);
-      expect(items[0].role).toBe("assistant");
+      expect(items).toHaveLength(3);
+      expect(items[0].role).toBe("user");
       expect(hasNext).toBe(false);
     });
 

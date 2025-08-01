@@ -28,6 +28,7 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
   }
   if (searchQuery) {
     // Note: this is a simplistic approach - searching JSON content would need more advanced handling
+    // TODO: implement search on the content json col
     whereConditions.push(ilike(messages.role, `%${searchQuery}%`));
   }
 
