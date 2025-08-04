@@ -122,6 +122,7 @@ export const monitoringScenarios: TimelineScenario[] = [
           { id: "stale-prs", label: "Stale PRs", value: "4", status: "warning", description: "Needs cleanup" },
         ],
         executions: [
+          { id: "1", time: 0, status: "executed", interval: 15 },
           { id: "2", time: 15, status: "escalated", interval: 5 },
         ],
         caption: "Inactivity detected — increasing PR check frequency",
@@ -135,6 +136,8 @@ export const monitoringScenarios: TimelineScenario[] = [
           { id: "stale-prs", label: "Stale PRs", value: "2", status: "stable", description: "Cleaning up" },
         ],
         executions: [
+          { id: "1", time: 0, status: "executed", interval: 15 },
+          { id: "2", time: 15, status: "escalated", interval: 5 },
           { id: "3", time: 20, status: "executed", interval: 15 },
         ],
         caption: "Repo cleanup in progress — resuming normal intervals",
@@ -174,6 +177,7 @@ export const monitoringScenarios: TimelineScenario[] = [
           { id: "new-data", label: "New Data", value: "8.9k", status: "warning", description: "Data spike" },
         ],
         executions: [
+          { id: "1", time: 0, status: "executed", interval: 20 },
           { id: "2", time: 20, status: "escalated", interval: 2 },
         ],
         caption: "Drift + accuracy drop — initiating rapid retraining",
@@ -187,6 +191,8 @@ export const monitoringScenarios: TimelineScenario[] = [
           { id: "new-data", label: "New Data", value: "9.1k", status: "stable", description: "Slight changes" },
         ],
         executions: [
+          { id: "1", time: 0, status: "executed", interval: 20 },
+          { id: "2", time: 20, status: "escalated", interval: 2 },
           { id: "3", time: 22, status: "executed", interval: 20 },
         ],
         caption: "Retrained successfully — back to long cycle",
@@ -225,7 +231,10 @@ export const monitoringScenarios: TimelineScenario[] = [
           { id: "team-activity", label: "Active Users", value: "0", status: "critical", description: "No one online" },
           { id: "time", label: "Time", value: "2:00pm", status: "stable", description: "Still within hours" },
         ],
-        executions: [{ id: "2", time: 12, status: "skipped", interval: 12 }],
+        executions: [
+          { id: "1", time: 0, status: "executed", interval: 12 },
+          { id: "2", time: 12, status: "skipped", interval: 12 },
+        ],
         caption: "No active reviewers — skipping reminder",
       },
       {
@@ -236,7 +245,11 @@ export const monitoringScenarios: TimelineScenario[] = [
           { id: "team-activity", label: "Active Users", value: "2", status: "stable", description: "Team rejoined" },
           { id: "time", label: "Time", value: "3:30pm", status: "stable", description: "Reminder window still open" },
         ],
-        executions: [{ id: "3", time: 24, status: "executed", interval: 12 }],
+        executions: [
+          { id: "1", time: 0, status: "executed", interval: 12 },
+          { id: "2", time: 12, status: "skipped", interval: 12 },
+          { id: "3", time: 24, status: "executed", interval: 12 },
+        ],
         caption: "Reminder sent — team is back online",
       },
     ],

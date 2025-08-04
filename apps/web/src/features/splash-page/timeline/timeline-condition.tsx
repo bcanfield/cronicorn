@@ -57,7 +57,7 @@ export function TimelineConditionCard({ condition, className }: TimelineConditio
       {/* Subtle inner glow */}
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-background/20 to-transparent pointer-events-none" />
 
-      <div className="relative flex gap-2 items-center lg:flex-col">
+      <div className="relative flex gap-2 items-center">
         <div className="flex items-center gap-2">
           <div
             className={cn("w-2.5 h-2.5 rounded-full transition-all duration-500 group-hover:scale-110", styles.dot)}
@@ -69,7 +69,7 @@ export function TimelineConditionCard({ condition, className }: TimelineConditio
 
         </div>
 
-        <div className="lg:text-lg font-bold text-foreground tabular-nums tracking-tight">
+        <div className="text-base font-bold text-foreground tabular-nums tracking-tight">
           {condition.value}
         </div>
 

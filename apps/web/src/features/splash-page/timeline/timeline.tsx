@@ -15,7 +15,7 @@ export default function DynamicScheduleTimeline({ scenario }: { scenario: Timeli
   const currentTime = currentData?.executions[currentData.executions.length - 1]?.time || 0;
 
   return (
-    <div className={cn("w-full max-w-2xl mx-auto lg:h-full ")}>
+    <div className={cn("w-full max-w-5xl mx-auto lg:h-full ")}>
       {/* Main Timeline Component with enhanced styling */}
       <div
         className="relative bg-background/70 lg:h-full backdrop-blur-xl rounded-xl border border-border shadow-2xl p-4 lg:p-6 overflow-hidden"
@@ -27,113 +27,117 @@ export default function DynamicScheduleTimeline({ scenario }: { scenario: Timeli
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-radial from-primary/5 to-transparent pointer-events-none" />
 
         <div className="relative">
-          <div className="mb-4 text-center">
+          <div className="mb-6 text-center">
             <p className="text-xs text-muted-foreground">{description}</p>
 
           </div>
-          {/* Live Conditions Section */}
-          <section className="mb-10" aria-labelledby="conditions-heading">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="relative" aria-hidden="true">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shadow-lg shadow-emerald-500/40" />
-                  <div className="absolute inset-0 w-2 h-2 rounded-full bg-emerald-400 dark:bg-emerald-300 animate-ping opacity-75" />
-                </div>
-                <h2 id="conditions-heading" className="text-sm font-bold text-foreground tracking-wide uppercase">
-                  {/* {name} */}
-                  Live Conditions
-                </h2>
-              </div>
-            </div>
 
-            <div className="grid lg:grid-cols-3 grid-cols-1  gap-4" role="group" aria-label="System conditions">
-              {currentData?.conditions.map(condition => (
-                <TimelineConditionCard key={condition.id} condition={condition} />
-              ))}
-            </div>
-          </section>
+          <div className="grid grid-cols-1 lg:grid-cols-2 mb-4 gap-6 ">
 
-          {/* Timeline Section */}
-          <section className="mb-8" aria-labelledby="timeline-heading">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="relative" aria-hidden="true">
-                  <div className="w-2 h-2 rounded-full bg-primary shadow-lg shadow-primary/40" />
-                </div>
-                <h2 id="timeline-heading" className="text-sm font-bold text-foreground tracking-wide uppercase">
-                  {/* {description} */}
-                  Execution Timeline
-                </h2>
-              </div>
-
-              {/* Enhanced Current Time Display */}
-              {config.showCurrentTime && (
-                <div
-                  className="flex items-center gap-3 px-2 py-1 bg-secondary/10 rounded-xl border border-primary/10 shadow-sm"
-                  role="status"
-                  aria-live="polite"
-                  aria-label={`Current time: ${Math.floor(currentTime)} minutes`}
-                >
+            {/* Live Conditions Section */}
+            <section aria-labelledby="conditions-heading">
+              <div className="flex items-center justify-between mb-4 ">
+                <div className="flex items-center gap-3">
                   <div className="relative" aria-hidden="true">
-                    <div className="w-2.5 h-2.5 bg-primary rounded-xl animate-pulse shadow-lg shadow-primary/40" />
-                    <div className="absolute inset-0 w-2.5 h-2.5 bg-primary/60 rounded-xl animate-ping opacity-75" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shadow-lg shadow-emerald-500/40" />
+                    <div className="absolute inset-0 w-2 h-2 rounded-full bg-emerald-400 dark:bg-emerald-300 animate-ping opacity-75" />
                   </div>
-                  <span className="text-xs font-medium text-primary tabular-nums">
-                    Now:
-                    {" "}
-                    {Math.floor(currentTime)}
-                    m
-                  </span>
+                  <h2 id="conditions-heading" className="text-sm font-bold text-foreground tracking-wide uppercase">
+                    {/* {name} */}
+                    Live Conditions
+                  </h2>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Enhanced Timeline Container */}
-            <div
-              className="relative h-48 bg-muted/50 rounded-2xl border border-border shadow-inner overflow-visible px-6 py-12 backdrop-blur-sm"
-              role="img"
-              aria-label="Timeline visualization showing execution intervals and current progress"
-            >
-              {/* Enhanced Timeline Base */}
-              <div className="absolute top-1/2 left-6 right-6 h-0.5 bg-border transform -translate-y-1/2 rounded-full shadow-sm" />
+              <div className="grid  grid-cols-1  gap-4" role="group" aria-label="System conditions">
+                {currentData?.conditions.map(condition => (
+                  <TimelineConditionCard key={condition.id} condition={condition} />
+                ))}
+              </div>
+            </section>
 
-              {/* Enhanced Time Markers */}
-              <div className="absolute inset-0 flex justify-between items-center px-6">
-                {Array.from({ length: 5 }, (_, i) => i * (config.maxTime / 4)).map(time => (
-                  <div key={time} className="flex flex-col items-center">
-                    <div className="w-px h-3 bg-muted-foreground rounded-full shadow-sm" />
-                    <span className="text-xs font-semibold text-muted-foreground mt-2 tabular-nums">
-                      {time}
+            {/* Timeline Section */}
+            <section aria-labelledby="timeline-heading">
+              <div className="flex items-center justify-between mb-4  ">
+                <div className="flex items-center gap-3">
+                  <div className="relative" aria-hidden="true">
+                    <div className="w-2 h-2 rounded-full bg-primary shadow-lg shadow-primary/40" />
+                  </div>
+                  <h2 id="timeline-heading" className="text-sm font-bold text-foreground tracking-wide uppercase">
+                    {/* {description} */}
+                    Execution Timeline
+                  </h2>
+                </div>
+
+                {/* Enhanced Current Time Display */}
+                {config.showCurrentTime && (
+                  <div
+                    className="flex items-center gap-3 px-2 bg-secondary/10 rounded-lg border border-primary/10 shadow-sm"
+                    role="status"
+                    aria-live="polite"
+                    aria-label={`Current time: ${Math.floor(currentTime)} minutes`}
+                  >
+                    <div className="relative" aria-hidden="true">
+                      <div className="w-2.5 h-2.5 bg-primary rounded-xl animate-pulse shadow-lg shadow-primary/40" />
+                      <div className="absolute inset-0 w-2.5 h-2.5 bg-primary/60 rounded-xl animate-ping opacity-75" />
+                    </div>
+                    <span className="text-xs font-medium text-primary tabular-nums">
+                      Now:
+                      {" "}
+                      {Math.floor(currentTime)}
                       m
                     </span>
                   </div>
-                ))}
+                )}
               </div>
 
-              {/* Enhanced Current Time Indicator */}
-              <TimelineCurrentIndicator
-                currentTime={currentTime}
-                maxTime={config.maxTime}
-                className="drop-shadow-lg"
-              />
+              {/* Enhanced Timeline Container */}
+              <div
+                className="relative h-48 bg-muted/50 rounded-2xl border border-border shadow-inner overflow-visible px-6 py-12 backdrop-blur-sm"
+                role="img"
+                aria-label="Timeline visualization showing execution intervals and current progress"
+              >
+                {/* Enhanced Timeline Base */}
+                <div className="absolute top-1/2 left-6 right-6 h-0.5 bg-border transform -translate-y-1/2 rounded-full shadow-sm" />
 
-              {/* Enhanced Execution Dots */}
-              {currentData?.executions.map((execution, index) => (
-                <TimelineExecutionDot
-                  key={execution.id}
-                  execution={execution}
-                  position={index}
+                {/* Enhanced Time Markers */}
+                <div className="absolute inset-0 flex justify-between items-center px-6">
+                  {Array.from({ length: 5 }, (_, i) => i * (config.maxTime / 4)).map(time => (
+                    <div key={time} className="flex flex-col items-center">
+                      <div className="w-px h-3 bg-muted-foreground rounded-full shadow-sm" />
+                      <span className="text-xs font-semibold text-muted-foreground mt-2 tabular-nums">
+                        {time}
+                        m
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Enhanced Current Time Indicator */}
+                <TimelineCurrentIndicator
+                  currentTime={currentTime}
                   maxTime={config.maxTime}
+                  className="drop-shadow-lg"
                 />
-              ))}
-            </div>
-          </section>
 
+                {/* Enhanced Execution Dots */}
+                {currentData?.executions.map((execution, index) => (
+                  <TimelineExecutionDot
+                    key={execution.id}
+                    execution={execution}
+                    position={index}
+                    maxTime={config.maxTime}
+                  />
+                ))}
+              </div>
+            </section>
+
+          </div>
           {/* Enhanced Status Caption */}
-          <div className="text-center mb-8" role="status" aria-live="polite">
+          <div className="text-center mb-4" role="status" aria-live="polite">
             <div
               key={currentStep}
-              className="text-base font-medium text-muted-foreground animate-in fade-in duration-700 leading-relaxed max-w-lg mx-auto"
+              className="text-sm font-medium text-muted-foreground animate-in fade-in duration-700 leading-relaxed max-w-lg mx-auto"
             >
               {currentData?.caption}
             </div>

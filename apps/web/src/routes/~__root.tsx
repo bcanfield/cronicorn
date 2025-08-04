@@ -4,6 +4,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
+import Footer from "@/web/components/footer";
+
 export type Session = Parameters<typeof SessionContext>[0]["value"];
 
 export const Route = createRootRouteWithContext<{
@@ -15,6 +17,7 @@ export const Route = createRootRouteWithContext<{
         <Outlet />
         <TanStackRouterDevtools />
         <ReactQueryDevtools />
+        <Footer />
 
       </div>
 

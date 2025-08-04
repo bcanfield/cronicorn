@@ -53,7 +53,7 @@ export function TimelineTabs({ tabs, defaultTab, onTabChange, className }: Anima
           <ScrollBar orientation="horizontal" />
         </ScrollArea> */}
 
-        <ScrollArea className="rounded-lg bg-background/70 backdrop-blur-xl   shadow-2xl">
+        <ScrollArea className="rounded-lg bg-background/70 backdrop-blur-xl max-w-5xl mx-auto w-full   shadow-2xl">
           <div className="w-full relative h-10">
             <TabsList className="flex absolute h-10 bg-transparent min-w-full">
               {tabs.map(tab => (
