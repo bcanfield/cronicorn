@@ -48,7 +48,6 @@ function RouteComponent() {
     mutationFn: deleteEndpoint,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-endpoints"] });
-      console.log("Endpoint deleted successfully", { endpointId, jobId });
       navigate({ to: "/dashboard/jobs/$jobId/endpoints", params: { jobId } });
     },
   });

@@ -28,10 +28,11 @@ const authClient: Promise<Session> = new Promise(
 export default function App() {
   const hookSession = useSession();
   const isDev = import.meta.env.DEV;
+  const fakeAuth = import.meta.env.VITE_FAKE_AUTH;
 
   // Override session in development
   const session = React.useMemo(() => {
-    if (isDev) {
+    if (isDev && fakeAuth) {
       return {
         update: hookSession.update,
         status: "authenticated",
@@ -42,7 +43,7 @@ export default function App() {
       };
     }
     return hookSession;
-  }, [isDev, hookSession]);
+  }, [isDev, hookSession, fakeAuth]);
 
   // Resolve the auth client when session is ready or immediately in dev
   React.useEffect(() => {

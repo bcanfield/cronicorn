@@ -40,7 +40,6 @@ function RouteComponent() {
     mutationFn: deleteMessage,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-Messages"] });
-      console.log("Message deleted successfully", { messagesId, jobId });
       navigate({ to: "/dashboard/jobs/$jobId/messages", params: { jobId } });
     },
   });
@@ -68,8 +67,7 @@ function RouteComponent() {
   };
 
   // Since we are only allowing editing of messages with role 'user', we can check that here
-  const { success, data, error } = insertMessagesSchema.safeParse(message);
-  console.log({ success, data, error, message });
+  const { success, data } = insertMessagesSchema.safeParse(message);
 
   return (
     <>

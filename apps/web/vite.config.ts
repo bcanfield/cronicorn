@@ -14,6 +14,7 @@ export default defineConfig({
   //     "@workspace/ui": path.resolve(__dirname, "../../packages/ui/src"),
   //   },
   // },
+  envDir: "../../",
   plugins: [
     tsconfigPaths(),
     tailwindcss(),

@@ -16,5 +16,12 @@ export default function createAuthConfig(): AuthConfig {
         clientSecret: env.GITHUB_CLIENT_SECRET,
       }),
     ],
+    // Add custom callback to check if user has already been authenticated via API key
+    callbacks: {
+      // Only proceed with auth.js authentication if user not already authenticated by API key
+      signIn: async ({ user }) => {
+        return !!user;
+      },
+    },
   };
 };

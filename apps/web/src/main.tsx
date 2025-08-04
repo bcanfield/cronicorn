@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 
 import { ConfirmationProvider } from "@/web/components/confirmation-dialog/confirmation-dialog";
 import { DialogProvider } from "@/web/components/simple-dialog/simple-dialog";
+import { TailwindIndicator } from "@/web/components/tailwind-indicator";
 import queryClient from "@/web/lib/query-client";
 import { Toaster } from "@workspace/ui/components/sonner";
 import { ThemeProvider } from "@workspace/ui/components/theme-provider";
@@ -20,6 +21,7 @@ createRoot(document.getElementById("root")!).render(
           <ConfirmationProvider>
             <DialogProvider>
               <App />
+              <TailwindIndicator />
               <Toaster />
             </DialogProvider>
           </ConfirmationProvider>

@@ -4,10 +4,22 @@ import { signIn } from "@hono/auth-js/react";
 import { ArrowRight, Calendar, Clock, Cloud, Code, Database, Timer, Webhook, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { AnimatedTabs } from "@/web/components/animated-tabs";
+import DynamicScheduleTimeline from "@/web/features/splash-page/timeline/timeline";
+import { monitoringScenarios } from "@/web/features/splash-page/timeline/timeline-scenario-data";
+import { TimelineTabs } from "@/web/features/splash-page/timeline/timeline-tabs";
+import WorkflowDiagram from "@/web/features/splash-page/workflow-diagram";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
+
+const tabData = monitoringScenarios.map(scenario => ({
+  id: scenario.id,
+  label: scenario.name,
+  content: <DynamicScheduleTimeline scenario={scenario} />,
+  icon: <div className="w-2 h-2 rounded-full bg-current opacity-60" />,
+}));
 
 export default function Component() {
   const [mounted, setMounted] = useState(false);
@@ -15,6 +27,13 @@ export default function Component() {
   useEffect(() => {
     setMounted(true);
   }, []);
+  const [activeScenario, setActiveScenario] = useState("system-monitoring");
+  const tabData = monitoringScenarios.map(scenario => ({
+    id: scenario.id,
+    label: scenario.name,
+    content: <DynamicScheduleTimeline scenario={scenario} />,
+    icon: <div className="w-2 h-2 rounded-full bg-current opacity-60" />,
+  }));
 
   if (!mounted)
     return null;
@@ -151,68 +170,88 @@ export default function Component() {
       </header>
 
       {/* Hero Section - Minimalistic */}
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-6 text-center">
-        <div className="max-w-4xl mx-auto animate-fade-in">
-          {/* Badge */}
-          <div className="mb-8">
-            <Badge variant="outline" className="px-3 py-1 text-xs border-border">
-              <Zap className="w-3 h-3 mr-1" />
-              AI-powered dynamic scheduling
-            </Badge>
-          </div>
+      <main className="relative z-10 gap-8 flex flex-col items-center justify-start min-h-[calc(100vh-120px)] px-6 text-center">
+        {/* <div className="max-w-4xl mx-auto animate-fade-in"> */}
+        <div className="grid max-w-6xl mx-auto  grid-cols-1 lg:grid-cols-2 items-start justify-between w-full gap-12 lg:flex-auto">
+          <div className="animate-fade-in">
 
-          {/* Main Heading */}
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light text-foreground mb-6 leading-tight tracking-tight">
-            Smart cron jobs that
-            {" "}
-            <span className="font-medium gradient-text">adapt</span>
-            {" "}
-            to your data
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-            Schedule tasks dynamically with AI. Send context via API or TypeScript SDK, and let our intelligent
-            scheduler handle the rest.
-          </p>
-
-          {/* CTA Section */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8">
-              Start Scheduling
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-            <Button variant="ghost" size="lg" className="text-muted-foreground hover:text-foreground">
-              View API Docs
-            </Button>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-8 max-w-md mx-auto text-center">
-            <div>
-              <div className="text-2xl font-semibold text-foreground">99.9%</div>
-              <div className="text-sm text-muted-foreground">Reliability</div>
+            {/* Badge */}
+            <div className="mb-8">
+              <Badge variant="outline" className="px-3 py-1 text-xs border-border">
+                <Zap className="w-3 h-3 mr-1" />
+                AI-powered dynamic scheduling
+              </Badge>
             </div>
-            <div>
-              <div className="text-2xl font-semibold text-foreground">
-                {"<"}
-                1s
+
+            {/* Main Heading */}
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-light text-foreground mb-6 leading-tight tracking-tight">
+              Smart cron jobs that
+              {" "}
+              <span className="font-medium gradient-text">adapt</span>
+              {" "}
+              to your data
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+              Schedule tasks dynamically with AI. Send context via API or TypeScript SDK, and let our intelligent
+              scheduler handle the rest.
+            </p>
+
+            {/* CTA Section */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8">
+                Start Scheduling
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+              <Button variant="ghost" size="lg" className="text-muted-foreground hover:text-foreground">
+                View API Docs
+              </Button>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-8 max-w-md mx-auto text-center">
+              <div>
+                <div className="text-2xl font-semibold text-foreground">99.9%</div>
+                <div className="text-sm text-muted-foreground">Reliability</div>
               </div>
-              <div className="text-sm text-muted-foreground">API Response</div>
+              <div>
+                <div className="text-2xl font-semibold text-foreground">
+                  {"<"}
+                  1s
+                </div>
+                <div className="text-sm text-muted-foreground">API Response</div>
+              </div>
+              <div>
+                <div className="text-2xl font-semibold text-foreground">24/7</div>
+                <div className="text-sm text-muted-foreground">Monitoring</div>
+              </div>
             </div>
-            <div>
-              <div className="text-2xl font-semibold text-foreground">24/7</div>
-              <div className="text-sm text-muted-foreground">Monitoring</div>
-            </div>
+          </div>
+          <div className=" flex w-full h-full flex-col max-w-2xl mx-auto">
+            {/* Animated Tabs */}
+            {/* <Tabs defaultValue="account" className="w-[400px]">
+              <TabsList>
+                <TabsTrigger value="account">Account</TabsTrigger>
+                <TabsTrigger value="password">Password</TabsTrigger>
+              </TabsList>
+              <TabsContent value="account">Make changes to your account here.</TabsContent>
+              <TabsContent value="password">Change your password here.</TabsContent>
+            </Tabs> */}
+            <TimelineTabs tabs={tabData} defaultTab="system-monitoring" onTabChange={setActiveScenario} variant="default" />
+            {/* <DynamicScheduleTimeline scenario={}/> */}
+
           </div>
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+        {/* <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
           <div className="w-6 h-10 border border-border rounded-full flex justify-center">
             <div className="w-1 h-3 bg-muted-foreground rounded-full mt-2 animate-bounce"></div>
           </div>
-        </div>
+        </div> */}
+        {/* <WorkflowDiagram /> */}
+
       </main>
 
       {/* AI Cron Service Showcase */}

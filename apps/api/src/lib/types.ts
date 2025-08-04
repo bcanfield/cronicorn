@@ -1,11 +1,24 @@
+import type { AuthUser } from "@hono/auth-js";
 import type { OpenAPIHono, RouteConfig, RouteHandler } from "@hono/zod-openapi";
 import type { PinoLogger } from "hono-pino";
 
 import type { BASE_PATH } from "./constants";
 
+// Extend AuthUser to include API Key auth information
+export type ApiKeyAuthInfo = {
+  id: string;
+  name: string;
+  scopes: string[];
+};
+
+export type ExtendedAuthUser = AuthUser & {
+  apiKeyAuth?: ApiKeyAuthInfo;
+};
+
 export type AppBindings = {
   Variables: {
     logger: PinoLogger;
+    authUser?: ExtendedAuthUser;
   };
   Bindings: {
     AUTH_SECRET: string;

@@ -20,7 +20,8 @@ export const apiKeys = pgTable("api_key", {
     .references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   key: text("key").notNull().unique(),
-  secret: text("secret").notNull(),
+  secret: text("secret").notNull(), // Will store the hashed secret
+  secretSalt: text("secretSalt"), // Salt used for hashing the secret
   lastUsedAt: timestamp("lastUsedAt", { mode: "string" }),
   expiresAt: timestamp("expiresAt", { mode: "string" }),
   revoked: boolean("revoked").default(false),
