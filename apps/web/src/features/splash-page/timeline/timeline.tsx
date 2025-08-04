@@ -1,6 +1,6 @@
 "use client";
 
-import type { TimelineConfig, TimelineScenario, TimelineStep } from "@/web/features/splash-page/timeline/timeline-types";
+import type { TimelineScenario } from "@/web/features/splash-page/timeline/timeline-types";
 
 import { TimelineConditionCard } from "@/web/features/splash-page/timeline/timeline-condition";
 import { TimelineCurrentIndicator } from "@/web/features/splash-page/timeline/timeline-current-indicator";

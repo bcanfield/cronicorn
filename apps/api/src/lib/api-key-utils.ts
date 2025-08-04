@@ -6,13 +6,13 @@ import type { ExtendedAuthUser } from "@/api/lib/types";
  * Constants for API key generation and validation
  */
 export const API_KEY_CONSTANTS = {
-    KEY_LENGTH: 24, // Generates 24 character key
-    SECRET_LENGTH: 32, // Generates 32 character secret
-    KEY_MIN_LENGTH: 24,
-    SECRET_MIN_LENGTH: 32,
-    HASH_ITERATIONS: 10000,
-    KEY_DIGEST: "sha256",
-    SALT_LENGTH: 16,
+  KEY_LENGTH: 24, // Generates 24 character key
+  SECRET_LENGTH: 32, // Generates 32 character secret
+  KEY_MIN_LENGTH: 24,
+  SECRET_MIN_LENGTH: 32,
+  HASH_ITERATIONS: 10000,
+  KEY_DIGEST: "sha256",
+  SALT_LENGTH: 16,
 };
 
 /**
@@ -29,25 +29,25 @@ export const API_KEY_CONSTANTS = {
  * @returns Object containing generated key and secret
  */
 export function generateApiKeyAndSecret() {
-    // Generate a random API key (24 characters)
-    // Ensure it only contains alphanumeric characters
-    const key = crypto
-        .randomBytes(Math.ceil(API_KEY_CONSTANTS.KEY_LENGTH * 0.9)) // Increase from 0.75 to 0.9 to get enough characters
-        .toString("base64")
-        .replace(/[+/=]/g, "")
-        .replace(/[^a-z0-9]/gi, "0") // Replace any non-alphanumeric with '0'
-        .slice(0, API_KEY_CONSTANTS.KEY_LENGTH);
+  // Generate a random API key (24 characters)
+  // Ensure it only contains alphanumeric characters
+  const key = crypto
+    .randomBytes(Math.ceil(API_KEY_CONSTANTS.KEY_LENGTH * 0.9)) // Increase from 0.75 to 0.9 to get enough characters
+    .toString("base64")
+    .replace(/[+/=]/g, "")
+    .replace(/[^a-z0-9]/gi, "0") // Replace any non-alphanumeric with '0'
+    .slice(0, API_KEY_CONSTANTS.KEY_LENGTH);
 
-    // Generate a random API secret (32 characters)
-    // Ensure it only contains alphanumeric characters
-    const secret = crypto
-        .randomBytes(Math.ceil(API_KEY_CONSTANTS.SECRET_LENGTH * 0.9)) // Increase from 0.75 to 0.9 to get enough characters
-        .toString("base64")
-        .replace(/[+/=]/g, "")
-        .replace(/[^a-z0-9]/gi, "0") // Replace any non-alphanumeric with '0'
-        .slice(0, API_KEY_CONSTANTS.SECRET_LENGTH);
+  // Generate a random API secret (32 characters)
+  // Ensure it only contains alphanumeric characters
+  const secret = crypto
+    .randomBytes(Math.ceil(API_KEY_CONSTANTS.SECRET_LENGTH * 0.9)) // Increase from 0.75 to 0.9 to get enough characters
+    .toString("base64")
+    .replace(/[+/=]/g, "")
+    .replace(/[^a-z0-9]/gi, "0") // Replace any non-alphanumeric with '0'
+    .slice(0, API_KEY_CONSTANTS.SECRET_LENGTH);
 
-    return { key, secret };
+  return { key, secret };
 }
 
 /**
@@ -56,23 +56,23 @@ export function generateApiKeyAndSecret() {
  * @returns Object containing salt and hash
  */
 export function hashApiKeySecret(secret: string): { salt: string; hash: string } {
-    // Generate a random salt
-    const salt = crypto
-        .randomBytes(API_KEY_CONSTANTS.SALT_LENGTH)
-        .toString("hex");
+  // Generate a random salt
+  const salt = crypto
+    .randomBytes(API_KEY_CONSTANTS.SALT_LENGTH)
+    .toString("hex");
 
-    // Create hash with salt
-    const hash = crypto
-        .pbkdf2Sync(
-            secret,
-            salt,
-            API_KEY_CONSTANTS.HASH_ITERATIONS,
-            64,
-            API_KEY_CONSTANTS.KEY_DIGEST,
-        )
-        .toString("hex");
+  // Create hash with salt
+  const hash = crypto
+    .pbkdf2Sync(
+      secret,
+      salt,
+      API_KEY_CONSTANTS.HASH_ITERATIONS,
+      64,
+      API_KEY_CONSTANTS.KEY_DIGEST,
+    )
+    .toString("hex");
 
-    return { salt, hash };
+  return { salt, hash };
 }
 
 /**
@@ -83,23 +83,23 @@ export function hashApiKeySecret(secret: string): { salt: string; hash: string }
  * @returns Boolean indicating if the secret is valid
  */
 export function verifyApiKeySecret(
-    providedSecret: string,
-    storedHash: string,
-    storedSalt: string,
+  providedSecret: string,
+  storedHash: string,
+  storedSalt: string,
 ): boolean {
-    // Hash the provided secret with the stored salt
-    const hash = crypto
-        .pbkdf2Sync(
-            providedSecret,
-            storedSalt,
-            API_KEY_CONSTANTS.HASH_ITERATIONS,
-            64,
-            API_KEY_CONSTANTS.KEY_DIGEST,
-        )
-        .toString("hex");
+  // Hash the provided secret with the stored salt
+  const hash = crypto
+    .pbkdf2Sync(
+      providedSecret,
+      storedSalt,
+      API_KEY_CONSTANTS.HASH_ITERATIONS,
+      64,
+      API_KEY_CONSTANTS.KEY_DIGEST,
+    )
+    .toString("hex");
 
-    // Compare the hashes directly (Node's crypto functions handle this safely)
-    return hash === storedHash;
+  // Compare the hashes directly (Node's crypto functions handle this safely)
+  return hash === storedHash;
 }
 
 /**
@@ -108,11 +108,11 @@ export function verifyApiKeySecret(
  * @returns Boolean indicating if the key is valid
  */
 export function validateApiKey(key: string): boolean {
-    // Check length and character set (alphanumeric only)
-    return (
-        key.length >= API_KEY_CONSTANTS.KEY_MIN_LENGTH
-        && /^[a-z0-9]+$/i.test(key)
-    );
+  // Check length and character set (alphanumeric only)
+  return (
+    key.length >= API_KEY_CONSTANTS.KEY_MIN_LENGTH
+    && /^[a-z0-9]+$/i.test(key)
+  );
 }
 
 /**
@@ -121,11 +121,11 @@ export function validateApiKey(key: string): boolean {
  * @returns Boolean indicating if the secret is valid
  */
 export function validateApiSecret(secret: string): boolean {
-    // Check length and character set (alphanumeric only)
-    return (
-        secret.length >= API_KEY_CONSTANTS.SECRET_MIN_LENGTH
-        && /^[a-z0-9]+$/i.test(secret)
-    );
+  // Check length and character set (alphanumeric only)
+  return (
+    secret.length >= API_KEY_CONSTANTS.SECRET_MIN_LENGTH
+    && /^[a-z0-9]+$/i.test(secret)
+  );
 }
 
 /**
@@ -133,20 +133,20 @@ export function validateApiSecret(secret: string): boolean {
  * and optionally verify if it has the required scopes
  */
 export function checkApiKeyAuth(
-    authUser: ExtendedAuthUser,
-    requiredScopes?: string[],
+  authUser: ExtendedAuthUser,
+  requiredScopes?: string[],
 ): boolean {
-    // Not authenticated via API key
-    if (!authUser.apiKeyAuth) {
-        return false;
-    }
+  // Not authenticated via API key
+  if (!authUser.apiKeyAuth) {
+    return false;
+  }
 
-    // Check if API key has required scopes, if any specified
-    if (requiredScopes && requiredScopes.length > 0) {
-        const apiKeyScopes = authUser.apiKeyAuth.scopes || [];
-        return requiredScopes.every(scope => apiKeyScopes.includes(scope));
-    }
+  // Check if API key has required scopes, if any specified
+  if (requiredScopes && requiredScopes.length > 0) {
+    const apiKeyScopes = authUser.apiKeyAuth.scopes || [];
+    return requiredScopes.every(scope => apiKeyScopes.includes(scope));
+  }
 
-    // API key auth present and no specific scopes required
-    return true;
+  // API key auth present and no specific scopes required
+  return true;
 }
