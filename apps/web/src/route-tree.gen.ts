@@ -22,7 +22,6 @@ import { Route as DashboardJobsJobIdMessagesMessagesIdRouteImport } from './rout
 import { Route as DashboardJobsJobIdEndpointsCreateRouteImport } from './routes/~dashboard/~jobs/~$jobId/~endpoints/~create'
 import { Route as DashboardJobsJobIdEndpointsEndpointIdRouteImport } from './routes/~dashboard/~jobs/~$jobId/~endpoints/~$endpointId'
 import { Route as DashboardJobsJobIdMessagesIndexRouteImport } from './routes/~dashboard/~jobs/~$jobId/~messages/~index'
-import { Route as DashboardJobsJobIdEndpointsIndexRouteImport } from './routes/~dashboard/~jobs/~$jobId/~endpoints/~index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -104,12 +103,6 @@ const DashboardJobsJobIdMessagesIndexRoute =
     path: '/messages/',
     getParentRoute: () => DashboardJobsJobIdRouteRoute,
   } as any)
-const DashboardJobsJobIdEndpointsIndexRoute =
-  DashboardJobsJobIdEndpointsIndexRouteImport.update({
-    id: '/endpoints/',
-    path: '/endpoints/',
-    getParentRoute: () => DashboardJobsJobIdRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,7 +115,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRouteRouteWithChildren
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
   '/dashboard/jobs/$jobId/': typeof DashboardJobsJobIdIndexRoute
-  '/dashboard/jobs/$jobId/endpoints': typeof DashboardJobsJobIdEndpointsIndexRoute
   '/dashboard/jobs/$jobId/messages': typeof DashboardJobsJobIdMessagesIndexRoute
   '/dashboard/jobs/$jobId/endpoints/$endpointId': typeof DashboardJobsJobIdEndpointsEndpointIdRoute
   '/dashboard/jobs/$jobId/endpoints/create': typeof DashboardJobsJobIdEndpointsCreateRoute
@@ -138,7 +130,6 @@ export interface FileRoutesByTo {
   '/dashboard/api-keys/create': typeof DashboardApiKeysCreateRoute
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
   '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdIndexRoute
-  '/dashboard/jobs/$jobId/endpoints': typeof DashboardJobsJobIdEndpointsIndexRoute
   '/dashboard/jobs/$jobId/messages': typeof DashboardJobsJobIdMessagesIndexRoute
   '/dashboard/jobs/$jobId/endpoints/$endpointId': typeof DashboardJobsJobIdEndpointsEndpointIdRoute
   '/dashboard/jobs/$jobId/endpoints/create': typeof DashboardJobsJobIdEndpointsCreateRoute
@@ -157,7 +148,6 @@ export interface FileRoutesById {
   '/dashboard/jobs/$jobId': typeof DashboardJobsJobIdRouteRouteWithChildren
   '/dashboard/jobs/create': typeof DashboardJobsCreateRoute
   '/dashboard/jobs/$jobId/': typeof DashboardJobsJobIdIndexRoute
-  '/dashboard/jobs/$jobId/endpoints/': typeof DashboardJobsJobIdEndpointsIndexRoute
   '/dashboard/jobs/$jobId/messages/': typeof DashboardJobsJobIdMessagesIndexRoute
   '/dashboard/jobs/$jobId/endpoints/$endpointId': typeof DashboardJobsJobIdEndpointsEndpointIdRoute
   '/dashboard/jobs/$jobId/endpoints/create': typeof DashboardJobsJobIdEndpointsCreateRoute
@@ -177,7 +167,6 @@ export interface FileRouteTypes {
     | '/dashboard/jobs/$jobId'
     | '/dashboard/jobs/create'
     | '/dashboard/jobs/$jobId/'
-    | '/dashboard/jobs/$jobId/endpoints'
     | '/dashboard/jobs/$jobId/messages'
     | '/dashboard/jobs/$jobId/endpoints/$endpointId'
     | '/dashboard/jobs/$jobId/endpoints/create'
@@ -193,7 +182,6 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys/create'
     | '/dashboard/jobs/create'
     | '/dashboard/jobs/$jobId'
-    | '/dashboard/jobs/$jobId/endpoints'
     | '/dashboard/jobs/$jobId/messages'
     | '/dashboard/jobs/$jobId/endpoints/$endpointId'
     | '/dashboard/jobs/$jobId/endpoints/create'
@@ -211,7 +199,6 @@ export interface FileRouteTypes {
     | '/dashboard/jobs/$jobId'
     | '/dashboard/jobs/create'
     | '/dashboard/jobs/$jobId/'
-    | '/dashboard/jobs/$jobId/endpoints/'
     | '/dashboard/jobs/$jobId/messages/'
     | '/dashboard/jobs/$jobId/endpoints/$endpointId'
     | '/dashboard/jobs/$jobId/endpoints/create'
@@ -332,19 +319,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardJobsJobIdMessagesIndexRouteImport
       parentRoute: typeof DashboardJobsJobIdRouteRoute
     }
-    '/dashboard/jobs/$jobId/endpoints/': {
-      id: '/dashboard/jobs/$jobId/endpoints/'
-      path: '/endpoints'
-      fullPath: '/dashboard/jobs/$jobId/endpoints'
-      preLoaderRoute: typeof DashboardJobsJobIdEndpointsIndexRouteImport
-      parentRoute: typeof DashboardJobsJobIdRouteRoute
-    }
   }
 }
 
 interface DashboardJobsJobIdRouteRouteChildren {
   DashboardJobsJobIdIndexRoute: typeof DashboardJobsJobIdIndexRoute
-  DashboardJobsJobIdEndpointsIndexRoute: typeof DashboardJobsJobIdEndpointsIndexRoute
   DashboardJobsJobIdMessagesIndexRoute: typeof DashboardJobsJobIdMessagesIndexRoute
   DashboardJobsJobIdEndpointsEndpointIdRoute: typeof DashboardJobsJobIdEndpointsEndpointIdRoute
   DashboardJobsJobIdEndpointsCreateRoute: typeof DashboardJobsJobIdEndpointsCreateRoute
@@ -355,8 +334,6 @@ interface DashboardJobsJobIdRouteRouteChildren {
 const DashboardJobsJobIdRouteRouteChildren: DashboardJobsJobIdRouteRouteChildren =
   {
     DashboardJobsJobIdIndexRoute: DashboardJobsJobIdIndexRoute,
-    DashboardJobsJobIdEndpointsIndexRoute:
-      DashboardJobsJobIdEndpointsIndexRoute,
     DashboardJobsJobIdMessagesIndexRoute: DashboardJobsJobIdMessagesIndexRoute,
     DashboardJobsJobIdEndpointsEndpointIdRoute:
       DashboardJobsJobIdEndpointsEndpointIdRoute,

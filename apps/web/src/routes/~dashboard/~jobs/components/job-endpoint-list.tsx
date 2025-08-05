@@ -1,6 +1,6 @@
 import type { selectEndpointsSchema } from "@tasks-app/api/schema";
 
-import Endpoint from "./endpoint";
+import Endpoint from "./job-endpoint";
 
 export default function EndpointList({ endpoints }: { endpoints: selectEndpointsSchema[] }) {
   return (

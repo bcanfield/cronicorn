@@ -24,12 +24,12 @@ function RouteComponent() {
     mutationFn: createEndpoint,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-endpoints"] });
-      navigate({ to: "/dashboard/jobs/$jobId/endpoints", params: { jobId } });
+      navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
     },
   });
 
   const handleBack = () => {
-    navigate({ to: "/dashboard/jobs/$jobId/endpoints", params: { jobId } });
+    navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
   };
   return (
     <>

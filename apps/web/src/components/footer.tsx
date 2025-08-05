@@ -2,9 +2,7 @@ import { Github } from "lucide-react";
 
 import { ThemeSwitcher } from "@/web/components/theme-switcher";
 import { DOCS_URL, GITHUB_URL } from "@/web/config/config";
-import { Button } from "@workspace/ui/components/button";
 
-// import AppLogo from "../../../../public/horn.svg?react";
 import AppLogo from "../../public/horn.svg?react";
 
 export default function Footer() {
@@ -25,12 +23,7 @@ export default function Footer() {
               <h3 className="text-white font-medium mb-4">Resources</h3>
               <ul className="space-y-3">
                 <li>
-                  {/* <Link href="/docs" className="text-gray-400 hover:text-white transition-colors">
-                  Docs
-                </Link> */}
-                  {/* <a href={DOCS_URL} target="_blank">
-                                 Docs
-                                </a> */}
+
                   <a href={DOCS_URL} target="_blank" className="text-muted-foreground hover:text-foreground">
                     Docs
                   </a>

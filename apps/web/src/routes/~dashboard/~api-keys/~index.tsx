@@ -1,9 +1,10 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { API_KEY_SORT_KEYS, listApiKeysSchema } from "@tasks-app/api/schema";
-import { PlusCircle } from "lucide-react";
+import { Key, PlusCircle } from "lucide-react";
 
 import { useConfirmationDialog } from "@/web/components/confirmation-dialog/use-confirmation-dialog";
+import EmptyPlaceholder from "@/web/components/empty-placeholder";
 import PageHeader from "@/web/components/re-usables/page-header";
 import RoutePending from "@/web/components/route-pending";
 import { SortingContainer } from "@/web/features/sorting/sorting-container";
@@ -51,6 +52,7 @@ function RouteComponent() {
       deleteMutate(id);
     }
   };
+  const showEmptyPlaceholder = items.length === 0 && params.page === 1;
 
   return (
     <>
@@ -65,15 +67,21 @@ function RouteComponent() {
         </Link>
 
       </div>
-      <SortingContainer
-        hasNext={hasNext}
-        onChange={setParams}
-        params={params}
-        sortKeys={API_KEY_SORT_KEYS}
-      >
-        <ApiKeyList apiKeys={items} onDelete={handleDelete} />
 
-      </SortingContainer>
+      {showEmptyPlaceholder
+        ? (<EmptyPlaceholder icon={<Key />} title="No API Keys found" description="You don't have any API Keys yet. Create your first API Key to get started." />)
+        : (
+            <SortingContainer
+              hasNext={hasNext}
+              onChange={setParams}
+              params={params}
+              sortKeys={API_KEY_SORT_KEYS}
+            >
+              <ApiKeyList apiKeys={items} onDelete={handleDelete} />
+
+            </SortingContainer>
+          )}
+
     </>
   );
 }

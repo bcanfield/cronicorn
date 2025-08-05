@@ -39,7 +39,7 @@ function RouteComponent() {
         queryKey: [["list-endpoints"], ["list-endpoint", endpointId]],
       });
       // Navigate back to endpoints list
-      navigate({ to: "/dashboard/jobs/$jobId/endpoints", params: { jobId } });
+      navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
     },
   });
 
@@ -48,11 +48,11 @@ function RouteComponent() {
     mutationFn: deleteEndpoint,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["list-endpoints"] });
-      navigate({ to: "/dashboard/jobs/$jobId/endpoints", params: { jobId } });
+      navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
     },
   });
 
-  const handleCancel = () => navigate({ to: "/dashboard/jobs/$jobId/endpoints", params: { jobId } });
+  const handleCancel = () => navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
 
   const handleSubmit = async (data: insertEndpointsSchema) => {
     await updateMutation.mutateAsync({
