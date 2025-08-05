@@ -8,15 +8,11 @@ import { BASE_PATH } from "../lib/constants";
 import apiKeys from "./api-keys/api-keys.index";
 import contextEntries from "./context-entries/context-entries.index";
 import endpoints from "./endpoints/endpoints.index";
-import index from "./index.route";
 import jobs from "./jobs/jobs.index";
 import messages from "./messages/messages.index";
-import tasks from "./tasks/tasks.index";
 
 export function registerRoutes(app: AppOpenAPI) {
   return app
-    .route("/", index)
-    .route("/", tasks)
     .route("/", jobs)
     .route("/", endpoints)
     .route("/", messages)
