@@ -56,15 +56,15 @@ function AuthLayout() {
             <UserAvatar onLogout={handleLogout} />
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4">
+        <main className="flex flex-1 flex-col gap-4 p-4  max-w-7xl mx-auto w-full">
           <Outlet />
         </main>
-        <footer className="border-t px-4 py-3">
+        {/* <footer className="border-t px-4 py-3">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>Dashboard Interface</span>
             <span>Built with Shadcn UI</span>
           </div>
-        </footer>
+        </footer> */}
       </SidebarInset>
     </SidebarProvider>
 

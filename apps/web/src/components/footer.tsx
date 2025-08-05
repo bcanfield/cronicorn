@@ -7,8 +7,8 @@ import AppLogo from "../../public/horn.svg?react";
 
 export default function Footer() {
   return (
-    <footer className="bg-background text-white border-t border-border text-left text-sm font-light">
-      <div className="max-w-7xl mx-auto px-6 py-12 ">
+    <footer className=" text-foreground border-t border-border  text-left text-sm font-light ">
+      <div className=" px-4 py-12 ">
         <div className="flex  flex-col md:flex-row md:justify-between gap-16 md:gap-8">
           {/* Logo */}
           <div className="flex items-start">
