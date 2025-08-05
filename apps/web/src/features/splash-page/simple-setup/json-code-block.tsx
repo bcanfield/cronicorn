@@ -26,7 +26,7 @@ export function JsonCodeBlock({ jsonString, className = "" }: JsonCodeBlockProps
         return <div key={index} className="text-foreground" dangerouslySetInnerHTML={{ __html: processedLine }} />;
       });
     }
-    catch (error) {
+    catch {
       return <div className="text-destructive">Invalid JSON</div>;
     }
   };

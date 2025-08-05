@@ -1,5 +1,6 @@
 import { Github } from "lucide-react";
 
+import { ThemeSwitcher } from "@/web/components/theme-switcher";
 import { DOCS_URL, GITHUB_URL } from "@/web/config/config";
 import { Button } from "@workspace/ui/components/button";
 
@@ -8,7 +9,7 @@ import AppLogo from "../../public/horn.svg?react";
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white border-t border-gray-800 text-left text-sm font-light">
+    <footer className="bg-background text-white border-t border-border text-left text-sm font-light">
       <div className="max-w-7xl mx-auto px-6 py-12 ">
         <div className="flex  flex-col md:flex-row md:justify-between gap-16 md:gap-8">
           {/* Logo */}
@@ -75,7 +76,8 @@ export default function Footer() {
 
         {/* Bottom section with utility buttons */}
         <div className="flex justify-end mt-8 pt-8 ">
-          <div className="flex items-center gap-2">
+          <ThemeSwitcher />
+          {/* <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="w-8 h-8 text-gray-400 hover:text-white hover:bg-gray-800">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -103,7 +105,7 @@ export default function Footer() {
                 />
               </svg>
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

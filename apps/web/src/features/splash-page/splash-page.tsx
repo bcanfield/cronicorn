@@ -13,20 +13,13 @@ import { Button } from "@workspace/ui/components/button";
 
 import AppLogo from "../../../public/horn.svg?react";
 
-const tabData = monitoringScenarios.map(scenario => ({
-  id: scenario.id,
-  label: scenario.name,
-  content: <DynamicScheduleTimeline scenario={scenario} />,
-  icon: <div className="w-2 h-2 rounded-full bg-current opacity-60" />,
-}));
-
 export default function Component() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-  const [activeScenario, setActiveScenario] = useState("system-monitoring");
+
   const tabData = monitoringScenarios.map(scenario => ({
     id: scenario.id,
     label: scenario.name,
@@ -39,10 +32,9 @@ export default function Component() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden mb-8">
-      {/* Multiple layered blur effects across the screen - restored from previous version */}
-      {/* 1. Dark blur on the far left - more visible for contrast */}
+      {/* Background effects */}
       <div
-        className="absolute top-0 left-0 w-1/4 h-96 bg-gradient-to-br from-black/95 via-gray-950/80 to-gray-900/50 blur-3xl animate-pulse"
+        className="absolute top-0 left-0 w-1/4 h-96 bg-gradient-to-br from-background/95 via-secondary/80 to-background/50 blur-3xl animate-pulse"
         style={{ animationDuration: "8s" }}
       >
       </div>
@@ -125,14 +117,6 @@ export default function Component() {
               <div className="absolute inset-0 -z-10 flex items-center justify-center">
                 <div className="w-full h-full bg-gradient-to-r from-black to-black rounded-lg  blur-2xl  scale-105"></div>
               </div>
-
-              {/* <img
-                alt="Cronicorn Logo"
-                width={50}
-                height={50}
-                src="/horn.svg"
-                className="relative z-10 rounded-lg object-cover fill-red-500"
-              /> */}
               <AppLogo className="size-6 text-foreground " />
             </div>
 
@@ -146,15 +130,6 @@ export default function Component() {
             <a href={DOCS_URL} target="_blank" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
               Docs
             </a>
-            {/* <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-              Examples
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-              Pricing
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-              Status
-            </a> */}
           </div>
 
           {/* CTA Button */}
@@ -169,118 +144,74 @@ export default function Component() {
         </nav>
       </header>
 
-      {/* Hero Section - Minimalistic */}
+      {/* Hero Section */}
       <main className="relative z-10 gap-8 flex flex-col items-center justify-start min-h-[calc(100vh-120px)] px-6 text-center">
-        {/* <div className="max-w-4xl mx-auto animate-fade-in"> */}
-
-        {/* hero */}
-        <div className="grid max-w-4xl mx-auto  grid-cols-1 items-start justify-between w-full gap-12 lg:flex-auto">
+        {/* Hero content */}
+        <div className="max-w-4xl mx-auto grid grid-cols-1 items-start w-full gap-12 lg:flex-auto">
           <div className="animate-fade-in">
-
-            {/* Badge */}
-            {/* <div className="mb-8">
-              <Badge variant="outline" className="px-3 py-1 text-xs border-border">
-                <Zap className="w-3 h-3 mr-1" />
-                For devs who'd rather ship than babysit schedules.
-                {" "}
-                {" "}
-
-              </Badge>
-            </div> */}
-
             {/* Main Heading */}
             <h1 className="text-5xl md:text-6xl font-medium text-foreground mb-2 leading-tight tracking-tight mt-8">
-              {/* Smart cron jobs that
-              {" "}
-              <span className="font-medium gradient-text">adapt</span>
-              {" "}
-              to your data */}
               Done writing schedulers?
             </h1>
 
             {/* Subtitle */}
             <p className="text-lg md:text-xl mx-auto text-foreground/70 mb-6 font-light leading-relaxed">
-              {/* Schedule tasks dynamically with AI. Send context via API or TypeScript SDK, and let our intelligent
-              scheduler handle the rest. */}
-              {/* One description, a few endpoints, and you're live — no maintenance scripts. */}
-              Good. We'll take it from here.
-
+              No problem — we’ve got your back.
             </p>
-            <p className="text-sm  text-foreground mb-12 max-w-xl mx-auto font-light leading-relaxed">
-              {/* Schedule tasks dynamically with AI. Send context via API or TypeScript SDK, and let our intelligent
-              scheduler handle the rest. */}
-              {/* One description, a few endpoints, and you're live — no maintenance scripts. */}
-              <span className="text-foreground font-semibold">
-                Cronicorn
-              </span>
+
+            <p className="text-sm text-foreground mb-12 max-w-xl mx-auto font-light leading-relaxed">
+              <span className="text-foreground font-semibold">Cronicorn</span>
               {" "}
               is the adaptive scheduling engine for real-world systems and teams.
             </p>
 
             {/* CTA Section */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8">
+              <Button
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 px-8"
+                onClick={() => signIn("github")}
+              >
                 Start Scheduling
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
-              <Button asChild variant="ghost" size="lg" className="text-muted-foreground hover:text-foreground">
+              <Button
+                asChild
+                variant="ghost"
+                size="lg"
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <a href={DOCS_URL} target="_blank">
                   View API Docs
                 </a>
               </Button>
             </div>
 
-            {/* Quick Stats */}
-            {/* <div className="grid grid-cols-3 gap-8 max-w-md mx-auto text-center">
-              <div>
-                <div className="text-2xl font-semibold text-foreground">99.9%</div>
-                <div className="text-sm text-muted-foreground">Reliability</div>
-              </div>
-              <div>
-                <div className="text-2xl font-semibold text-foreground">
-                  {"<"}
-                  1s
-                </div>
-                <div className="text-sm text-muted-foreground">API Response</div>
-              </div>
-              <div>
-                <div className="text-2xl font-semibold text-foreground">24/7</div>
-                <div className="text-sm text-muted-foreground">Monitoring</div>
-              </div>
-            </div> */}
           </div>
-
         </div>
 
-        {/* Scroll Indicator */}
-        {/* <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-          <div className="w-6 h-10 border border-border rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-muted-foreground rounded-full mt-2 animate-bounce"></div>
-          </div>
-        </div> */}
-        {/* <WorkflowDiagram /> */}
-        <div className=" flex w-full h-full  max-w-5xl mx-auto">
-          {/* Animated Tabs */}
-          {/* <Tabs defaultValue="account" className="w-[400px]">
-              <TabsList>
-                <TabsTrigger value="account">Account</TabsTrigger>
-                <TabsTrigger value="password">Password</TabsTrigger>
-              </TabsList>
-              <TabsContent value="account">Make changes to your account here.</TabsContent>
-              <TabsContent value="password">Change your password here.</TabsContent>
-            </Tabs> */}
-          {/* <DynamicScheduleTimeline scenario={}/> */}
+        {/* Timeline demo */}
+        <TimelineTabs tabs={tabData} variant="default" />
 
-        </div>
-        <TimelineTabs tabs={tabData} defaultTab="system-monitoring" onTabChange={setActiveScenario} variant="default" />
-
+        {/* Setup guide */}
         <SimpleSetup />
 
+        <div className="flex justify-between items-center w-full max-w-5xl border-t py-8">
+          <p>
+            Try it now. It's free, fast, and takes just a few minutes to set up.
+
+          </p>
+          <Button
+            size="lg"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 px-8"
+            onClick={() => signIn("github")}
+          >
+            Get Started
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
       </main>
 
-      {/* <HowItWorks /> */}
-
-      {/* AI Cron Service Showcase */}
     </div>
   );
 }

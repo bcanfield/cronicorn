@@ -9,7 +9,7 @@ import { useTimeline } from "@/web/features/splash-page/timeline/useTimeline";
 import { cn } from "@workspace/ui/lib/utils";
 
 export default function DynamicScheduleTimeline({ scenario }: { scenario: TimelineScenario }) {
-  const { steps, config, description, id, name } = scenario;
+  const { steps, config, description } = scenario;
   const { currentData, currentStep } = useTimeline({ steps, config });
 
   const currentTime = currentData?.executions[currentData.executions.length - 1]?.time || 0;
