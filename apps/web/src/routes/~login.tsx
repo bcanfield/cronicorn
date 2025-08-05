@@ -1,10 +1,12 @@
 import { signIn } from "@hono/auth-js/react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { Github } from "lucide-react";
 import { z } from "zod";
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { Button } from "@workspace/ui/components/button";
 
+import AppLogo from "../../public/horn.svg?react";
 import RoutePending from "../components/route-pending";
 
 export const Route = createFileRoute("/login")({
@@ -30,28 +32,31 @@ function LoginComponent() {
   const search = Route.useSearch();
 
   return (
-    <div className="p-6 space-y-4">
-      <h3 className="text-2xl font-semibold">Login</h3>
+    <div className="p-6 space-y-4 max-w-7xl mx-auto min-h-screen flex flex-col">
       {search.redirect
-        ? (
-            <Alert variant="destructive">
-              <AlertDescription>You need to login to access this page.</AlertDescription>
-              <AlertTitle>Access denied</AlertTitle>
-            </Alert>
-          )
-        : (
-            <p>You need to login to access this page.</p>
-          )}
-      <Link
-        to="/"
-        className="text-blue-500 hover:underline"
-      >
-        Return Home
-      </Link>
+      && (
+        <Alert variant="destructive">
+          <AlertDescription>You need to login to access this page.</AlertDescription>
+          <AlertTitle>Access denied</AlertTitle>
+        </Alert>
+      )}
+      <div className="flex flex-col flex-auto items-center justify-center space-y-4">
+        <div className="max-w-sm w-full flex flex-col items-center text-center space-y-4 ">
+          <Link
+            to="/"
+          >
+            <AppLogo className="w-16 h-16" />
+          </Link>
 
-      <Button onClick={() => signIn("github")}>
-        Sign in with GitHub
-      </Button>
+          <h1 className="text-3xl font-bold mb-2">Welcome to Cronicorn</h1>
+          <p className="text-muted-foreground">Your personal job scheduler</p>
+          <Button variant="outline" onClick={() => signIn("github")}>
+            <Github className="size-4 text-foreground" />
+            Continue with GitHub
+          </Button>
+        </div>
+      </div>
+
     </div>
   );
 }

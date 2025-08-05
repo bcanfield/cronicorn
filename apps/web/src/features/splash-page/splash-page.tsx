@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "@hono/auth-js/react";
+import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -9,7 +9,7 @@ import SimpleSetup from "@/web/features/splash-page/simple-setup/simple-setup";
 import DynamicScheduleTimeline from "@/web/features/splash-page/timeline/timeline";
 import { monitoringScenarios } from "@/web/features/splash-page/timeline/timeline-scenario-data";
 import { TimelineTabs } from "@/web/features/splash-page/timeline/timeline-tabs";
-import { Button } from "@workspace/ui/components/button";
+import { Button, buttonVariants } from "@workspace/ui/components/button";
 
 import AppLogo from "../../../public/horn.svg?react";
 
@@ -133,14 +133,10 @@ export default function Component() {
           </div>
 
           {/* CTA Button */}
-          <Button
-            variant="ghost"
-            onClick={() => signIn("github")}
-            size="sm"
-            className="hover:bg-muted"
-          >
+
+          <Link to="/login" className={buttonVariants({ variant: "ghost", size: "sm" })}>
             Get Started
-          </Button>
+          </Link>
         </nav>
       </header>
 
@@ -167,14 +163,12 @@ export default function Component() {
 
             {/* CTA Section */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Button
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 px-8"
-                onClick={() => signIn("github")}
-              >
+              <Link to="/login" className={buttonVariants({ size: "lg" })}>
                 Start Scheduling
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+
+              </Link>
+
               <Button
                 asChild
                 variant="ghost"
@@ -201,14 +195,11 @@ export default function Component() {
             Try it now. It's free, fast, and takes just a few minutes to set up.
 
           </p>
-          <Button
-            size="lg"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 px-8"
-            onClick={() => signIn("github")}
-          >
+
+          <Link to="/login" className={buttonVariants({ size: "lg" })}>
             Get Started
             <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          </Link>
         </div>
       </main>
 

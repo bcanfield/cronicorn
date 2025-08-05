@@ -26,11 +26,22 @@ export const Route = createFileRoute("/dashboard")({
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
   },
+  async loader({ context }) {
+    const session = await context.session;
+    // The following check should never be necessary since the `beforeLoad` already checks for authentication,
+    // but this ensures type safety when accessing the session from loader deps
+    if (!session?.data) {
+      throw redirect({ to: "/login", search: { redirect: location.href } });
+    }
+    return session.data;
+  },
   component: AuthLayout,
 });
 
 function AuthLayout() {
   const { confirm } = useConfirmationDialog();
+  // const { session } = Route.useRouteContext();
+  const session = Route.useLoaderData();
 
   const handleLogout = async () => {
     const confirmed = await confirm({
@@ -53,7 +64,7 @@ function AuthLayout() {
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <div className="flex flex-1 items-center justify-end">
-            <UserAvatar onLogout={handleLogout} />
+            <UserAvatar sessionData={session} onLogout={handleLogout} />
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4  max-w-7xl mx-auto w-full">
