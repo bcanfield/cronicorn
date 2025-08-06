@@ -24,7 +24,11 @@ export function endpointsQueryOptions(params: listEndpointsSchema, jobId?: strin
       // If we have a jobId, use it to filter endpoints
       const modifiedQuery = currentJobId ? { ...q, jobId: currentJobId } : q;
       const resp = await apiClient.api.endpoints.$get({ query: modifiedQuery });
-      return resp.json();
+      const json = await resp.json();
+      if ("message" in json) {
+        throw new Error(json.message);
+      }
+      return json;
     },
   });
 }

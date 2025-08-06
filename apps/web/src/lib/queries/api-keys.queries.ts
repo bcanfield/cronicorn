@@ -22,7 +22,11 @@ export function apiKeysQueryOptions(params: listApiKeysSchema) {
     // React-Query will pass { queryKey } into your fn
     queryFn: async ({ queryKey: [, q] }) => {
       const resp = await apiClient.api["api-keys"].$get({ query: q });
-      return resp.json();
+      const json = await resp.json();
+      if ("message" in json) {
+        throw new Error(json.message);
+      }
+      return json;
     },
   });
 }
@@ -48,6 +52,9 @@ export const createApiKey = async (apiKey: insertApiKeysSchema) => {
   const json = await response.json();
   if ("success" in json) {
     throw new Error(formatApiError(json));
+  }
+  if ("message" in json) {
+    throw new Error(json.message);
   }
   return json;
 };
