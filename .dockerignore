@@ -10,3 +10,7 @@ docker-compose.yaml
 Dockerfile
 README.md
 dist
+.tanstack
+coverage
+test-results
+files
