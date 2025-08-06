@@ -11,17 +11,17 @@ import { BASE_PATH } from "./constants";
 export default function configureOpenAPI(app: AppOpenAPI) {
   const servers = [
     {
-      url: "https://api.cronicorn.app",
+      url: "https://api.cronicorn.com",
       description: "Production environment",
     },
     // Only include local dev server in development mode
     ...(env.NODE_ENV === "development"
       ? [
-          {
-            url: "http://localhost:9999",
-            description: "Local development environment",
-          },
-        ]
+        {
+          url: "http://localhost:9999",
+          description: "Local development environment",
+        },
+      ]
       : []
     ),
   ];
@@ -131,7 +131,7 @@ The AI agent linked to the job:
       pageTitle: "Cronicorn API Reference",
       theme: "alternate",
       layout: "modern",
-      baseServerURL: env.NODE_ENV === "production" ? "https://api.cronicorn.app" : "",
+      baseServerURL: env.NODE_ENV === "production" ? "https://api.cronicorn.com" : "",
       defaultHttpClient: {
         targetKey: "js",
         clientKey: "fetch",
