@@ -15,7 +15,8 @@ export default defineConfig({
   //     "@workspace/ui": path.resolve(__dirname, "../../packages/ui/src"),
   //   },
   // },
-  envDir: "../../",
+  // eslint-disable-next-line node/no-process-env
+  envDir: process.env.NODE_ENV !== "production" ? "../../" : undefined,
   plugins: [
     tsconfigPaths(),
     tailwindcss(),
