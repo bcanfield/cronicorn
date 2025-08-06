@@ -53,8 +53,6 @@ export function apiKeyAuth() {
         });
       }
 
-      console.warn(`Found API key with ID: ${foundApiKey.id}, user ID: ${foundApiKey.userId}`);
-
       // Get the associated user
       const user = await db.query.users.findFirst({
         where: (fields, { eq }) => eq(fields.id, foundApiKey.userId),

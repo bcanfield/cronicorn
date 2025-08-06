@@ -6,6 +6,12 @@ import { z } from "zod";
 
 import { users } from "./auth";
 
+/**
+ * Job status enum indicating the current state of a job
+ * - ACTIVE: Job is currently active and will run on schedule
+ * - PAUSED: Job is paused and won't run until activated
+ * - ARCHIVED: Job has been archived and won't run
+ */
 export const jobStatusEnum = pgEnum("JobStatus", [
   "ACTIVE",
   "PAUSED",
@@ -41,11 +47,16 @@ export type selectJobsSchema = z.infer<typeof selectJobsSchema>;
 export const insertJobsSchema = createInsertSchema(
   jobs,
   {
-    definitionNL: schema => schema.min(5).max(1000),
+    definitionNL: schema => schema.min(5).max(1000).describe("Natural language definition of the job"),
+    status: schema => schema
+      .describe("Job status (ACTIVE, PAUSED, ARCHIVED)"),
+    nextRunAt: schema => schema
+      .describe("Next scheduled run time"),
   },
 )
   .omit({ id: true, createdAt: true, updatedAt: true })
   .required({ definitionNL: true });
+
 export type insertJobsSchema = z.infer<typeof insertJobsSchema>;
 
 export const patchJobsSchema = insertJobsSchema.partial();

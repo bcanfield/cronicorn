@@ -143,13 +143,10 @@ async function seedApiKeys(userId: string) {
 
   // Create each API key with proper hashing
   for (const config of apiKeyConfigs) {
-    // Generate key and secret
-    const { key: generatedKey, secret } = generateApiKeyAndSecret();
+    // Generate key and secret using the same function used in the API routes
+    const { key, secret } = generateApiKeyAndSecret();
 
-    // Add prefix to the key
-    const key = `${config.prefix}${generatedKey}`;
-
-    // Hash the secret
+    // Hash the secret - exactly how it's done in api-keys.handlers.ts
     const { hash, salt } = hashApiKeySecret(secret);
 
     // Store the API key with hashed secret
