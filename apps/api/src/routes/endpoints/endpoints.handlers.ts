@@ -13,7 +13,7 @@ import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } fro
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // List endpoints for authenticated user's jobs
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+  const userId = authUser!.user!.id;
   const { page, pageSize, sortBy, sortDirection, searchQuery } = c.req.valid("query");
   const offset = (page - 1) * pageSize;
   const limit = pageSize + 1;
@@ -45,7 +45,7 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+  const userId = authUser!.user!.id;
   const { jobId, ...rest } = c.req.valid("json");
   // ensure job belongs to user
   const jobRec = await db.query.jobs.findFirst({ where: eq(jobs.id, jobId) });
@@ -58,7 +58,7 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+  const userId = authUser!.user!.id;
   const { id } = c.req.valid("param");
 
   const [found] = await db
@@ -91,7 +91,7 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
   }
   // ensure endpoint belongs to authenticated user via job ownership
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+  const userId = authUser!.user!.id;
   const check = await db
     .select()
     .from(endpoints)
@@ -112,7 +112,7 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   const { id } = c.req.valid("param");
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+  const userId = authUser!.user!.id;
 
   const result = await db
     .select()

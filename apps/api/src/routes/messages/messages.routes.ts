@@ -3,7 +3,7 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdUUIDParamsSchema } from "stoker/openapi/schemas";
 
-import { insertMessagesSchema, listMessagesSchema, patchMessagesSchema, selectMessagesSchema } from "@/api/db/schema/messages";
+import { createdMessagesSchema, insertMessagesSchema, listMessagesSchema, patchMessagesSchema, selectMessagesSchema } from "@/api/db/schema/messages";
 import { notFoundSchema } from "@/api/lib/constants";
 
 const tags = ["Messages"];
@@ -17,7 +17,7 @@ export const list = createRoute({
   path: "/messages",
   method: "get",
   tags,
-  request: { query: listMessagesSchema },
+  request: { query: listMessagesSchema, params: z.object({ jobId: z.string().uuid().optional() }) },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(listResponseSchema, "The paginated list of messages"),
   },
@@ -31,7 +31,7 @@ export const create = createRoute({
     body: jsonContentRequired(insertMessagesSchema, "The message to create"),
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(selectMessagesSchema, "The created message"),
+    [HttpStatusCodes.OK]: jsonContent(createdMessagesSchema, "The created message"),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Job not found"),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertMessagesSchema),

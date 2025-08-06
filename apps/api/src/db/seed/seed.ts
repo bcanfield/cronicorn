@@ -110,41 +110,62 @@ async function seedJobs(userId: string): Promise<string[]> {
 }
 
 async function seedApiKeys(userId: string) {
+  // Import the API key utility functions
+  const { generateApiKeyAndSecret, hashApiKeySecret } = await import("@/api/lib/api-key-utils");
+
   // Delete existing API keys for this user
   await db.delete(schema.apiKeys).where(eq(schema.apiKeys.userId, userId));
 
-  const apiKeysData = [
+  // Define API key configurations
+  const apiKeyConfigs = [
     {
       name: "Development API Key",
-      key: `dev_${crypto.randomUUID().replace(/-/g, "")}`,
-      secret: crypto.randomUUID().replace(/-/g, ""),
       scopes: ["read", "write"],
       description: "Used for local development",
-      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
-      userId,
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
+      prefix: "dev_",
     },
     {
       name: "Production API Key",
-      key: `prod_${crypto.randomUUID().replace(/-/g, "")}`,
-      secret: crypto.randomUUID().replace(/-/g, ""),
       scopes: ["read", "write", "admin"],
       description: "Used for production environment",
-      expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 6 months
-      userId,
+      expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(), // 6 months
+      prefix: "prod_",
     },
     {
       name: "Read-only API Key",
-      key: `ro_${crypto.randomUUID().replace(/-/g, "")}`,
-      secret: crypto.randomUUID().replace(/-/g, ""),
       scopes: ["read"],
       description: "Used for read-only access",
-      expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 3 months
-      userId,
+      expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // 3 months
+      prefix: "ro_",
     },
   ];
 
-  for (const apiKeyData of apiKeysData) {
-    await db.insert(schema.apiKeys).values(apiKeyData);
+  // Create each API key with proper hashing
+  for (const config of apiKeyConfigs) {
+    // Generate key and secret using the same function used in the API routes
+    const { key, secret } = generateApiKeyAndSecret();
+
+    // Hash the secret - exactly how it's done in api-keys.handlers.ts
+    const { hash, salt } = hashApiKeySecret(secret);
+
+    // Store the API key with hashed secret
+    await db.insert(schema.apiKeys).values({
+      name: config.name,
+      key,
+      secret: hash, // Store the hash, not the plain secret
+      secretSalt: salt, // Store the salt
+      scopes: config.scopes,
+      description: config.description,
+      expiresAt: config.expiresAt,
+      userId,
+    });
+
+    // Output the generated key and secret for development purposes
+    console.log(`Created API key: ${config.name}`);
+    console.log(`  Key: ${key}`);
+    console.log(`  Secret: ${secret}`);
+    console.log(`  (Keep this info secure - only shown during seeding)`);
   }
 }
 

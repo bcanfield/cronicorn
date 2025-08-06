@@ -1,7 +1,10 @@
 import type { SessionContext } from "@hono/auth-js/react";
 
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+
+import Footer from "@/web/components/footer";
 
 export type Session = Parameters<typeof SessionContext>[0]["value"];
 
@@ -10,12 +13,14 @@ export const Route = createRootRouteWithContext<{
 }>()({
   component: () => (
     <>
-      {/* <AppNavbar /> */}
-
-      <main className="mx-auto">
+      <div className="mx-auto">
         <Outlet />
         <TanStackRouterDevtools />
-      </main>
+        <ReactQueryDevtools />
+        <Footer />
+
+      </div>
+
     </>
   ),
 });

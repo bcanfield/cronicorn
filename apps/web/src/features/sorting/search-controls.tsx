@@ -23,7 +23,7 @@ export function SearchControls({ searchQuery, onChange }: SearchControlsProps) {
   }, [searchQuery]);
 
   return (
-    <div className="flex ">
+    <div className="flex shrink-0">
       <Input
         id="search"
         placeholder="Search..."

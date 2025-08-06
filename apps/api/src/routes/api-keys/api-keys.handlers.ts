@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import crypto from "node:crypto";
+import { HTTPException } from "hono/http-exception";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
@@ -7,24 +7,25 @@ import type { AppRouteHandler } from "@/api/lib/types";
 
 import db from "@/api/db";
 import { apiKeys } from "@/api/db/schema";
+import {
+  generateApiKeyAndSecret,
+  hashApiKeySecret,
+} from "@/api/lib/api-key-utils";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RevokeRoute } from "./api-keys.routes";
 
-// Generate a secure API key and secret
-function generateApiKeyAndSecret() {
-  // Generate a random API key (24 characters)
-  const key = crypto.randomBytes(18).toString("base64").replace(/[+/=]/g, "");
-  // Generate a random API secret (32 characters)
-  const secret = crypto.randomBytes(24).toString("base64").replace(/[+/=]/g, "");
-
-  return { key, secret };
-}
-
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // Restrict to authenticated user's API keys
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
   const { page, pageSize, sortBy, sortDirection } = c.req.valid("query");
 
   // Calculate pagination offsets
@@ -57,17 +58,28 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
   const apiKeyInput = c.req.valid("json");
 
-  // Generate API key and secret
+  // Generate API key and secret - the generator ensures they meet validation requirements
   const { key, secret } = generateApiKeyAndSecret();
+
+  // Hash the secret for storage
+  const { hash, salt } = hashApiKeySecret(secret);
 
   const [inserted] = await db.insert(apiKeys).values({
     ...apiKeyInput,
     userId,
     key,
-    secret,
+    secret: hash,
+    secretSalt: salt,
   }).returning();
 
   return c.json(inserted, HttpStatusCodes.CREATED);
@@ -76,7 +88,14 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
   // Fetch API key belonging to authenticated user
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
   const { id } = c.req.valid("param");
 
   const found = await db.query.apiKeys.findFirst({
@@ -115,7 +134,14 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 
   // Only allow updating user's own API key
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
 
   const [updated] = await db.update(apiKeys)
     .set(updates)
@@ -137,7 +163,14 @@ export const revoke: AppRouteHandler<RevokeRoute> = async (c) => {
 
   // Only allow revoking user's own API key
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
 
   const [updated] = await db.update(apiKeys)
     .set({ revoked: true })
@@ -159,7 +192,14 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 
   // Only allow deleting user's own API key
   const authUser = c.get("authUser");
-  const userId = authUser.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
 
   const [deleted] = await db.delete(apiKeys)
     .where(and(eq(apiKeys.id, id), eq(apiKeys.userId, userId)))

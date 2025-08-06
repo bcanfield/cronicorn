@@ -17,9 +17,16 @@ export const list = createRoute({
   path: "/endpoints",
   method: "get",
   tags,
+  summary: "List Endpoints",
+  description: "Retrieve a paginated list of endpoints with optional filtering by job ID, status, or other criteria.",
   request: { query: listEndpointsSchema },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(listResponseSchema, "The paginated list of endpoints"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      notFoundSchema,
+      "Authentication required",
+    ),
+
   },
 });
 
@@ -27,11 +34,18 @@ export const create = createRoute({
   path: "/endpoints",
   method: "post",
   tags,
+  summary: "Create Endpoint",
+  description: "Create a new endpoint configuration for a job to interact with an external service or API. Includes URL, method, headers, and authentication details.",
   request: {
     body: jsonContentRequired(insertEndpointsSchema, "The endpoint to create"),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(selectEndpointsSchema, "The created endpoint"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      notFoundSchema,
+      "Authentication required",
+    ),
+
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Job not found"),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertEndpointsSchema),
@@ -44,11 +58,18 @@ export const getOne = createRoute({
   path: "/endpoints/{id}",
   method: "get",
   tags,
+  summary: "Get Endpoint",
+  description: "Retrieve details for a specific endpoint by ID, including its configuration, usage statistics, and last execution status.",
   request: {
     params: IdUUIDParamsSchema,
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(selectEndpointsSchema, "The requested endpoint"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      notFoundSchema,
+      "Authentication required",
+    ),
+
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Endpoint not found"),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdUUIDParamsSchema),
@@ -61,12 +82,19 @@ export const patch = createRoute({
   path: "/endpoints/{id}",
   method: "patch",
   tags,
+  summary: "Update Endpoint",
+  description: "Modify an existing endpoint's configuration, such as changing the URL, method, headers, or authentication details.",
   request: {
     params: IdUUIDParamsSchema,
     body: jsonContentRequired(patchEndpointsSchema, "The endpoint updates"),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(selectEndpointsSchema, "The updated endpoint"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      notFoundSchema,
+      "Authentication required",
+    ),
+
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Endpoint not found"),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(patchEndpointsSchema)
@@ -80,11 +108,17 @@ export const remove = createRoute({
   path: "/endpoints/{id}",
   method: "delete",
   tags,
+  summary: "Delete Endpoint",
+  description: "Permanently remove an endpoint from the system. This will also remove any related statistics and execution history.",
   request: {
     params: IdUUIDParamsSchema,
   },
   responses: {
     [HttpStatusCodes.NO_CONTENT]: { description: "Endpoint deleted" },
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      notFoundSchema,
+      "Authentication required",
+    ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Endpoint not found"),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdUUIDParamsSchema),

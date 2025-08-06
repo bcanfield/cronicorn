@@ -13,54 +13,18 @@
   },
   {
     "role": "user",
-    "content": [
-      {
-        "type": "text",
-        "text": "What do you see in this image?",
-        "providerOptions": {
-          "priority": "high"
-        }
-      },
-      {
-        "type": "image",
-        "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
-        "mediaType": "image/png"
-      }
-    ]
+    "content": "You are a helpful AI assistant. Be concise and accurate."
+
   },
   {
     "role": "user",
-    "content": [
-      {
-        "type": "text",
-        "text": "Please analyze this document:"
-      },
-      {
-        "type": "file",
-        "data": "https://example.com/document.pdf",
-        "filename": "report.pdf",
-        "mediaType": "application/pdf",
-        "providerOptions": {
-          "extractText": true
-        }
-      }
-    ]
+    "content": "You are a helpful AI assistant. Be concise and accurate."
+
   },
   {
     "role": "user",
-    "content": [
-      {
-        "type": "image",
-        "image": "https://example.com/chart.jpg",
-        "mediaType": "image/jpeg"
-      },
-      {
-        "type": "file",
-        "data": "data:text/plain;base64,SGVsbG8gV29ybGQ=",
-        "filename": "notes.txt",
-        "mediaType": "text/plain"
-      }
-    ]
+    "content": "You are a helpful AI assistant. Be concise and accurate."
+
   },
   {
     "role": "assistant",
@@ -150,42 +114,13 @@
   },
   {
     "role": "user",
-    "content": [
-      {
-        "type": "text",
-        "text": "Can you create a chart for this data?"
-      },
-      {
-        "type": "file",
-        "data": "data:text/csv;base64,TmFtZSxBZ2UKSm9obiwzMApKYW5lLDI1",
-        "filename": "data.csv",
-        "mediaType": "text/csv"
-      }
-    ]
+    "content": "You are a helpful AI assistant. Be concise and accurate."
+
   },
   {
     "role": "assistant",
-    "content": [
-      {
-        "type": "reasoning",
-        "text": "The user wants me to create a chart from CSV data. I should use a chart creation tool."
-      },
-      {
-        "type": "text",
-        "text": "I'll create a chart from your CSV data."
-      },
-      {
-        "type": "tool-call",
-        "toolCallId": "call_chart_456",
-        "toolName": "create_chart",
-        "input": {
-          "data": "Name,Age\nJohn,30\nJane,25",
-          "chartType": "bar",
-          "title": "Age Distribution"
-        },
-        "providerExecuted": true
-      }
-    ]
+    "content": "You are a helpful AI assistant. Be concise and accurate."
+
   },
   {
     "role": "tool",
@@ -214,7 +149,7 @@
       },
       {
         "type": "file",
-        "data": "https://example.com/generated-chart.png",
+        "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
         "filename": "age_chart.png",
         "mediaType": "image/png",
         "providerOptions": {
@@ -230,12 +165,7 @@
   },
   {
     "role": "user",
-    "content": [
-      {
-        "type": "text",
-        "text": "Thanks! Can you also show me the raw data?"
-      }
-    ]
+    "content": "You are a helpful AI assistant. Be concise and accurate."
   },
   {
     "role": "assistant",

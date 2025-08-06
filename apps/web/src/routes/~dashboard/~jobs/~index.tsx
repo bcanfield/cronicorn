@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { JOB_SORT_KEYS, listJobsSchema } from "@tasks-app/api/schema";
-import { PlusCircle } from "lucide-react";
+import { Briefcase, PlusCircle } from "lucide-react";
 
+import EmptyPlaceholder from "@/web/components/empty-placeholder";
 import PageHeader from "@/web/components/re-usables/page-header";
 import RoutePending from "@/web/components/route-pending";
 import { SortingContainer } from "@/web/features/sorting/sorting-container";
@@ -29,6 +30,8 @@ function RouteComponent() {
   const setParams = (newParams: listJobsSchema) => {
     navigate({ search: newParams });
   };
+
+  const showEmptyPlaceholder = items.length === 0 && params.page === 1;
   return (
     <>
       <div className="flex items-center justify-between">
@@ -42,15 +45,20 @@ function RouteComponent() {
         </Link>
 
       </div>
-      <SortingContainer
-        hasNext={hasNext}
-        onChange={setParams}
-        params={params}
-        sortKeys={JOB_SORT_KEYS}
-      >
-        <JobList jobs={items} />
+      {showEmptyPlaceholder
+        ? (<EmptyPlaceholder icon={<Briefcase />} title="No Jobs found" description="You don't have any jobs yet. Create your first job to get started." />)
+        : (
+            <SortingContainer
+              hasNext={hasNext}
+              onChange={setParams}
+              params={params}
+              sortKeys={JOB_SORT_KEYS}
+            >
+              <JobList jobs={items} />
 
-      </SortingContainer>
+            </SortingContainer>
+          )}
+
     </>
   );
 }
