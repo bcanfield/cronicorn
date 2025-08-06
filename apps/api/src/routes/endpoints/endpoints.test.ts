@@ -163,36 +163,44 @@ describe("endpoints routes", () => {
     it("paginates results", async () => {
       const response = await client.api.endpoints.$get({ query: { page: 1, pageSize: 2 } });
       expect(response.status).toBe(200);
-      const { items, hasNext } = await response.json();
-      expect(items).toHaveLength(2);
-      expect(items[0].name).toBe("C-endpoint");
-      expect(items[1].name).toBe("B-endpoint");
-      expect(hasNext).toBe(true);
+      if (response.status === 200) {
+        const { items, hasNext } = await response.json();
+        expect(items).toHaveLength(2);
+        expect(items[0].name).toBe("C-endpoint");
+        expect(items[1].name).toBe("B-endpoint");
+        expect(hasNext).toBe(true);
+      }
     });
 
     it("sorts results by createdAt desc", async () => {
       const response = await client.api.endpoints.$get({ query: { sortBy: "createdAt", sortDirection: "desc" } });
       expect(response.status).toBe(200);
-      const { items } = await response.json();
-      expect(items[0].name).toBe("C-endpoint");
-      expect(items[2].name).toBe("A-endpoint");
+      if (response.status === 200) {
+        const { items } = await response.json();
+        expect(items[0].name).toBe("C-endpoint");
+        expect(items[2].name).toBe("A-endpoint");
+      }
     });
 
     it("sorts results by createdAt asc", async () => {
       const response = await client.api.endpoints.$get({ query: { sortBy: "createdAt", sortDirection: "asc" } });
       expect(response.status).toBe(200);
-      const { items } = await response.json();
-      expect(items[0].name).toBe("A-endpoint");
-      expect(items[2].name).toBe("C-endpoint");
+      if (response.status === 200) {
+        const { items } = await response.json();
+        expect(items[0].name).toBe("A-endpoint");
+        expect(items[2].name).toBe("C-endpoint");
+      }
     });
 
     it("filters results by searchQuery", async () => {
       const response = await client.api.endpoints.$get({ query: { searchQuery: "B-endpoint" } });
       expect(response.status).toBe(200);
-      const { items, hasNext } = await response.json();
-      expect(items).toHaveLength(1);
-      expect(items[0].name).toBe("B-endpoint");
-      expect(hasNext).toBe(false);
+      if (response.status === 200) {
+        const { items, hasNext } = await response.json();
+        expect(items).toHaveLength(1);
+        expect(items[0].name).toBe("B-endpoint");
+        expect(hasNext).toBe(false);
+      }
     });
 
     it("handles invalid sortBy gracefully", async () => {

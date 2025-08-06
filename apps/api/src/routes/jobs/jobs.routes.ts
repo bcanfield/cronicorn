@@ -29,7 +29,6 @@ export const list = createRoute({
   tags,
   summary: "List jobs",
   operationId: "listJobs",
-  security: [{ bearerAuth: [] }],
   request: { query: listJobsSchema },
   description: "Lists all jobs with pagination, sorting, and filtering options. Returns only jobs belonging to the authenticated user. Supports searching by job definition text and sorting by various fields.",
   responses: {
@@ -50,7 +49,6 @@ export const create = createRoute({
   tags,
   summary: "Create a new job",
   operationId: "createJob",
-  security: [{ bearerAuth: [] }],
   description: "Creates a new job for the authenticated user. Requires at minimum a natural language definition of the job.",
   request: {
     body: jsonContentRequired(
@@ -80,7 +78,6 @@ export const getOne = createRoute({
   tags,
   summary: "Get a specific job",
   operationId: "getJob",
-  security: [{ bearerAuth: [] }],
   description: "Retrieves a specific job by its ID. Only jobs belonging to the authenticated user can be retrieved.",
   request: {
     params: IdUUIDParamsSchema,
@@ -111,7 +108,6 @@ export const patch = createRoute({
   tags,
   summary: "Update a job",
   operationId: "updateJob",
-  security: [{ bearerAuth: [] }],
   description: "Updates an existing job with partial data. Only jobs belonging to the authenticated user can be modified. At least one field must be provided for update.",
   request: {
     params: IdUUIDParamsSchema,
@@ -146,7 +142,6 @@ export const remove = createRoute({
   tags,
   summary: "Delete a job",
   operationId: "deleteJob",
-  security: [{ bearerAuth: [] }],
   description: "Permanently deletes a job. Only jobs belonging to the authenticated user can be deleted. Returns 204 No Content on success with an empty response body.",
   request: {
     params: IdUUIDParamsSchema,

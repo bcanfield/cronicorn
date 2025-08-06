@@ -47,7 +47,7 @@ export function requireScopes(requiredScopes: string[]) {
     );
 
     if (!hasRequiredScopes) {
-      throw new HTTPException(HttpStatusCodes.FORBIDDEN, {
+      throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
         message: "Insufficient permissions: missing required scopes",
       });
     }
