@@ -196,26 +196,32 @@ describe("jobs routes", () => {
     it("paginates results", async () => {
       const response = await client.api.jobs.$get({ query: { page: 1, pageSize: 2 } });
       expect(response.status).toBe(200);
-      const { items, hasNext } = await response.json();
-      expect(items).toHaveLength(2);
-      expect(items[0].definitionNL).toBe("C-job");
-      expect(items[1].definitionNL).toBe("B-job");
-      expect(hasNext).toBe(true);
+      if (response.status === 200) {
+        const { items, hasNext } = await response.json();
+        expect(items).toHaveLength(2);
+        expect(items[0].definitionNL).toBe("C-job");
+        expect(items[1].definitionNL).toBe("B-job");
+        expect(hasNext).toBe(true);
+      }
     });
 
     it("sorts results by createdAt desc", async () => {
       const response = await client.api.jobs.$get({ query: { sortBy: "createdAt", sortDirection: "desc" } });
       expect(response.status).toBe(200);
-      const { items } = await response.json();
-      expect(items[0].definitionNL).toBe("C-job");
-      expect(items[2].definitionNL).toBe("A-job");
+      if (response.status === 200) {
+        const { items } = await response.json();
+        expect(items[0].definitionNL).toBe("C-job");
+        expect(items[2].definitionNL).toBe("A-job");
+      }
     });
     it("sorts results by createdAt asc", async () => {
       const response = await client.api.jobs.$get({ query: { sortBy: "createdAt", sortDirection: "asc" } });
       expect(response.status).toBe(200);
-      const { items } = await response.json();
-      expect(items[0].definitionNL).toBe("A-job");
-      expect(items[2].definitionNL).toBe("C-job");
+      if (response.status === 200) {
+        const { items } = await response.json();
+        expect(items[0].definitionNL).toBe("A-job");
+        expect(items[2].definitionNL).toBe("C-job");
+      }
     });
     it("handles invalid sortBy gracefully", async () => {
       // @ts-expect-error: testing invalid sortBy

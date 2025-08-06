@@ -1,5 +1,3 @@
-"use client";
-
 import { BarChart3, Brain, CheckCircle, Code, Database, Wifi, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -55,6 +53,7 @@ export default function WorkflowDiagram() {
               <div className="flex items-start gap-2">
                 <span className="text-gray-500 select-none">1</span>
                 <div className="flex-1">
+                  {/* eslint-disable-next-line react/no-comment-textnodes */}
                   <span className="text-blue-300">// Natural language rule</span>
                   <br />
                   <span className="text-green-300">"</span>

@@ -9,7 +9,7 @@ export function JsonCodeBlock({ jsonString, className = "" }: JsonCodeBlockProps
       const parsed = JSON.parse(json);
       const formatted = JSON.stringify(parsed, null, 2);
 
-      return formatted.split("\n").map((line, index) => {
+      return formatted.split("\n").map((line) => {
         // Handle different JSON elements
         let processedLine = line;
 
@@ -23,7 +23,8 @@ export function JsonCodeBlock({ jsonString, className = "" }: JsonCodeBlockProps
         processedLine = processedLine.replace(/\["([^"]+)"\]/g, "[<span class=\"text-emerald-400\">\"$1\"</span>]");
 
         // Structural characters remain default text color
-        return <div key={index} className="text-foreground" dangerouslySetInnerHTML={{ __html: processedLine }} />;
+        // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+        return <div key={processedLine} className="text-foreground" dangerouslySetInnerHTML={{ __html: processedLine }} />;
       });
     }
     catch {

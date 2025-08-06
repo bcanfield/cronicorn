@@ -48,10 +48,6 @@ export const insertJobsSchema = createInsertSchema(
   jobs,
   {
     definitionNL: schema => schema.min(5).max(1000).describe("Natural language definition of the job"),
-    status: schema => schema
-      .describe("Job status (ACTIVE, PAUSED, ARCHIVED)"),
-    nextRunAt: schema => schema
-      .describe("Next scheduled run time"),
   },
 )
   .omit({ id: true, createdAt: true, updatedAt: true })

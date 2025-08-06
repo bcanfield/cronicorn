@@ -5,7 +5,7 @@ import type { TimelineScenario } from "@/web/features/splash-page/timeline/timel
 import { TimelineConditionCard } from "@/web/features/splash-page/timeline/timeline-condition";
 import { TimelineCurrentIndicator } from "@/web/features/splash-page/timeline/timeline-current-indicator";
 import { TimelineExecutionDot } from "@/web/features/splash-page/timeline/timeline-execution";
-import { useTimeline } from "@/web/features/splash-page/timeline/useTimeline";
+import { useTimeline } from "@/web/features/splash-page/timeline/use-timeline";
 import { cn } from "@workspace/ui/lib/utils";
 
 export default function DynamicScheduleTimeline({ scenario }: { scenario: TimelineScenario }) {

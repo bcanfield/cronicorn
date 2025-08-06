@@ -17,11 +17,11 @@ export default function configureOpenAPI(app: AppOpenAPI) {
     // Only include local dev server in development mode
     ...(env.NODE_ENV === "development"
       ? [
-        {
-          url: "http://localhost:9999",
-          description: "Local development environment",
-        },
-      ]
+          {
+            url: "http://localhost:9999",
+            description: "Local development environment",
+          },
+        ]
       : []
     ),
   ];

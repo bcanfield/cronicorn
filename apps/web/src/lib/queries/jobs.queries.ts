@@ -22,11 +22,12 @@ export function jobsQueryOptions(params: listJobsSchema) {
     // React-Query will pass { queryKey } into your fn
     queryFn: async ({ queryKey: [, q] }) => {
       const resp = await apiClient.api.jobs.$get({ query: q });
-      return resp.json();
+      const json = await resp.json();
+      if ("message" in json) {
+        throw new Error(json.message);
+      }
+      return json;
     },
-
-    // // optional: don’t refetch for 60s if you re-mount
-    // staleTime: 1000 * 60,
   });
 }
 export const createJobQueryOptions = (id: string) =>
@@ -50,6 +51,9 @@ export const createJob = async (job: insertJobsSchema) => {
   const json = await response.json();
   if ("success" in json) {
     throw new Error(formatApiError(json));
+  }
+  if ("message" in json) {
+    throw new Error(json.message);
   }
   return json;
 };

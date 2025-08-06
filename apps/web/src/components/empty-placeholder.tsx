@@ -16,8 +16,10 @@ type EmptyPlaceholderProps = {
   className?: string;
 };
 
+const defaultIcon = <Package className="w-12 h-12 text-muted-foreground/50" />;
+
 export default function EmptyPlaceholder({
-  icon = <Package className="w-12 h-12 text-muted-foreground/50" />,
+  icon = defaultIcon,
   title = "No items yet",
   description = "Get started by adding your first item. It only takes a few seconds.",
   actionLabel = "Add Item",

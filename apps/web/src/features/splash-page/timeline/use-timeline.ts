@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 
 import type { TimelineConfig, TimelineStep } from "@/web/features/splash-page/timeline/timeline-types";
