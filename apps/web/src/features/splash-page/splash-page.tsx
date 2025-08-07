@@ -4,11 +4,12 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { DOCS_URL } from "@/web/config/config";
+import { APP_DESCRIPTION_1, APP_DESCRIPTION_2, DOCS_URL } from "@/web/config/config";
 import SimpleSetup from "@/web/features/splash-page/simple-setup/simple-setup";
 import DynamicScheduleTimeline from "@/web/features/splash-page/timeline/timeline";
 import { monitoringScenarios } from "@/web/features/splash-page/timeline/timeline-scenario-data";
 import { TimelineTabs } from "@/web/features/splash-page/timeline/timeline-tabs";
+import WhyCronicorn from "@/web/features/splash-page/why-cronicorn";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
 
 import AppLogo from "../../../public/icon.svg?react";
@@ -147,12 +148,12 @@ export default function Component() {
           <div className="animate-fade-in">
             {/* Main Heading */}
             <h1 className="text-5xl md:text-6xl font-medium text-foreground mb-2 leading-tight tracking-tight mt-8">
-              Done writing schedulers?
+              {APP_DESCRIPTION_1}
             </h1>
 
             {/* Subtitle */}
             <p className="text-lg md:text-xl mx-auto text-foreground/70 mb-6 font-light leading-relaxed">
-              No problem — we’ve got your back.
+              {APP_DESCRIPTION_2}
             </p>
 
             <p className="text-sm text-foreground mb-12 max-w-xl mx-auto font-light leading-relaxed">
@@ -189,6 +190,8 @@ export default function Component() {
 
         {/* Setup guide */}
         <SimpleSetup />
+
+        <WhyCronicorn />
 
         <div className="flex justify-between items-center w-full max-w-5xl border-t py-8">
           <p>

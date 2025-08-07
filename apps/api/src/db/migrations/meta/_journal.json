@@ -43,6 +43,13 @@
       "when": 1754593836707,
       "tag": "0005_long_goliath",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1754595475771,
+      "tag": "0006_windy_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

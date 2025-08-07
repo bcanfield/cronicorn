@@ -7,6 +7,7 @@ import type { AppRouteHandler } from "@/api/lib/types";
 import db from "@/api/db";
 import { endpoints, jobs } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
+import { recordEndpointUsage } from "@/api/routes/endpoint-usage/endpoint-usage.utils";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RunRoute } from "./endpoints.routes";
 
@@ -211,6 +212,20 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
           console.error("Failed to store endpoint request validation error as system message:", error);
         });
 
+      // Record usage metrics for request size validation error
+      recordEndpointUsage({
+        endpointId: endpoint.id,
+        requestSizeBytes: actualSize,
+        responseSizeBytes: 0, // No response in this case
+        executionTimeMs: 0, // No execution time for validation error
+        statusCode: 413, // Payload Too Large
+        success: false,
+        truncated: false,
+        errorMessage: errorMessage || "Request size exceeds limit",
+      }).catch((error) => {
+        console.error("Failed to record endpoint usage metrics for size validation error:", error);
+      });
+
       // Return error response with required message field
       return c.json({
         success: false as const,
@@ -326,6 +341,23 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
         console.error("Failed to store endpoint response as system message:", error);
       });
 
+    // Record usage metrics - non-blocking, we don't need to wait for this
+    const requestSize = requestBody ? validateRequestSize(requestBody, Infinity).actualSize : 0;
+    const responseSize = responseSizeInfo?.actualSize || 0;
+
+    recordEndpointUsage({
+      endpointId: endpoint.id,
+      requestSizeBytes: requestSize,
+      responseSizeBytes: responseSize,
+      executionTimeMs: responseTime || 0,
+      statusCode,
+      success,
+      truncated: responseSizeInfo?.truncated || false,
+      errorMessage: success ? undefined : errorMessage,
+    }).catch((error) => {
+      console.error("Failed to record endpoint usage metrics:", error);
+    });
+
     return c.json({
       success,
       message: success ? "Request executed successfully" : errorMessage,
@@ -334,9 +366,9 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
       responseTime,
       headers: responseHeaders,
       sizes: {
-        requestSize: requestBody ? validateRequestSize(requestBody, Infinity).actualSize : 0,
-        responseSize: responseSizeInfo.actualSize,
-        truncated: responseSizeInfo.truncated,
+        requestSize,
+        responseSize,
+        truncated: responseSizeInfo?.truncated || false,
       },
     }, HttpStatusCodes.OK);
   }
@@ -359,11 +391,27 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
         console.error("Failed to store endpoint error as system message:", err);
       });
 
+    // Record usage metrics for error case
+    const requestSize = requestBody ? validateRequestSize(requestBody, Infinity).actualSize : 0;
+
+    recordEndpointUsage({
+      endpointId: endpoint.id,
+      requestSizeBytes: requestSize,
+      responseSizeBytes: 0, // No response in error case
+      executionTimeMs: responseTime || 0,
+      statusCode: undefined,
+      success: false,
+      truncated: false,
+      errorMessage,
+    }).catch((error) => {
+      console.error("Failed to record endpoint usage metrics for error:", error);
+    });
+
     return c.json({
       success: false,
       message: errorMessage,
       sizes: {
-        requestSize: requestBody ? validateRequestSize(requestBody, Infinity).actualSize : 0,
+        requestSize,
       },
     }, HttpStatusCodes.OK); // We still return 200 OK but with success: false to differentiate from API errors
   }
