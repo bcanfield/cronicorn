@@ -20,7 +20,7 @@ describe("endpoint form", () => {
     url: "https://api.example.com/webhook",
     method: "POST",
     bearerToken: "test-token",
-    requestSchema: { test: "value" },
+    requestSchema: JSON.stringify({ test: "value" }),
     jobId: mockJobId,
     timeoutMs: 5000,
     fireAndForget: false,
@@ -74,7 +74,7 @@ describe("endpoint form", () => {
       expect(screen.getByLabelText(/Name/i)).toHaveValue(sampleEndpoint.name);
       expect(screen.getByLabelText(/URL/i)).toHaveValue(sampleEndpoint.url);
       expect(screen.getByLabelText(/Bearer Token/i)).toHaveValue(sampleEndpoint.bearerToken);
-      expect(screen.getByLabelText(/Request Schema/i)).toHaveValue(JSON.stringify(sampleEndpoint.requestSchema, null, 2));
+      expect(screen.getByLabelText(/Request Schema/i)).toHaveValue(sampleEndpoint.requestSchema || "");
       expect(screen.getByLabelText(/Timeout/i)).toHaveValue(sampleEndpoint.timeoutMs);
 
       // Check update mode buttons
@@ -158,19 +158,26 @@ describe("endpoint form", () => {
         />,
       );
 
-      // Edit some fields
+      // Edit some fields to make the form dirty
       const nameInput = screen.getByLabelText(/Name/i);
       await user.clear(nameInput);
       await user.type(nameInput, "Updated Endpoint");
 
+      // Wait for the form to become dirty and enable the button
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Update Endpoint/i })).not.toBeDisabled();
+      });
+
       // Submit the form
       await user.click(screen.getByRole("button", { name: /Update Endpoint/i }));
 
-      // Check if onSubmit was called with the updated data
-      expect(mockOnSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        name: "Updated Endpoint",
-        jobId: mockJobId,
-      }));
+      // Wait for onSubmit to be called
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledWith(expect.objectContaining({
+          name: "Updated Endpoint",
+          jobId: mockJobId,
+        }));
+      });
     });
 
     it("shows loading state during form submission", async () => {

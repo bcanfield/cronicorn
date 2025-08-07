@@ -27,7 +27,7 @@
     "build": "tsc && tsc-alias",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --max-warnings 0 --fix",
-    "test": "cross-env NODE_ENV=test vitest --coverage",
+    "test": "cross-env NODE_ENV=test vitest run --coverage",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
