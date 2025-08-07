@@ -112,7 +112,7 @@ export default function Component() {
       <header className="relative z-10 px-6 py-6">
         <nav className="flex items-center justify-between max-w-7xl mx-auto gap-8">
           {/* Logo */}
-          <div className="flex items-center space-x-0">
+          <div className="flex items-center space-x-1">
             <div className="relative inline-block">
               <div className="absolute inset-0 -z-10 flex items-center justify-center">
                 <div className="w-full h-full bg-gradient-to-r from-black to-black rounded-lg  blur-2xl  scale-105"></div>

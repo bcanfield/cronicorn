@@ -1,7 +1,7 @@
 import type { LinkProps } from "@tanstack/react-router";
 
 import { Link, useLocation } from "@tanstack/react-router";
-import { Briefcase, Home, Key, Settings } from "lucide-react";
+import { Briefcase, Home, Key } from "lucide-react";
 
 import {
   Sidebar,
@@ -15,6 +15,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar";
+
+import AppLogo from "../../public/icon.svg?react";
 
 const navigationItems: {
   title: string;
@@ -52,7 +54,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <Link to="/" className="flex items-center gap-2 px-4 py-2">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Settings className="size-4" />
+            <AppLogo className="size-6 text-background " />
           </div>
           <div className="flex flex-col gap-0.5 leading-none">
             <span className="font-semibold">Cronicorn</span>
