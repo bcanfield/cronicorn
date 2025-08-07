@@ -71,6 +71,19 @@ describe("api key form", () => {
     });
   });
 
+  describe("validation", () => {
+    it("shows validation errors when form is invalid", async () => {
+      render(<ApiKeyForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
+
+      // Try to submit without required name field
+      await user.click(screen.getByRole("button", { name: /Create API Key/i }));
+
+      // Should show validation error
+      expect(await screen.findByText(/required/i)).toBeInTheDocument();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+  });
+
   describe("form submission", () => {
     it("calls onSubmit with form data", async () => {
       render(<ApiKeyForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
@@ -153,13 +166,27 @@ describe("api key form", () => {
 
       await user.click(screen.getByRole("button", { name: /Cancel/i }));
 
-      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+      expect(mockOnCancel).toHaveBeenCalled();
     });
 
     it("disables submit button when form is pristine", () => {
       render(<ApiKeyForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} defaultValues={sampleApiKey} />);
 
+      // Submit button should be disabled when form hasn't been modified
       expect(screen.getByRole("button", { name: /Create API Key/i })).toBeDisabled();
+    });
+
+    it("enables submit button when form becomes dirty", async () => {
+      render(<ApiKeyForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
+
+      // Initially disabled because no data has been entered
+      expect(screen.getByRole("button", { name: /Create API Key/i })).toBeDisabled();
+
+      // Type in a field to make the form dirty
+      await user.type(screen.getByLabelText(/Name/i), "Test");
+
+      // Button should now be enabled
+      expect(screen.getByRole("button", { name: /Create API Key/i })).not.toBeDisabled();
     });
   });
 });

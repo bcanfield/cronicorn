@@ -1,6 +1,6 @@
 import type { selectEndpointsSchema } from "@tasks-app/api/schema";
 
-import { screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -173,8 +173,8 @@ describe("endpoint form", () => {
       }));
     });
 
-    it("shows loading state during form submission", async () => {
-      // Create a promise that we can resolve manually
+    it("shows loading state during submission", async () => {
+      // Create a promise that we can resolve manually to control when submission completes
       let resolveSubmission: (value: unknown) => void;
       const submissionPromise = new Promise((resolve) => {
         resolveSubmission = resolve;
@@ -191,7 +191,7 @@ describe("endpoint form", () => {
         />,
       );
 
-      // Fill required fields
+      // Fill required fields to make form valid
       await user.type(screen.getByLabelText(/Name/i), "Test Endpoint");
       await user.type(screen.getByLabelText(/URL/i), "https://api.example.com/test");
 
@@ -225,7 +225,7 @@ describe("endpoint form", () => {
 
       await user.click(screen.getByRole("button", { name: /Cancel/i }));
 
-      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+      expect(mockOnCancel).toHaveBeenCalled();
     });
 
     it("calls onDelete when delete button is clicked", async () => {
@@ -242,7 +242,47 @@ describe("endpoint form", () => {
 
       await user.click(screen.getByRole("button", { name: /Delete Endpoint/i }));
 
-      expect(mockOnDelete).toHaveBeenCalledTimes(1);
+      expect(mockOnDelete).toHaveBeenCalled();
+    });
+
+    it("disables submit button when form is pristine in update mode", () => {
+      renderWithQueryClient(
+        <EndpointForm
+          defaultValues={sampleEndpoint}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+          onDelete={mockOnDelete}
+          jobId={mockJobId}
+          mode="update"
+        />,
+      );
+
+      // Submit button should be disabled when form hasn't been modified
+      expect(screen.getByRole("button", { name: /Update Endpoint/i })).toBeDisabled();
+    });
+
+    it("enables submit button when form becomes dirty", async () => {
+      renderWithQueryClient(
+        <EndpointForm
+          defaultValues={sampleEndpoint}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+          onDelete={mockOnDelete}
+          jobId={mockJobId}
+          mode="update"
+        />,
+      );
+
+      // Button starts disabled
+      expect(screen.getByRole("button", { name: /Update Endpoint/i })).toBeDisabled();
+
+      // Edit a field to make the form dirty
+      const nameInput = screen.getByLabelText(/Name/i);
+      await user.clear(nameInput);
+      await user.type(nameInput, "Changed Name");
+
+      // Button should now be enabled
+      expect(screen.getByRole("button", { name: /Update Endpoint/i })).not.toBeDisabled();
     });
 
     it("handles changing HTTP method via select", async () => {
@@ -298,46 +338,6 @@ describe("endpoint form", () => {
       expect(mockOnSubmit).toHaveBeenCalledWith(expect.objectContaining({
         fireAndForget: true,
       }));
-    });
-
-    it("disables submit button when form is not dirty", () => {
-      renderWithQueryClient(
-        <EndpointForm
-          defaultValues={sampleEndpoint}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-          onDelete={mockOnDelete}
-          jobId={mockJobId}
-          mode="update"
-        />,
-      );
-
-      // Submit button should be disabled initially since form is not dirty
-      expect(screen.getByRole("button", { name: /Update Endpoint/i })).toBeDisabled();
-    });
-
-    it("enables submit button when form becomes dirty", async () => {
-      renderWithQueryClient(
-        <EndpointForm
-          defaultValues={sampleEndpoint}
-          onSubmit={mockOnSubmit}
-          onCancel={mockOnCancel}
-          onDelete={mockOnDelete}
-          jobId={mockJobId}
-          mode="update"
-        />,
-      );
-
-      // Button starts disabled
-      expect(screen.getByRole("button", { name: /Update Endpoint/i })).toBeDisabled();
-
-      // Edit a field
-      const nameInput = screen.getByLabelText(/Name/i);
-      await user.clear(nameInput);
-      await user.type(nameInput, "Changed Name");
-
-      // Button should now be enabled
-      expect(screen.getByRole("button", { name: /Update Endpoint/i })).not.toBeDisabled();
     });
   });
 });

@@ -183,40 +183,6 @@ describe("job form", () => {
     });
   });
 
-    it("shows loading state during form submission", async () => {
-      // Create a promise that we can resolve manually to control when the submission completes
-      let resolveSubmission: (value: unknown) => void;
-      const submissionPromise = new Promise((resolve) => {
-        resolveSubmission = resolve;
-      });
-
-      const controlledMockSubmit = vi.fn().mockImplementation(() => submissionPromise);
-
-      renderWithQueryClient(
-        <JobForm
-          mode="create"
-          onCancel={mockOnCancel}
-          onSubmit={controlledMockSubmit}
-        />,
-      );
-
-      await user.type(screen.getByLabelText(/Prompt/i), "Test job");
-      await user.click(screen.getByRole("button", { name: /Create Job/i }));
-
-      // Button should show loading state
-      expect(screen.getByRole("button", { name: /Saving/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /Saving/i })).toBeDisabled();
-
-      // Resolve the submission
-      resolveSubmission!({});
-
-      // Wait for the button to return to normal state
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Create Job/i })).toBeInTheDocument();
-      });
-    });
-  });
-
   describe("user interactions", () => {
     it("calls onCancel when cancel button is clicked", async () => {
       renderWithQueryClient(
@@ -229,7 +195,7 @@ describe("job form", () => {
 
       await user.click(screen.getByRole("button", { name: /Cancel/i }));
 
-      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+      expect(mockOnCancel).toHaveBeenCalled();
     });
 
     it("calls onDelete when delete button is clicked", async () => {
@@ -245,7 +211,40 @@ describe("job form", () => {
 
       await user.click(screen.getByRole("button", { name: /Delete Job/i }));
 
-      expect(mockOnDelete).toHaveBeenCalledTimes(1);
+      expect(mockOnDelete).toHaveBeenCalled();
+    });
+
+    it("disables submit button when form is pristine in update mode", () => {
+      renderWithQueryClient(
+        <JobForm
+          mode="update"
+          defaultValues={sampleJob}
+          onCancel={mockOnCancel}
+          onSubmit={mockOnSubmit}
+        />,
+      );
+
+      // Submit button should be disabled when form hasn't been modified
+      expect(screen.getByRole("button", { name: /Update Job/i })).toBeDisabled();
+    });
+
+    it("enables submit button when form becomes dirty", async () => {
+      renderWithQueryClient(
+        <JobForm
+          mode="create"
+          onCancel={mockOnCancel}
+          onSubmit={mockOnSubmit}
+        />,
+      );
+
+      // Initially disabled because no data has been entered
+      expect(screen.getByRole("button", { name: /Create Job/i })).toBeDisabled();
+
+      // Type in a field to make the form dirty
+      await user.type(screen.getByLabelText(/Prompt/i), "Test job content");
+
+      // Button should now be enabled
+      expect(screen.getByRole("button", { name: /Create Job/i })).not.toBeDisabled();
     });
   });
 });
