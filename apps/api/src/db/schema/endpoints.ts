@@ -20,6 +20,9 @@ export const endpoints = pgTable("Endpoint", {
   jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
   timeoutMs: integer("timeoutMs").default(2000),
   fireAndForget: boolean("fireAndForget").default(false).notNull(),
+  // Size limits for request and response in bytes
+  maxRequestSizeBytes: integer("maxRequestSizeBytes").default(1048576), // Default: 1MB
+  maxResponseSizeBytes: integer("maxResponseSizeBytes").default(5242880), // Default: 5MB
   createdAt: timestamp("createdAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
@@ -32,7 +35,9 @@ export const selectEndpointsSchema = createSelectSchema(endpoints);
 export type selectEndpointsSchema = z.infer<typeof selectEndpointsSchema>;
 
 export const insertEndpointsSchema = createInsertSchema(endpoints, {
-  timeoutMs: z.number().min(1000).max(5000).default(5000).describe("Timeout in milliseconds"),
+  timeoutMs: z.number().min(1000).max(30000).default(5000).describe("Timeout in milliseconds"),
+  maxRequestSizeBytes: z.number().min(1024).max(10485760).default(1048576).describe("Maximum allowed request body size in bytes (1KB to 10MB, default 1MB)"),
+  maxResponseSizeBytes: z.number().min(1024).max(52428800).default(5242880).describe("Maximum allowed response body size in bytes (1KB to 50MB, default 5MB)"),
 })
   .omit({ id: true, createdAt: true, updatedAt: true })
   .required({ name: true, url: true, jobId: true });

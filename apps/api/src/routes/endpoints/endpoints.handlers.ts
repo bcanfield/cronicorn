@@ -10,7 +10,12 @@ import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RunRoute } from "./endpoints.routes";
 
-import { formatEndpointResponseMessage, insertSystemMessage } from "./endpoints.utils";
+import {
+  formatEndpointResponseMessage,
+  insertSystemMessage,
+  truncateResponseData,
+  validateRequestSize,
+} from "./endpoints.utils";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // List endpoints for authenticated user's jobs
@@ -137,7 +142,7 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 
 /**
  * Execute an HTTP request using the endpoint's configuration
- * 
+ *
  * This handler runs an endpoint by:
  * 1. Verifying that the endpoint exists and belongs to the authenticated user
  * 2. Making an HTTP request to the endpoint's URL using its configured method and bearer token
@@ -145,7 +150,7 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
  * 4. Tracking request timing and handling timeouts
  * 5. Processing and returning the response with detailed metadata
  * 6. Storing the execution result as a system message in the database
- * 
+ *
  * Response includes:
  * - success: boolean indicating if the request returned a successful status code
  * - message: descriptive message about the request result
@@ -153,7 +158,7 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
  * - statusCode: HTTP status code from the response
  * - responseTime: request duration in milliseconds
  * - headers: response headers as key-value pairs
- * 
+ *
  * @param c - Context containing request and authentication information
  * @returns HTTP response with execution results
  */
@@ -181,19 +186,63 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
 
   const endpoint = result[0].Endpoint;
   const jobId = endpoint.jobId;
+
+  // Validate request size if applicable
+  if (requestBody && ["POST", "PUT", "PATCH"].includes(endpoint.method)) {
+    const { valid, actualSize, errorMessage } = validateRequestSize(
+      requestBody,
+      endpoint.maxRequestSizeBytes || 1048576, // Default: 1MB
+    );
+
+    if (!valid) {
+      // Create error message and store it in the database
+      const messageContent = formatEndpointResponseMessage({
+        endpointName: endpoint.name,
+        url: endpoint.url,
+        method: endpoint.method,
+        requestBody,
+        success: false,
+        errorMessage: `Request size validation failed: ${errorMessage}`,
+      });
+
+      // Store as system message - non-blocking
+      insertSystemMessage(messageContent, jobId, "endpointResponse")
+        .catch((error) => {
+          console.error("Failed to store endpoint request validation error as system message:", error);
+        });
+
+      // Return error response with required message field
+      return c.json({
+        success: false as const,
+        message: errorMessage || "Request size exceeds limit",
+        error: {
+          code: "PAYLOAD_TOO_LARGE" as const,
+          details: {
+            actualSize,
+            maxSize: endpoint.maxRequestSizeBytes || 1048576,
+          },
+        },
+      }, 413); // 413 Payload Too Large
+    }
+  }
+
   let success = false;
   let responseData;
   let statusCode;
   let responseTime;
   const responseHeaders: Record<string, string> = {};
   let errorMessage;
-  
+  let responseSizeInfo: {
+    actualSize: number;
+    truncated: boolean;
+  } | undefined;
+
   try {
     // Prepare request headers
     const headers: HeadersInit = {
       "Content-Type": "application/json",
     };
-    
+
     // Add bearer token if available
     if (endpoint.bearerToken) {
       headers.Authorization = `Bearer ${endpoint.bearerToken}`;
@@ -201,42 +250,62 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
 
     // Track request timing
     const startTime = performance.now();
-    
+
     // Execute the request with timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), endpoint.timeoutMs || 5000);
-    
+
     const response = await fetch(endpoint.url, {
       method: endpoint.method,
       headers,
-      body: requestBody && ["POST", "PUT", "PATCH"].includes(endpoint.method) 
+      body: requestBody && ["POST", "PUT", "PATCH"].includes(endpoint.method)
         ? JSON.stringify(requestBody)
         : undefined,
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
     const endTime = performance.now();
     responseTime = Math.round(endTime - startTime);
-    
+
     // Process response
     const contentType = response.headers.get("content-type");
-    
+
+    // Parse response based on content type
     if (contentType?.includes("application/json")) {
       responseData = await response.json();
-    } else {
+    }
+    else {
       responseData = await response.text();
     }
-    
+
+    // Check response size and truncate if needed
+    const maxResponseSize = endpoint.maxResponseSizeBytes || 5242880; // Default: 5MB
+    const truncationResult = truncateResponseData(responseData, maxResponseSize);
+
+    responseData = truncationResult.data;
+    responseSizeInfo = {
+      actualSize: truncationResult.originalSize,
+      truncated: truncationResult.truncated,
+    };
+
+    // Add a note about truncation if applicable
+    if (truncationResult.truncated) {
+      console.warn(
+        `Response for endpoint ${endpoint.id} was truncated: `
+        + `${truncationResult.originalSize} bytes truncated to ${truncationResult.truncatedSize} bytes`,
+      );
+    }
+
     // Convert headers to object
     response.headers.forEach((value, key) => {
       responseHeaders[key] = value;
     });
-    
+
     success = response.ok;
     statusCode = response.status;
     errorMessage = success ? undefined : `Request failed with status: ${response.status}`;
-    
+
     // Format the response message and store it in the database
     const messageContent = formatEndpointResponseMessage({
       endpointName: endpoint.name,
@@ -250,13 +319,13 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
       success,
       errorMessage,
     });
-    
+
     // Store as system message - non-blocking, we don't need to wait for this
     insertSystemMessage(messageContent, jobId, "endpointResponse")
-      .catch(error => {
+      .catch((error) => {
         console.error("Failed to store endpoint response as system message:", error);
       });
-    
+
     return c.json({
       success,
       message: success ? "Request executed successfully" : errorMessage,
@@ -264,11 +333,16 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
       statusCode,
       responseTime,
       headers: responseHeaders,
+      sizes: {
+        requestSize: requestBody ? validateRequestSize(requestBody, Infinity).actualSize : 0,
+        responseSize: responseSizeInfo.actualSize,
+        truncated: responseSizeInfo.truncated,
+      },
     }, HttpStatusCodes.OK);
-    
-  } catch (error) {
+  }
+  catch (error) {
     errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    
+
     // Format the error message and store it in the database
     const messageContent = formatEndpointResponseMessage({
       endpointName: endpoint.name,
@@ -278,16 +352,19 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
       success: false,
       errorMessage,
     });
-    
+
     // Store as system message - non-blocking, we don't need to wait for this
     insertSystemMessage(messageContent, jobId, "endpointResponse")
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to store endpoint error as system message:", err);
       });
-    
+
     return c.json({
       success: false,
       message: errorMessage,
+      sizes: {
+        requestSize: requestBody ? validateRequestSize(requestBody, Infinity).actualSize : 0,
+      },
     }, HttpStatusCodes.OK); // We still return 200 OK but with success: false to differentiate from API errors
   }
 };

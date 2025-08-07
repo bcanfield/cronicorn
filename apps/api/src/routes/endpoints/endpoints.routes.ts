@@ -132,7 +132,7 @@ export const run = createRoute({
   method: "post",
   tags,
   summary: "Run Endpoint",
-  description: "Execute a request to the specified endpoint using its configured URL, HTTP method, and bearer token.",
+  description: "Execute a request to the specified endpoint using its configured URL, HTTP method, and bearer token. Enforces request and response size limits.",
   request: {
     params: IdUUIDParamsSchema,
     body: jsonContent(
@@ -151,6 +151,12 @@ export const run = createRoute({
         statusCode: z.number().optional(),
         responseTime: z.number().optional(),
         headers: z.record(z.string()).optional(),
+        // Size limits information
+        sizes: z.object({
+          requestSize: z.number().optional().describe("Size of the request body in bytes"),
+          responseSize: z.number().optional().describe("Size of the response body in bytes"),
+          truncated: z.boolean().optional().describe("Whether the response was truncated due to size limits"),
+        }).optional(),
       }),
       "The result of executing the endpoint request",
     ),
@@ -160,8 +166,30 @@ export const run = createRoute({
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Endpoint not found"),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-      createErrorSchema(IdUUIDParamsSchema),
-      "Invalid id",
+      createErrorSchema(IdUUIDParamsSchema)
+        .or(z.object({
+          success: z.literal(false),
+          message: z.string().describe("Error message"),
+          error: z.object({
+            code: z.string().describe("Error code"),
+            details: z.record(z.any()).optional().describe("Additional error details"),
+          }),
+        })),
+      "Invalid id or request body exceeds size limits",
+    ),
+    413: jsonContent( // 413 PAYLOAD_TOO_LARGE
+      z.object({
+        success: z.literal(false),
+        message: z.string().describe("Error message explaining the size limit violation"),
+        error: z.object({
+          code: z.literal("PAYLOAD_TOO_LARGE"),
+          details: z.object({
+            actualSize: z.number().describe("Actual size of the request body in bytes"),
+            maxSize: z.number().describe("Maximum allowed size in bytes"),
+          }),
+        }),
+      }),
+      "Request body exceeds size limits",
     ),
   },
 });
