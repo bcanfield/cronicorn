@@ -139,20 +139,11 @@ export default function EndpointForm({
               <FormLabel>Request Schema (optional)</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder='{"example": "value"}'
+                  placeholder="Describe your request schema in any format"
                   {...field}
                   disabled={isLoading}
-                  value={field.value ? JSON.stringify(field.value, null, 2) : ""}
-                  onChange={(e) => {
-                    try {
-                      const json = e.target.value ? JSON.parse(e.target.value) : null;
-                      field.onChange(json);
-                    }
-                    catch {
-                      // Allow invalid JSON during editing
-                      field.onChange(e.target.value);
-                    }
-                  }}
+                  value={field.value ?? ""}
+
                 />
               </FormControl>
               <FormDescription>JSON schema for request validation.</FormDescription>

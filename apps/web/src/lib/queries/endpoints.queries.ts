@@ -6,23 +6,23 @@ import apiClient from "../api-client";
 import formatApiError from "../format-api-error";
 
 export const queryKeys = {
-  LIST_ENDPOINTS: () => ["list-endpoints"] as const,
-  LIST_ENDPOINT: (id: string) => ({ queryKey: [`list-endpoint-${id}`] }),
+  LIST_ENDPOINTS: (jobId: string) => ["list-endpoints", jobId] as const,
+  LIST_ENDPOINT: (endpointId: string) => ({ queryKey: [`list-endpoint-${endpointId}`] }),
 };
 
 /**
  * React-Query options for listing endpoints with dynamic query params
  */
-export function endpointsQueryOptions(params: listEndpointsSchema, jobId?: string) {
+export function endpointsQueryOptions(params: listEndpointsSchema, jobId: string) {
   // ⬇️ build a stable tuple key
-  const key = [...queryKeys.LIST_ENDPOINTS(), params, jobId] as const;
+  const key = [...queryKeys.LIST_ENDPOINTS(jobId), params] as const;
 
   return queryOptions({
     queryKey: key,
     // React-Query will pass { queryKey } into your fn
-    queryFn: async ({ queryKey: [, q, currentJobId] }) => {
+    queryFn: async ({ queryKey: [_, jobId, params] }) => {
       // If we have a jobId, use it to filter endpoints
-      const modifiedQuery = currentJobId ? { ...q, jobId: currentJobId } : q;
+      const modifiedQuery = jobId ? { ...params, jobId } : params;
       const resp = await apiClient.api.endpoints.$get({ query: modifiedQuery });
       const json = await resp.json();
       if ("message" in json) {
@@ -33,11 +33,11 @@ export function endpointsQueryOptions(params: listEndpointsSchema, jobId?: strin
   });
 }
 
-export const createEndpointQueryOptions = (id: string) =>
+export const createEndpointQueryOptions = (endpointId: string) =>
   queryOptions({
-    ...queryKeys.LIST_ENDPOINT(id),
+    ...queryKeys.LIST_ENDPOINT(endpointId),
     queryFn: async () => {
-      const response = await apiClient.api.endpoints[":id"].$get({ param: { id } });
+      const response = await apiClient.api.endpoints[":id"].$get({ param: { id: endpointId } });
       const json = await response.json();
       if ("message" in json) {
         throw new Error(json.message);

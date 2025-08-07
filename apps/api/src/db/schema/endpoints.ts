@@ -16,7 +16,7 @@ export const endpoints = pgTable("Endpoint", {
   url: text("url").notNull(),
   method: text("method").default("GET").notNull(),
   bearerToken: text("bearerToken"),
-  requestSchema: json("requestSchema"),
+  requestSchema: text("requestSchema"),
   jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
   timeoutMs: integer("timeoutMs").default(5000),
   fireAndForget: boolean("fireAndForget").default(false).notNull(),

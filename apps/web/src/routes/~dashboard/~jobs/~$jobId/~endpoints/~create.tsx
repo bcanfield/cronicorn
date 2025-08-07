@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import PageHeader from "@/web/components/re-usables/page-header";
 import RoutePending from "@/web/components/route-pending";
-import { createEndpoint } from "@/web/lib/queries/endpoints.queries";
+import { createEndpoint, queryKeys } from "@/web/lib/queries/endpoints.queries";
 import { createJobQueryOptions } from "@/web/lib/queries/jobs.queries";
 import queryClient from "@/web/lib/query-client";
 import EndpointForm from "@/web/routes/~dashboard/~jobs/~$jobId/~endpoints/components/form";
@@ -23,7 +23,10 @@ function RouteComponent() {
   const { mutateAsync } = useMutation({
     mutationFn: createEndpoint,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["list-endpoints"] });
+      // Invalidate the list of endpoints for this job
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.LIST_ENDPOINTS(jobId),
+      });
       navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
     },
   });

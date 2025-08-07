@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import PageHeader from "@/web/components/re-usables/page-header";
-import { createMessage } from "@/web/lib/queries/messages.queries";
+import { createMessage, queryKeys } from "@/web/lib/queries/messages.queries";
 import queryClient from "@/web/lib/query-client";
 import MessageForm from "@/web/routes/~dashboard/~jobs/~$jobId/~messages/components/form";
 
@@ -17,7 +17,7 @@ function RouteComponent() {
   const { mutateAsync } = useMutation({
     mutationFn: createMessage,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["list-messages"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.LIST_MESSAGES() });
       navigate({ to: "/dashboard/jobs/$jobId/messages" });
     },
   });

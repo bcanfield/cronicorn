@@ -22,6 +22,13 @@
       "when": 1753812644996,
       "tag": "0002_wide_paladin",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1754578066122,
+      "tag": "0003_adorable_corsair",
+      "breakpoints": true
     }
   ]
 }
