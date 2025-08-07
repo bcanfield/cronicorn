@@ -7,8 +7,8 @@ A blueprint to locate, understand, and extend features end-to-end
 
 * **Monorepo** managed by **pnpm workspaces**
 * **TypeScript** throughout
-* **Shared types** in `packages/types`
-* **Env vars** in root `.env`, loaded via `dotenv`
+* **Shared types** in API package exports (`@tasks-app/api/schema`)
+* **Env vars** in app-specific `.env` files, loaded via `dotenv`
 
 * Type Check: Run pnpm typecheck from the repo root to verify TypeScript types
 
@@ -20,16 +20,16 @@ Use your editor/CLI’s search to quickly locate code by entity name or feature:
 
 | Feature       | Search Pattern                         | Directory                                      |
 | ------------- | -------------------------------------- | ---------------------------------------------- |
-| DB Model      | `schema.ts`                            | `apps/api/src/db/`                             |
-| Entity Folder | `<entity>`                             | `apps/api/src/routes/`, `apps/web/src/routes/` |
-| Handlers      | `<entity>.handlers.ts`                 | `apps/api/src/routes/<entity>/`                |
-| Routes        | `<entity>.routes.ts`                   | `apps/api/src/routes/<entity>/`                |
-| Route Mount   | `index.ts` (inside entity folder)      | `apps/api/src/routes/<entity>/index.ts`        |
-| Tests         | `<entity>.test.ts`                     | `apps/api/src/routes/<entity>/`                |
-| Migrations    | `*.ts` in `migrations/`                | `apps/api/src/db/migrations/`                  |
-| Fetch Queries | `<entity>.queries.ts`                  | `apps/web/src/lib/queries/`                    |
-| Page Route    | `<entity>.tsx` or `<entity>/index.tsx` | `apps/web/src/routes/`                         |
-| Components    | `<Component>.tsx`                      | `apps/web/src/components/`                     |
+| DB Model      | `schema.ts` or `schema/<entity>.ts`    | `apps/api/src/db/`                             |
+| Entity Folder | `<entities>` (plural)                  | `apps/api/src/routes/`, `apps/web/src/routes/` |
+| Handlers      | `<entities>.handlers.ts`               | `apps/api/src/routes/<entities>/`              |
+| Routes        | `<entities>.routes.ts`                 | `apps/api/src/routes/<entities>/`              |
+| Route Mount   | `<entities>.index.ts`                  | `apps/api/src/routes/<entities>/`              |
+| Tests         | `<entities>.test.ts`                   | `apps/api/src/routes/<entities>/`              |
+| Migrations    | `*.ts` or `*.sql` in `migrations/`     | `apps/api/src/db/migrations/`                  |
+| Fetch Queries | `<entities>.queries.ts`                | `apps/web/src/lib/queries/`                    |
+| Page Route    | `~<entities>/` directory structure     | `apps/web/src/routes/`                         |
+| Components    | `<Component>.tsx`                      | `apps/web/src/components/`, entity components in route folders |
 
 ---
 
@@ -130,9 +130,22 @@ Use your editor/CLI’s search to quickly locate code by entity name or feature:
 
 ## 📦 UI Primitives (`packages/ui`)
 
-* Core components: `Button`, `Card`, etc.
-* Global styles: `global.css`
-* Utilities for theming
+* Core components: `Button`, `Card`, `Form`, etc. based on Radix UI
+* Global styles: `globals.css` with CSS variables and Tailwind
+* Utilities for theming and component composition
+* React hooks for common functionality
+
+## 🔧 API Client (`packages/api-client`)
+
+* Type-safe HTTP client generated from API routes
+* Hono RPC client with full TypeScript support
+* Error handling utilities and type definitions
+
+## ⚙️ ESLint Config (`packages/eslint-config`)
+
+* Shared linting rules across all workspaces
+* TypeScript-aware configuration
+* React-specific rules for web components
 
 ## ADDITIONAL REQUIREMENTS
 * When using colors for tailwind, NEVER use a custom color. ALWAYS reference a theme var from `packages/ui/src/styles/globals.css`. (ie. use `text-primary` instead of `text-white`)
