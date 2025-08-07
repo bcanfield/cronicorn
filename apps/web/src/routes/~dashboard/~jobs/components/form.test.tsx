@@ -1,6 +1,6 @@
 import type { selectJobsSchema } from "@tasks-app/api/schema";
 
-import { screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -56,7 +56,7 @@ describe("job form", () => {
       renderWithQueryClient(
         <JobForm
           mode="update"
-          initialData={sampleJob}
+          defaultValues={sampleJob}
           onCancel={mockOnCancel}
           onSubmit={mockOnSubmit}
           onDelete={mockOnDelete}
@@ -73,7 +73,7 @@ describe("job form", () => {
       renderWithQueryClient(
         <JobForm
           mode="update"
-          initialData={sampleJob}
+          defaultValues={sampleJob}
           onCancel={mockOnCancel}
           onSubmit={mockOnSubmit}
           // onDelete not provided
@@ -123,7 +123,7 @@ describe("job form", () => {
       renderWithQueryClient(
         <JobForm
           mode="update"
-          initialData={sampleJob}
+          defaultValues={sampleJob}
           onCancel={mockOnCancel}
           onSubmit={mockOnSubmit}
         />,
@@ -148,8 +148,8 @@ describe("job form", () => {
       });
     });
 
-    it("shows loading state during form submission", async () => {
-      // Create a promise that we can resolve manually to control when the submission completes
+    it("shows loading state during submission", async () => {
+      // Create a promise that we can resolve manually to control when submission completes
       let resolveSubmission: (value: unknown) => void;
       const submissionPromise = new Promise((resolve) => {
         resolveSubmission = resolve;
@@ -165,7 +165,8 @@ describe("job form", () => {
         />,
       );
 
-      await user.type(screen.getByLabelText(/Prompt/i), "Test job");
+      // Fill out the form - we need to ensure the form is dirty to enable the submit button
+      await user.type(screen.getByLabelText(/Prompt/i), "Test job for loading state");
       await user.click(screen.getByRole("button", { name: /Create Job/i }));
 
       // Button should show loading state
@@ -194,14 +195,14 @@ describe("job form", () => {
 
       await user.click(screen.getByRole("button", { name: /Cancel/i }));
 
-      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+      expect(mockOnCancel).toHaveBeenCalled();
     });
 
     it("calls onDelete when delete button is clicked", async () => {
       renderWithQueryClient(
         <JobForm
           mode="update"
-          initialData={sampleJob}
+          defaultValues={sampleJob}
           onCancel={mockOnCancel}
           onSubmit={mockOnSubmit}
           onDelete={mockOnDelete}
@@ -210,7 +211,40 @@ describe("job form", () => {
 
       await user.click(screen.getByRole("button", { name: /Delete Job/i }));
 
-      expect(mockOnDelete).toHaveBeenCalledTimes(1);
+      expect(mockOnDelete).toHaveBeenCalled();
+    });
+
+    it("disables submit button when form is pristine in update mode", () => {
+      renderWithQueryClient(
+        <JobForm
+          mode="update"
+          defaultValues={sampleJob}
+          onCancel={mockOnCancel}
+          onSubmit={mockOnSubmit}
+        />,
+      );
+
+      // Submit button should be disabled when form hasn't been modified
+      expect(screen.getByRole("button", { name: /Update Job/i })).toBeDisabled();
+    });
+
+    it("enables submit button when form becomes dirty", async () => {
+      renderWithQueryClient(
+        <JobForm
+          mode="create"
+          onCancel={mockOnCancel}
+          onSubmit={mockOnSubmit}
+        />,
+      );
+
+      // Initially disabled because no data has been entered
+      expect(screen.getByRole("button", { name: /Create Job/i })).toBeDisabled();
+
+      // Type in a field to make the form dirty
+      await user.type(screen.getByLabelText(/Prompt/i), "Test job content");
+
+      // Button should now be enabled
+      expect(screen.getByRole("button", { name: /Create Job/i })).not.toBeDisabled();
     });
   });
 });

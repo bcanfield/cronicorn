@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, getTableColumns, ilike } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
@@ -13,9 +14,17 @@ import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } fro
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // List messages for authenticated user's jobs
   const authUser = c.get("authUser");
-  const userId = authUser!.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
   const { page, pageSize, sortBy, sortDirection, searchQuery } = c.req.valid("query");
   const jobId = c.req.valid("param").jobId;
+
   const offset = (page - 1) * pageSize;
   const limit = pageSize + 1;
 
@@ -52,13 +61,22 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const authUser = c.get("authUser");
-  const userId = authUser!.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
   const { jobId, ...rest } = c.req.valid("json");
+
   // ensure job belongs to user
   const jobRec = await db.query.jobs.findFirst({ where: eq(jobs.id, jobId) });
   if (!jobRec || jobRec.userId !== userId) {
     return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
   }
+
   const [inserted] = await db.insert(messages).values({ jobId, ...rest }).returning();
   const { success, data, error } = createdMessagesSchema.safeParse(inserted);
   if (!success) {
@@ -73,12 +91,20 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
       HttpStatusCodes.UNPROCESSABLE_ENTITY,
     );
   }
+
   return c.json(data, HttpStatusCodes.OK);
 };
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
   const authUser = c.get("authUser");
-  const userId = authUser!.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
   const { id } = c.req.valid("param");
 
   const [found] = await db
@@ -86,15 +112,18 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
     .from(jobs)
     .innerJoin(messages, eq(jobs.id, messages.jobId))
     .where(and(eq(messages.id, id), eq(jobs.userId, userId)));
+
   if (!found?.Message) {
     return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
   }
+
   return c.json(found.Message, HttpStatusCodes.OK);
 };
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
   const { id } = c.req.valid("param");
   const updates = c.req.valid("json");
+
   if (Object.keys(updates).length === 0) {
     return c.json(
       {
@@ -109,9 +138,18 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
       HttpStatusCodes.UNPROCESSABLE_ENTITY,
     );
   }
+
   // ensure message belongs to authenticated user via job ownership
   const authUser = c.get("authUser");
-  const userId = authUser!.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
+
   const check = await db
     .select()
     .from(messages)
@@ -122,17 +160,27 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
         eq(jobs.userId, userId),
       ),
     );
+
   if (check.length === 0) {
     return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
   }
+
   const [updated] = await db.update(messages).set(updates).where(eq(messages.id, id)).returning();
   return c.json(updated, HttpStatusCodes.OK);
 };
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
   const { id } = c.req.valid("param");
+
   const authUser = c.get("authUser");
-  const userId = authUser!.user!.id;
+
+  if (!authUser || !authUser.user || !authUser.user.id) {
+    throw new HTTPException(HttpStatusCodes.UNAUTHORIZED, {
+      message: "Authentication required",
+    });
+  }
+
+  const userId = authUser.user.id;
 
   const result = await db
     .select()

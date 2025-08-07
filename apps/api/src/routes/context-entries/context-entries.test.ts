@@ -3,6 +3,7 @@
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
+import { ZodIssueCode } from "zod";
 
 import db from "@/api/db";
 import resetDb from "@/api/db/reset";
@@ -10,7 +11,7 @@ import { users } from "@/api/db/schema";
 import { contextEntries as contextEntriesTable } from "@/api/db/schema/context-entries";
 import { jobs } from "@/api/db/schema/jobs";
 import env from "@/api/env";
-import { ZOD_ERROR_CODES } from "@/api/lib/constants";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 import createApp from "@/api/lib/create-app";
 import { DEV_USER } from "@/api/lib/dev-user";
 
@@ -20,7 +21,6 @@ if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");
 }
 
-// @ts-ignore: deep type instantiation
 const client = testClient(createApp().route("/", router));
 
 describe("context entries routes", () => {
@@ -30,9 +30,9 @@ describe("context entries routes", () => {
   const testKey = "test-key";
   const testValue = "test-value";
 
+  // Seed a test user and job for all context entry tests
   beforeAll(async () => {
     await resetDb();
-
     const [user] = await db.insert(users).values({ email: "test@context-entries.com" }).returning();
     testUserId = user.id;
     // Create a job for context entries to reference
@@ -40,6 +40,7 @@ describe("context entries routes", () => {
     jobId = job.id;
   });
 
+  // == Validation Tests ==
   it("post /context-entries validates the body when creating", async () => {
     const response = await client.api["context-entries"].$post({
       // @ts-expect-error

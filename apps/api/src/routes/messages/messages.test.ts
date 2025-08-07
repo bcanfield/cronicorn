@@ -3,6 +3,7 @@
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
+import { ZodIssueCode } from "zod";
 
 import type { insertMessagesSchema } from "@/api/db/schema/messages";
 
@@ -12,7 +13,7 @@ import { users } from "@/api/db/schema";
 import { jobs } from "@/api/db/schema/jobs";
 import { messages as messagesTable } from "@/api/db/schema/messages";
 import env from "@/api/env";
-import { ZOD_ERROR_CODES } from "@/api/lib/constants";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 import createApp from "@/api/lib/create-app";
 import { DEV_USER } from "@/api/lib/dev-user";
 
@@ -22,7 +23,6 @@ if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");
 }
 
-// @ts-ignore: deep type instantiation
 const client = testClient(createApp().route("/", router));
 
 describe("messages routes", () => {
@@ -32,9 +32,9 @@ describe("messages routes", () => {
   const testRole: insertMessagesSchema["role"] = "user";
   const testContent = "Hello, world!";
 
+  // Seed a test user and job for all message tests
   beforeAll(async () => {
     await resetDb();
-
     const [user] = await db.insert(users).values({ email: "test@messages.com" }).returning();
     testUserId = user.id;
     // Create a job for messages to reference
@@ -42,6 +42,7 @@ describe("messages routes", () => {
     jobId = job.id;
   });
 
+  // == Validation Tests ==
   it("post /messages validates the body when creating", async () => {
     const response = await client.api.messages.$post({
       // @ts-expect-error

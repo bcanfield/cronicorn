@@ -8,15 +8,23 @@ import { notFoundSchema } from "@/api/lib/constants";
 
 const tags = ["API Keys"];
 
-// Response schema for paginated API keys list
+/**
+ * Response schema for paginated API keys list
+ *
+ * Returns:
+ * - items: Array of API key objects matching the query criteria
+ * - hasNext: Boolean indicating if there are more results available (for pagination)
+ */
 const listResponseSchema = z.object({
-  items: z.array(selectApiKeysSchema),
-  hasNext: z.boolean(),
+  items: z.array(selectApiKeysSchema).describe("Array of API key objects"),
+  hasNext: z.boolean().describe("Indicates if there are more results available for pagination"),
 });
 
-// Response schema for successful deletion
+/**
+ * Response schema for successful deletion
+ */
 const deleteSuccessSchema = z.object({
-  success: z.boolean(),
+  success: z.boolean().describe("Indicates successful deletion"),
 });
 
 export const list = createRoute({
@@ -24,18 +32,18 @@ export const list = createRoute({
   method: "get",
   tags,
   summary: "List API Keys",
-  description: "Retrieve a paginated list of API keys for the authenticated user with optional filtering and sorting.",
+  operationId: "listApiKeys",
+  description: "Retrieve a paginated list of API keys for the authenticated user with optional filtering and sorting. Returns only API keys belonging to the authenticated user.",
   request: { query: listApiKeysSchema },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       listResponseSchema,
-      "The paginated list of API keys",
+      "The paginated list of API keys with a flag indicating if more results are available",
     ),
     [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-      notFoundSchema,
+      z.object({ message: z.string() }),
       "Authentication required",
     ),
-
   },
 });
 
@@ -43,7 +51,8 @@ export const create = createRoute({
   path: "/api-keys",
   method: "post",
   tags,
-  summary: "Create API Key",
+  summary: "Create a new API Key",
+  operationId: "createApiKey",
   description: "Generate a new API key for the authenticated user. The API key secret is only shown once during creation and cannot be retrieved later.",
   request: {
     body: jsonContentRequired(
@@ -56,13 +65,13 @@ export const create = createRoute({
       createApiKeysSchema,
       "The created API key with its secret (only shown once)",
     ),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-      notFoundSchema,
-      "Authentication required",
-    ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertApiKeysSchema),
-      "Validation error(s)",
+      "Validation error(s) in the request body",
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({ message: z.string() }),
+      "Authentication required",
     ),
   },
 });
@@ -71,28 +80,28 @@ export const getOne = createRoute({
   path: "/api-keys/{id}",
   method: "get",
   tags,
-  summary: "Get API Key",
-  description: "Retrieve details for a specific API key by ID. Note that the secret is never returned, only metadata about the API key.",
+  summary: "Get a specific API Key",
+  operationId: "getApiKey",
+  description: "Retrieve details for a specific API key by ID. Only API keys belonging to the authenticated user can be retrieved. Note that the secret is never returned, only metadata about the API key.",
   request: {
     params: IdUUIDParamsSchema,
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       selectApiKeysSchema,
-      "The requested API key details (without secret)",
+      "The requested API key's complete details (without secret)",
     ),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-      notFoundSchema,
-      "Authentication required",
-    ),
-
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "API key not found",
+      "API key not found or does not belong to the authenticated user",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdUUIDParamsSchema),
-      "Invalid id",
+      "Invalid UUID format for API key ID",
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({ message: z.string() }),
+      "Authentication required",
     ),
   },
 });
@@ -101,32 +110,32 @@ export const patch = createRoute({
   path: "/api-keys/{id}",
   method: "patch",
   tags,
-  summary: "Update API Key",
-  description: "Update an existing API key's metadata such as name, description, or scopes. The key and secret values cannot be modified.",
+  summary: "Update an API Key",
+  operationId: "updateApiKey",
+  description: "Update an existing API key's metadata such as name, description, or scopes. Only API keys belonging to the authenticated user can be modified. The key and secret values cannot be modified. At least one field must be provided for update.",
   request: {
     params: IdUUIDParamsSchema,
     body: jsonContentRequired(
       patchApiKeysSchema,
-      "The API key updates",
+      "The API key fields to update",
     ),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       selectApiKeysSchema,
-      "The updated API key",
+      "The complete updated API key after changes",
     ),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-      notFoundSchema,
-      "Authentication required",
-    ),
-
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "API key not found",
+      "API key not found or does not belong to the authenticated user",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(patchApiKeysSchema).or(createErrorSchema(IdUUIDParamsSchema)),
-      "Validation error(s)",
+      "Validation error(s) in request body or invalid UUID format",
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({ message: z.string() }),
+      "Authentication required",
     ),
   },
 });
@@ -135,28 +144,28 @@ export const revoke = createRoute({
   path: "/api-keys/{id}/revoke",
   method: "post",
   tags,
-  summary: "Revoke API Key",
-  description: "Immediately revoke an API key, preventing it from being used for authentication. This action is separate from deletion and can be used for temporary suspension.",
+  summary: "Revoke an API Key",
+  operationId: "revokeApiKey",
+  description: "Immediately revoke an API key, preventing it from being used for authentication. Only API keys belonging to the authenticated user can be revoked. This action is separate from deletion and can be used for temporary suspension.",
   request: {
     params: IdUUIDParamsSchema,
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       selectApiKeysSchema,
-      "The revoked API key",
+      "The revoked API key with updated status",
     ),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-      notFoundSchema,
-      "Authentication required",
-    ),
-
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "API key not found",
+      "API key not found or does not belong to the authenticated user",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdUUIDParamsSchema),
-      "Invalid id",
+      "Invalid UUID format for API key ID",
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({ message: z.string() }),
+      "Authentication required",
     ),
   },
 });
@@ -165,28 +174,28 @@ export const remove = createRoute({
   path: "/api-keys/{id}",
   method: "delete",
   tags,
-  summary: "Delete API Key",
-  description: "Permanently delete an API key from the system. This action cannot be undone, and the key will no longer be usable for authentication.",
+  summary: "Delete an API Key",
+  operationId: "deleteApiKey",
+  description: "Permanently delete an API key from the system. Only API keys belonging to the authenticated user can be deleted. This action cannot be undone, and the key will no longer be usable for authentication. Returns success confirmation instead of 204 No Content.",
   request: {
     params: IdUUIDParamsSchema,
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       deleteSuccessSchema,
-      "API key successfully deleted",
+      "API key successfully deleted with confirmation",
     ),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-      notFoundSchema,
-      "Authentication required",
-    ),
-
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       notFoundSchema,
-      "API key not found",
+      "API key not found or does not belong to the authenticated user",
     ),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(IdUUIDParamsSchema),
-      "Invalid id",
+      "Invalid UUID format for API key ID",
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({ message: z.string() }),
+      "Authentication required",
     ),
   },
 });
