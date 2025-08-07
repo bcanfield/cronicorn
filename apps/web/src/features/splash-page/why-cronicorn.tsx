@@ -1,95 +1,217 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { Bot, Code2, Globe, Rocket, Wallet, Zap } from "lucide-react";
+import React from "react";
 
-import { DOCS_URL } from "@/web/config/config";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@workspace/ui/components/accordion";
-import { Button, buttonVariants } from "@workspace/ui/components/button";
+type Feature = {
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  title: string;
+  description: string;
+  blobs: {
+    color: string; // rgba(...)
+    size: string; // e.g. 'w-32 h-32'
+    position: string; // e.g. 'top-[-20px] left-[-20px]'
+    blur?: string; // e.g. 'blur-2xl'
+    opacity?: string; // e.g. 'opacity-40'
+  }[];
+};
 
-export default function Component() {
+const features: Feature[] = [
+  {
+    icon: Rocket,
+    title: "Setup in minutes",
+    description:
+      "Describe the job, add endpoints, done. Skip the cron syntax and config pain. You can be testing in minutes.",
+    blobs: [
+      {
+        color: "rgba(16,185,129,0.45)", // emerald-500/45
+        size: "w-32 h-32",
+        position: "top-[-18px] left-[-18px]",
+        blur: "blur-2xl",
+        opacity: "opacity-60",
+      },
+      {
+        color: "rgba(20,184,166,0.35)", // teal-500/35
+        size: "w-40 h-40",
+        position: "bottom-[-24px] right-[-24px]",
+        blur: "blur-3xl",
+        opacity: "opacity-50",
+      },
+    ],
+  },
+  {
+    icon: Bot,
+    title: "Hands-off",
+    description:
+      "Schedules adjust automatically. No more tweaking timers or pausing jobs — Cronicorn reacts to real conditions.",
+    blobs: [
+      {
+        color: "rgba(139,92,246,0.45)", // violet-500/45
+        size: "w-28 h-28",
+        position: "top-[-22px] right-[-16px]",
+        blur: "blur-3xl",
+        opacity: "opacity-60",
+      },
+      {
+        color: "rgba(217,70,239,0.35)", // fuchsia-500/35
+        size: "w-48 h-48",
+        position: "bottom-[-28px] left-[-28px]",
+        blur: "blur-2xl",
+        opacity: "opacity-50",
+      },
+    ],
+  },
+  {
+    icon: Zap,
+    title: "Runs when needed",
+    description:
+      "No wasteful “just in case” jobs. Tasks trigger only when the right conditions are met, not on a blind timer.",
+    blobs: [
+      {
+        color: "rgba(251,191,36,0.45)", // amber-400/45
+        size: "w-36 h-36",
+        position: "top-[-20px] left-[30%]",
+        blur: "blur-3xl",
+        opacity: "opacity-60",
+      },
+      {
+        color: "rgba(249,115,22,0.35)", // orange-500/35
+        size: "w-28 h-28",
+        position: "bottom-[-20px] left-[-16px]",
+        blur: "blur-2xl",
+        opacity: "opacity-50",
+      },
+    ],
+  },
+  {
+    icon: Wallet,
+    title: "Save resources",
+    description:
+      "Fewer runs, lower costs. Avoid burning compute on jobs that don’t need to run — keep bills low.",
+    blobs: [
+      {
+        color: "rgba(132,204,22,0.45)", // lime-500/45
+        size: "w-32 h-32",
+        position: "top-[10%] left-[-18px]",
+        blur: "blur-3xl",
+        opacity: "opacity-55",
+      },
+      {
+        color: "rgba(16,185,129,0.35)", // emerald-500/35
+        size: "w-44 h-44",
+        position: "bottom-[-24px] right-[-24px]",
+        blur: "blur-2xl",
+        opacity: "opacity-50",
+      },
+    ],
+  },
+  {
+    icon: Code2,
+    title: "Cleaner code",
+    description:
+      "No scattered time checks or cron math. Centralize all your scheduling logic in one simple job description.",
+    blobs: [
+      {
+        color: "rgba(168,85,247,0.45)", // purple-500/45
+        size: "w-36 h-36",
+        position: "top-[-24px] left-1/2 -translate-x-1/2",
+        blur: "blur-3xl",
+        opacity: "opacity-60",
+      },
+      {
+        color: "rgba(236,72,153,0.35)", // pink-500/35
+        size: "w-28 h-28",
+        position: "bottom-[-18px] left-[-18px]",
+        blur: "blur-2xl",
+        opacity: "opacity-50",
+      },
+    ],
+  },
+  {
+    icon: Globe,
+    title: "Works anywhere",
+    description:
+      "If it’s an HTTP endpoint, you’re good. From health checks to alerts, syncing, or scripts — Cronicorn fits right in.",
+    blobs: [
+      {
+        color: "rgba(244,63,94,0.45)", // rose-500/45
+        size: "w-32 h-32",
+        position: "bottom-[-22px] left-1/2 -translate-x-1/2",
+        blur: "blur-3xl",
+        opacity: "opacity-60",
+      },
+      {
+        color: "rgba(251,146,60,0.35)", // orange-400/35
+        size: "w-40 h-40",
+        position: "top-[-24px] right-[-24px]",
+        blur: "blur-2xl",
+        opacity: "opacity-50",
+      },
+    ],
+  },
+];
+
+function Blob({
+  color,
+  size,
+  position,
+  blur = "blur-2xl",
+  opacity = "opacity-50",
+}: {
+  color: string;
+  size: string;
+  position: string;
+  blur?: string;
+  opacity?: string;
+}) {
   return (
-    <div className="max-w-5xl w-full text-left mx-auto">
-      {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-4">
-        <div className="flex-1">
-          <h2 className="text-3xl font-medium text-foreground mb-2 leading-tight tracking-tight mt-8">
-            Why Cronicorn
-          </h2>
-          <p className="text-muted-foreground text-base max-w-2xl">
-            More building. Less scheduling.
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none absolute ${size} ${position} ${blur} ${opacity} transition-transform duration-300 ease-out group-hover:scale-105`}
+      style={{
+        background: `radial-gradient(closest-side, ${color} 0%, transparent 70%)`,
+        borderRadius: "9999px",
+        filter: "blur(24px)",
+      }}
+    />
+  );
+}
 
-          </p>
-        </div>
-        <Link to="/login" className={buttonVariants({ size: "lg" })}>
-          Get Started
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Link>
-      </div>
+const Features01Page = () => {
+  return (
+    <div className="max-w-5xl w-full  mx-auto  flex flex-col gap-8">
 
-      {/* Code Blocks Section */}
-      <div className="grid grid-cols-1">
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full"
-          defaultValue="item-1"
-        >
-          <AccordionItem value="item-1">
-            <AccordionTrigger>Product Information</AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-4 text-balance">
-              <p>
-                Our flagship product combines cutting-edge technology with sleek
-                design. Built with premium materials, it offers unparalleled
-                performance and reliability.
-              </p>
-              <p>
-                Key features include advanced processing capabilities, and an
-                intuitive user interface designed for both beginners and experts.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-2">
-            <AccordionTrigger>Shipping Details</AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-4 text-balance">
-              <p>
-                We offer worldwide shipping through trusted courier partners.
-                Standard delivery takes 3-5 business days, while express shipping
-                ensures delivery within 1-2 business days.
-              </p>
-              <p>
-                All orders are carefully packaged and fully insured. Track your
-                shipment in real-time through our dedicated tracking portal.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-3">
-            <AccordionTrigger>Return Policy</AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-4 text-balance">
-              <p>
-                We stand behind our products with a comprehensive 30-day return
-                policy. If you&apos;re not completely satisfied, simply return the
-                item in its original condition.
-              </p>
-              <p>
-                Our hassle-free return process includes free return shipping and
-                full refunds processed within 48 hours of receiving the returned
-                item.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      <h2 className="text-3xl font-medium text-foreground mb-2 leading-tight tracking-tight mt-8">
+        More building. Less scheduling.
 
-        {/* Left Code Block */}
-        {/* <div className="space-y-2">
-          <JsonCodeBlock jsonString={JSON.stringify(jsonContent)} />
-          <p className="text-muted-foreground font-light text-xs">Defining a Job</p>
-        </div> */}
+      </h2>
 
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-screen-lg mx-auto px-6">
+        {features.map(feature => (
+          <div
+            key={feature.title}
+            className="relative group overflow-hidden flex flex-col border rounded-2xl py-6 px-5 bg-card/20"
+          >
+            {/* Blurred radial blobs (unique per item) */}
+            {feature.blobs.map((b, i) => (
+              <Blob key={i} {...b} />
+            ))}
+
+            <div className="relative text-left">
+              <div className="flex gap-2 items-center">
+                <div className="h-10 w-10 flex items-center justify-center bg-background/50 rounded-full">
+                  <feature.icon className="h-6 w-6" />
+                </div>
+                <span className="text-lg font-semibold">{feature.title}</span>
+              </div>
+
+              <p className="mt-1 text-foreground/85 text-sm">
+                {feature.description}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
-}
+};
+
+export default Features01Page;

@@ -1,7 +1,7 @@
 import type { LinkProps } from "@tanstack/react-router";
 
 import { Link, useLocation } from "@tanstack/react-router";
-import { Briefcase, Home, Key } from "lucide-react";
+import { BarChart3, Briefcase, Home, Key } from "lucide-react";
 
 import {
   Sidebar,
@@ -38,11 +38,11 @@ const navigationItems: {
     url: "/dashboard/api-keys",
     icon: Key,
   },
-  //   {
-  //     title: "Usage",
-  //     url: "/dashboard/usage",
-  //     icon: BarChart3,
-  //   },
+  {
+    title: "Usage",
+    url: "/dashboard/endpoint-usage",
+    icon: BarChart3,
+  },
 
 ];
 

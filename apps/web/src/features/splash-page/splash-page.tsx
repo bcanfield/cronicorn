@@ -156,12 +156,6 @@ export default function Component() {
               {APP_DESCRIPTION_2}
             </p>
 
-            <p className="text-sm text-foreground mb-12 max-w-xl mx-auto font-light leading-relaxed">
-              <span className="text-foreground font-semibold">Cronicorn</span>
-              {" "}
-              is the adaptive scheduling engine for real-world systems and teams.
-            </p>
-
             {/* CTA Section */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Link to="/login" className={buttonVariants({ size: "lg" })}>
