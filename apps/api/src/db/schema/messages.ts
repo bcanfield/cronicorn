@@ -8,6 +8,12 @@ import { z } from "zod";
 import { pageSchema, pageSizeSchema, sortDirectionSchema } from "./common";
 import { jobs } from "./jobs";
 
+// ALLOWS US TO DETERMINE
+type MessageSource = "endpointResponse" | "unknown";
+
+/*
+START TYPES TO DEFINE AI SDK LANGUAGEMODELV2 MESSAGE TYPES
+*/
 // Define the message roles as a union type
 type MessageRole = "system" | "user" | "assistant" | "tool";
 
@@ -51,6 +57,9 @@ type RedactedReasoningPart = {
 type MessageContent =
   | string
   | Array<TextPart | ImagePart | FilePart | ToolCallPart | ReasoningPart | RedactedReasoningPart>;
+/*
+END TYPES TO DEFINE AI SDK LANGUAGEMODELV2 MESSAGE TYPES
+*/
 
 export const messages = pgTable("Message", {
   id: text("id")
@@ -59,6 +68,7 @@ export const messages = pgTable("Message", {
   role: text("role").$type<MessageRole>().notNull(),
   content: json("content").$type<MessageContent>().notNull(),
   jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
+  source: text("source").$type<MessageSource>(),
   createdAt: timestamp("createdAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
@@ -126,6 +136,13 @@ export const messageContentSchema = z.union([z.string(), z.array(contentPartSche
 // For user messages, we want to enforce a string content
 const userMessageSchema = z.object({
   role: z.literal("user"),
+  content: z.string(),
+  jobId: z.string().uuid(),
+});
+
+// For user messages, we want to enforce a string content
+const systemMessageSchema = z.object({
+  role: z.literal("system"),
   content: z.string(),
   jobId: z.string().uuid(),
 });

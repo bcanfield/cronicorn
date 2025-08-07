@@ -93,3 +93,19 @@ export const deleteEndpoint = async (id: string) => {
     }
   }
 };
+
+export const runEndpoint = async ({ id, requestBody }: { id: string; requestBody?: unknown }) => {
+  const response = await apiClient.api.endpoints[":id"].run.$post({
+    param: { id },
+    json: { requestBody },
+  });
+  const json = await response.json();
+
+  // We don't throw error for non-success response from the target endpoint
+  // as that's part of the expected response data
+  if ("message" in json && response.status >= 400) {
+    throw new Error(json.message);
+  }
+
+  return json;
+};

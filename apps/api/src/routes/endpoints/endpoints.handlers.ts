@@ -8,7 +8,7 @@ import db from "@/api/db";
 import { endpoints, jobs } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 
-import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./endpoints.routes";
+import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RunRoute } from "./endpoints.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // List endpoints for authenticated user's jobs
@@ -131,4 +131,114 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 
   await db.delete(endpoints).where(eq(endpoints.id, id));
   return c.body(null, HttpStatusCodes.NO_CONTENT);
+};
+
+/**
+ * Execute an HTTP request using the endpoint's configuration
+ *
+ * This handler runs an endpoint by:
+ * 1. Verifying that the endpoint exists and belongs to the authenticated user
+ * 2. Making an HTTP request to the endpoint's URL using its configured method and bearer token
+ * 3. Adding an optional request body if provided and applicable to the HTTP method
+ * 4. Tracking request timing and handling timeouts
+ * 5. Processing and returning the response with detailed metadata
+ *
+ * Response includes:
+ * - success: boolean indicating if the request returned a successful status code
+ * - message: descriptive message about the request result
+ * - data: parsed response body (as JSON if possible, otherwise as text)
+ * - statusCode: HTTP status code from the response
+ * - responseTime: request duration in milliseconds
+ * - headers: response headers as key-value pairs
+ *
+ * @param c - Context containing request and authentication information
+ * @returns HTTP response with execution results
+ */
+export const run: AppRouteHandler<RunRoute> = async (c) => {
+  const { id } = c.req.valid("param");
+  const { requestBody } = await c.req.json() || {};
+  const authUser = c.get("authUser");
+  const userId = authUser!.user!.id;
+
+  // Fetch the endpoint with user ownership verification
+  const result = await db
+    .select()
+    .from(endpoints)
+    .innerJoin(jobs, eq(endpoints.jobId, jobs.id))
+    .where(
+      and(
+        eq(endpoints.id, id),
+        eq(jobs.userId, userId),
+      ),
+    );
+
+  if (result.length === 0) {
+    return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
+  }
+
+  const endpoint = result[0].Endpoint;
+
+  try {
+    // Prepare request headers
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    // Add bearer token if available
+    if (endpoint.bearerToken) {
+      headers.Authorization = `Bearer ${endpoint.bearerToken}`;
+    }
+
+    // Track request timing
+    const startTime = performance.now();
+
+    // Execute the request with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), endpoint.timeoutMs || 5000);
+
+    const response = await fetch(endpoint.url, {
+      method: endpoint.method,
+      headers,
+      body: requestBody && ["POST", "PUT", "PATCH"].includes(endpoint.method)
+        ? JSON.stringify(requestBody)
+        : undefined,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    const endTime = performance.now();
+    const responseTime = endTime - startTime;
+
+    // Process response
+    let responseData;
+    const contentType = response.headers.get("content-type");
+
+    if (contentType?.includes("application/json")) {
+      responseData = await response.json();
+    }
+    else {
+      responseData = await response.text();
+    }
+
+    // Convert headers to object
+    const responseHeaders: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      responseHeaders[key] = value;
+    });
+
+    return c.json({
+      success: response.ok,
+      message: response.ok ? "Request executed successfully" : `Request failed with status: ${response.status}`,
+      data: responseData,
+      statusCode: response.status,
+      responseTime: Math.round(responseTime),
+      headers: responseHeaders,
+    }, HttpStatusCodes.OK);
+  }
+  catch (error) {
+    return c.json({
+      success: false,
+      message: error instanceof Error ? error.message : "An unknown error occurred",
+    }, HttpStatusCodes.OK); // We still return 200 OK but with success: false to differentiate from API errors
+  }
 };

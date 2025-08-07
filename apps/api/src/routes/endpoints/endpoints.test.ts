@@ -259,4 +259,72 @@ describe("endpoints routes", () => {
     const response = await client.api.endpoints[":id"].$patch({ param: { id: endpointId }, json: { name: "X" } });
     expect(response.status).toBe(404);
   });
+
+  describe("post /endpoints/{id}/run", () => {
+    let runEndpointId: string;
+
+    beforeAll(async () => {
+      // Create an endpoint for testing the run functionality
+      const payload = {
+        name: "Runnable Endpoint",
+        url: "https://httpbin.org/anything",
+        method: "POST",
+        jobId,
+      };
+      const response = await client.api.endpoints.$post({ json: payload });
+      expect(response.status).toBe(200);
+      if (response.status === 200) {
+        const json = await response.json();
+        runEndpointId = json.id;
+      }
+    });
+
+    it("validates endpoint ID parameter", async () => {
+      const response = await client.api.endpoints[":id"].run.$post({
+        // @ts-expect-error: invalid id type
+        param: { id: 123 },
+      });
+      expect(response.status).toBe(422);
+    });
+
+    it("returns 404 when endpoint not found", async () => {
+      const nonExistentId = "11111111-1111-1111-1111-111111111111";
+      const response = await client.api.endpoints[":id"].run.$post({ param: { id: nonExistentId }, json: { requestBody: null } });
+      expect(response.status).toBe(404);
+      if (response.status === 404) {
+        const json = await response.json();
+        expect(json.message).toBe(HttpStatusPhrases.NOT_FOUND);
+      }
+    });
+
+    it("returns 404 when trying to run an endpoint not owned by user", async () => {
+      const [{ id: otherJobId }] = await db.insert(jobs)
+        .values({ definitionNL: "Job for run test", userId: testUserId })
+        .returning();
+      const [{ id: otherEndpointId }] = await db.insert(endpointsTable)
+        .values({ name: "Other Runnable Endpoint", url: "http://example.com", jobId: otherJobId })
+        .returning();
+
+      const response = await client.api.endpoints[":id"].run.$post({ param: { id: otherEndpointId }, json: { requestBody: null } });
+      expect(response.status).toBe(404);
+    });
+
+    it("executes a POST request with a request body", async () => {
+      const testBody = { test: "data" };
+      const response = await client.api.endpoints[":id"].run.$post({
+        param: { id: runEndpointId },
+        json: { requestBody: testBody },
+      });
+
+      expect(response.status).toBe(200);
+      if (response.status === 200) {
+        const json = await response.json();
+        expect(json.success).toBe(true);
+        expect(json.statusCode).toBeDefined();
+        expect(json.responseTime).toBeDefined();
+        // The httpbin.org/anything endpoint returns the request data in the response
+        expect(json.data.json).toEqual(testBody);
+      }
+    });
+  });
 });

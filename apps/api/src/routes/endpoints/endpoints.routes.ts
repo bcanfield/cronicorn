@@ -127,8 +127,48 @@ export const remove = createRoute({
   },
 });
 
+export const run = createRoute({
+  path: "/endpoints/{id}/run",
+  method: "post",
+  tags,
+  summary: "Run Endpoint",
+  description: "Execute a request to the specified endpoint using its configured URL, HTTP method, and bearer token.",
+  request: {
+    params: IdUUIDParamsSchema,
+    body: jsonContent(
+      z.object({
+        requestBody: z.any().optional().describe("Optional request body to send with the request"),
+      }),
+      "Optional request body",
+    ),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({
+        success: z.boolean(),
+        message: z.string().optional(),
+        data: z.any().optional(),
+        statusCode: z.number().optional(),
+        responseTime: z.number().optional(),
+        headers: z.record(z.string()).optional(),
+      }),
+      "The result of executing the endpoint request",
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      notFoundSchema,
+      "Authentication required",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Endpoint not found"),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(IdUUIDParamsSchema),
+      "Invalid id",
+    ),
+  },
+});
+
 export type ListRoute = typeof list;
 export type CreateRoute = typeof create;
 export type GetOneRoute = typeof getOne;
 export type PatchRoute = typeof patch;
 export type RemoveRoute = typeof remove;
+export type RunRoute = typeof run;
