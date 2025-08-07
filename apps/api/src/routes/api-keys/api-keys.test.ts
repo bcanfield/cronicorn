@@ -1,7 +1,9 @@
 /* eslint-disable ts/ban-ts-comment */
 
 import { testClient } from "hono/testing";
+import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
+import { ZodIssueCode } from "zod";
 
 import db from "@/api/db";
 import resetDb from "@/api/db/reset";
@@ -16,25 +18,25 @@ if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");
 }
 
-// @ts-ignore: deep type instantiation
 const client = testClient(createApp().route("/", router));
 
 describe("api keys routes", () => {
   let createdId: string;
+  let testUserId: string;
   const apiKeyName = "Test API Key";
   const apiKeyDescription = "For testing purposes";
 
-  // Seed test data for all API key tests
+  // Seed a test user for all API key tests
   beforeAll(async () => {
     await resetDb();
-    // Just reset the DB, we'll create the api key with the test user
-    await db.insert(users).values({ email: "test@api-keys.com" }).returning();
+    const [user] = await db.insert(users).values({ email: "test@api-keys.com" }).returning();
+    testUserId = user.id;
   });
 
   // == Validation Tests ==
   it("post /api-keys validates the body when creating", async () => {
     const response = await client.api["api-keys"].$post({
-      // @ts-expect-error: Empty body to test validation
+      // @ts-expect-error
       json: {},
     });
     expect(response.status).toBe(422);

@@ -3,6 +3,7 @@
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
+import { ZodIssueCode } from "zod";
 
 import db from "@/api/db";
 import resetDb from "@/api/db/reset";
@@ -10,7 +11,7 @@ import { users } from "@/api/db/schema";
 import { endpoints as endpointsTable } from "@/api/db/schema/endpoints";
 import { jobs } from "@/api/db/schema/jobs";
 import env from "@/api/env";
-import { ZOD_ERROR_CODES } from "@/api/lib/constants";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 import createApp from "@/api/lib/create-app";
 import { DEV_USER } from "@/api/lib/dev-user";
 
@@ -20,7 +21,6 @@ if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");
 }
 
-// @ts-ignore: deep type instantiation
 const client = testClient(createApp().route("/", router));
 
 describe("endpoints routes", () => {
@@ -30,16 +30,17 @@ describe("endpoints routes", () => {
   const testName = "Test Endpoint";
   const testUrl = "http://example.com";
 
+  // Seed a test user and job for all endpoint tests
   beforeAll(async () => {
     await resetDb();
-
-    const [user] = await db.insert(users).values({ email: "test@jobs.com" }).returning();
+    const [user] = await db.insert(users).values({ email: "test@endpoints.com" }).returning();
     testUserId = user.id;
     // Create a job for endpoints to reference
     const [job] = await db.insert(jobs).values({ definitionNL: "Job for endpoints", userId: DEV_USER.id }).returning();
     jobId = job.id;
   });
 
+  // == Validation Tests ==
   it("post /endpoints validates the body when creating", async () => {
     const response = await client.api.endpoints.$post({
       // @ts-expect-error

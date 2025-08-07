@@ -1,6 +1,6 @@
 import type { selectJobsSchema } from "@tasks-app/api/schema";
 
-import { screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -147,6 +147,41 @@ describe("job form", () => {
         cachedInputTokens: 0,
       });
     });
+
+    it("shows loading state during submission", async () => {
+      // Create a promise that we can resolve manually to control when submission completes
+      let resolveSubmission: (value: unknown) => void;
+      const submissionPromise = new Promise((resolve) => {
+        resolveSubmission = resolve;
+      });
+
+      const controlledMockSubmit = vi.fn().mockImplementation(() => submissionPromise);
+
+      renderWithQueryClient(
+        <JobForm
+          mode="create"
+          onCancel={mockOnCancel}
+          onSubmit={controlledMockSubmit}
+        />,
+      );
+
+      // Fill out the form - we need to ensure the form is dirty to enable the submit button
+      await user.type(screen.getByLabelText(/Prompt/i), "Test job for loading state");
+      await user.click(screen.getByRole("button", { name: /Create Job/i }));
+
+      // Button should show loading state
+      expect(screen.getByRole("button", { name: /Saving/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Saving/i })).toBeDisabled();
+
+      // Resolve the submission
+      resolveSubmission!({});
+
+      // Wait for the button to return to normal state
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Create Job/i })).toBeInTheDocument();
+      });
+    });
+  });
 
     it("shows loading state during form submission", async () => {
       // Create a promise that we can resolve manually to control when the submission completes
