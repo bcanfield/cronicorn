@@ -8,6 +8,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@workspace/ui/components/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
 import { Textarea } from "@workspace/ui/components/textarea";
+import { toast } from "@workspace/ui/lib/utils";
 
 import { runEndpoint } from "../../../../../../lib/queries/endpoints.queries";
 
@@ -32,7 +33,6 @@ export function RunEndpointDialog({ endpoint, onClose, open }: RunEndpointDialog
           parsedBody = JSON.parse(body);
         }
         catch {
-          alert("The request body is not valid JSON. Please check the format and try again.");
           throw new Error("Invalid JSON");
         }
       }
@@ -44,7 +44,7 @@ export function RunEndpointDialog({ endpoint, onClose, open }: RunEndpointDialog
       setActiveTab("response");
     },
     onError: (error) => {
-      alert(error instanceof Error ? error.message : "Failed to run endpoint");
+      toast.error(error instanceof Error ? error.message : "Failed to run endpoint");
     },
   });
 
