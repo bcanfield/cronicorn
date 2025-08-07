@@ -34,7 +34,6 @@
     "motion": "12.23.12",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-helmet-async": "^2.0.5",
     "react-hook-form": "7.60.0",
     "resize-observer-polyfill": "1.5.1",
     "tailwindcss": "4.1.11",
