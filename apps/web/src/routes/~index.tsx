@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { SEO } from "@/web/components/seo";
 import SplashPage from "@/web/features/splash-page/splash-page";
 
 import RoutePending from "../components/route-pending";
@@ -12,7 +13,14 @@ export const Route = createFileRoute("/")({
 
 export function HomeComponent() {
   return (
-    <SplashPage />
+    <>
+      <SEO
+        title="Home"
+        description="Powerful cron job management and automation platform. Schedule, monitor, and manage your tasks with real-time notifications and comprehensive logging."
+        keywords={["cron jobs", "task automation", "job scheduler", "monitoring", "devops tools", "task management"]}
+      />
+      <SplashPage />
+    </>
     // <div className="p-2 grid gap-2">
     //   <h1 className="text-xl">Welcome!</h1>
     //   <p className="py-4 px-2 italic bg-slate-100 dark:bg-slate-800">

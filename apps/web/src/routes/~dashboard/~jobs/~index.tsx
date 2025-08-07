@@ -6,6 +6,7 @@ import { Briefcase, PlusCircle } from "lucide-react";
 import EmptyPlaceholder from "@/web/components/empty-placeholder";
 import PageHeader from "@/web/components/re-usables/page-header";
 import RoutePending from "@/web/components/route-pending";
+import { SEO } from "@/web/components/seo";
 import { SortingContainer } from "@/web/features/sorting/sorting-container";
 import { jobsQueryOptions } from "@/web/lib/queries/jobs.queries";
 import queryClient from "@/web/lib/query-client";
@@ -34,6 +35,11 @@ function RouteComponent() {
   const showEmptyPlaceholder = items.length === 0 && params.page === 1;
   return (
     <>
+      <SEO
+        title="Jobs"
+        description="Manage and monitor your scheduled cron jobs. View job status, execution history, and create new automated tasks."
+        keywords={["cron jobs", "scheduled tasks", "job management", "automation", "monitoring"]}
+      />
       <div className="flex items-center justify-between">
         <PageHeader title="Jobs" description="Manage your scheduled jobs" />
         <Link

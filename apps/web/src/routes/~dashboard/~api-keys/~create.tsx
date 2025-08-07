@@ -5,6 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { CodeBlock } from "@/web/components/code-block";
 import PageHeader from "@/web/components/re-usables/page-header";
+import { SEO } from "@/web/components/seo";
 import { useDialog } from "@/web/components/simple-dialog/use-dialog";
 import { createApiKey, queryKeys } from "@/web/lib/queries/api-keys.queries";
 import queryClient from "@/web/lib/query-client";
@@ -37,6 +38,12 @@ function RouteComponent() {
   };
   return (
     <>
+      <SEO
+        title="Create API Key"
+        description="Create a new API key to securely access your Cronicorn cron job management system."
+        keywords={["create API key", "authentication", "API access", "security"]}
+        noindex
+      />
       <PageHeader
         title="Create API Key"
         description="Create a new API key for accessing the API"

@@ -7,6 +7,7 @@ import { useConfirmationDialog } from "@/web/components/confirmation-dialog/use-
 import EmptyPlaceholder from "@/web/components/empty-placeholder";
 import PageHeader from "@/web/components/re-usables/page-header";
 import RoutePending from "@/web/components/route-pending";
+import { SEO } from "@/web/components/seo";
 import { SortingContainer } from "@/web/features/sorting/sorting-container";
 import { apiKeysQueryOptions, deleteApiKey, queryKeys } from "@/web/lib/queries/api-keys.queries";
 import queryClient from "@/web/lib/query-client";
@@ -56,6 +57,11 @@ function RouteComponent() {
 
   return (
     <>
+      <SEO
+        title="API Keys"
+        description="Manage your Cronicorn API keys for secure access to your cron job management system."
+        keywords={["API keys", "authentication", "security", "access management"]}
+      />
       <div className="flex items-center justify-between">
         <PageHeader title="API Keys" description="Manage your API keys" />
         <Link

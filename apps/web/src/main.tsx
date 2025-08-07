@@ -3,6 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import "@workspace/ui/styles/globals.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
 
 import { ConfirmationProvider } from "@/web/components/confirmation-dialog/confirmation-dialog";
 import { DialogProvider } from "@/web/components/simple-dialog/simple-dialog";
@@ -15,18 +16,20 @@ import App from "./app";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <QueryClientProvider client={queryClient}>
-        <SessionProvider>
-          <ConfirmationProvider>
-            <DialogProvider>
-              <App />
-              <TailwindIndicator />
-              <Toaster />
-            </DialogProvider>
-          </ConfirmationProvider>
-        </SessionProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>
+            <ConfirmationProvider>
+              <DialogProvider>
+                <App />
+                <TailwindIndicator />
+                <Toaster />
+              </DialogProvider>
+            </ConfirmationProvider>
+          </SessionProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   </StrictMode>,
 );
