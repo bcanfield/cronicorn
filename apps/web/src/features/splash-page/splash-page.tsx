@@ -11,7 +11,7 @@ import { monitoringScenarios } from "@/web/features/splash-page/timeline/timelin
 import { TimelineTabs } from "@/web/features/splash-page/timeline/timeline-tabs";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
 
-import AppLogo from "../../../public/horn.svg?react";
+import AppLogo from "../../../public/icon.svg?react";
 
 export default function Component() {
   const [mounted, setMounted] = useState(false);

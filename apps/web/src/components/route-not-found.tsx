@@ -4,7 +4,7 @@ import { buttonVariants } from "@workspace/ui/components/button";
 
 import AppLogo from "../../public/icon.svg?react";
 
-export default function RouteError() {
+function NotFoundComponent() {
   return (
     <div className="p-6 space-y-4 max-w-7xl mx-auto min-h-screen flex flex-col">
 
@@ -16,8 +16,8 @@ export default function RouteError() {
             <AppLogo className="w-16 h-16" />
           </Link>
 
-          <h1 className="text-3xl font-bold mb-2">Whoops...</h1>
-          <p className="text-muted-foreground">Sorry, an error occurred.</p>
+          <h1 className="text-3xl font-bold mb-2">Page not found</h1>
+          <p className="text-muted-foreground">Sorry, we couldn't find the page you're looking for.</p>
           <Link
             to="/"
             className={buttonVariants({
@@ -33,3 +33,5 @@ export default function RouteError() {
     </div>
   );
 }
+
+export default NotFoundComponent;

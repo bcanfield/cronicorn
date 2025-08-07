@@ -2,6 +2,8 @@ import { useSession } from "@hono/auth-js/react";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import * as React from "react";
 
+import RouteError from "@/web/components/route-error";
+import NotFoundComponent from "@/web/components/route-not-found";
 import { routeTree } from "@/web/route-tree.gen";
 
 import type { Session } from "./routes/~__root";
@@ -52,5 +54,5 @@ export default function App() {
     }
   }, [session]);
 
-  return <RouterProvider router={router} context={{ session: authClient }} />;
+  return <RouterProvider defaultNotFoundComponent={NotFoundComponent} defaultErrorComponent={RouteError} router={router} context={{ session: authClient }} />;
 }

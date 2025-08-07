@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { Button } from "@workspace/ui/components/button";
 
-import AppLogo from "../../public/horn.svg?react";
+import AppLogo from "../../public/icon.svg?react";
 import RoutePending from "../components/route-pending";
 
 export const Route = createFileRoute("/login")({

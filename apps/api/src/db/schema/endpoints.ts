@@ -18,7 +18,7 @@ export const endpoints = pgTable("Endpoint", {
   bearerToken: text("bearerToken"),
   requestSchema: text("requestSchema"),
   jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
-  timeoutMs: integer("timeoutMs").default(5000),
+  timeoutMs: integer("timeoutMs").default(2000),
   fireAndForget: boolean("fireAndForget").default(false).notNull(),
   createdAt: timestamp("createdAt", { mode: "string" })
     .default(sql`now()`)
@@ -31,7 +31,9 @@ export const endpoints = pgTable("Endpoint", {
 export const selectEndpointsSchema = createSelectSchema(endpoints);
 export type selectEndpointsSchema = z.infer<typeof selectEndpointsSchema>;
 
-export const insertEndpointsSchema = createInsertSchema(endpoints, {})
+export const insertEndpointsSchema = createInsertSchema(endpoints, {
+  timeoutMs: z.number().min(1000).max(5000).default(5000).describe("Timeout in milliseconds"),
+})
   .omit({ id: true, createdAt: true, updatedAt: true })
   .required({ name: true, url: true, jobId: true });
 export type insertEndpointsSchema = z.infer<typeof insertEndpointsSchema>;
