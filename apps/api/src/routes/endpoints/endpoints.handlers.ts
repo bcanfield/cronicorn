@@ -10,6 +10,8 @@ import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RunRoute } from "./endpoints.routes";
 
+import { formatEndpointResponseMessage, insertSystemMessage } from "./endpoints.utils";
+
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // List endpoints for authenticated user's jobs
   const authUser = c.get("authUser");
@@ -135,14 +137,15 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 
 /**
  * Execute an HTTP request using the endpoint's configuration
- *
+ * 
  * This handler runs an endpoint by:
  * 1. Verifying that the endpoint exists and belongs to the authenticated user
  * 2. Making an HTTP request to the endpoint's URL using its configured method and bearer token
  * 3. Adding an optional request body if provided and applicable to the HTTP method
  * 4. Tracking request timing and handling timeouts
  * 5. Processing and returning the response with detailed metadata
- *
+ * 6. Storing the execution result as a system message in the database
+ * 
  * Response includes:
  * - success: boolean indicating if the request returned a successful status code
  * - message: descriptive message about the request result
@@ -150,7 +153,7 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
  * - statusCode: HTTP status code from the response
  * - responseTime: request duration in milliseconds
  * - headers: response headers as key-value pairs
- *
+ * 
  * @param c - Context containing request and authentication information
  * @returns HTTP response with execution results
  */
@@ -177,13 +180,20 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
   }
 
   const endpoint = result[0].Endpoint;
-
+  const jobId = endpoint.jobId;
+  let success = false;
+  let responseData;
+  let statusCode;
+  let responseTime;
+  const responseHeaders: Record<string, string> = {};
+  let errorMessage;
+  
   try {
     // Prepare request headers
     const headers: HeadersInit = {
       "Content-Type": "application/json",
     };
-
+    
     // Add bearer token if available
     if (endpoint.bearerToken) {
       headers.Authorization = `Bearer ${endpoint.bearerToken}`;
@@ -191,54 +201,93 @@ export const run: AppRouteHandler<RunRoute> = async (c) => {
 
     // Track request timing
     const startTime = performance.now();
-
+    
     // Execute the request with timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), endpoint.timeoutMs || 5000);
-
+    
     const response = await fetch(endpoint.url, {
       method: endpoint.method,
       headers,
-      body: requestBody && ["POST", "PUT", "PATCH"].includes(endpoint.method)
+      body: requestBody && ["POST", "PUT", "PATCH"].includes(endpoint.method) 
         ? JSON.stringify(requestBody)
         : undefined,
       signal: controller.signal,
     });
-
+    
     clearTimeout(timeoutId);
     const endTime = performance.now();
-    const responseTime = endTime - startTime;
-
+    responseTime = Math.round(endTime - startTime);
+    
     // Process response
-    let responseData;
     const contentType = response.headers.get("content-type");
-
+    
     if (contentType?.includes("application/json")) {
       responseData = await response.json();
-    }
-    else {
+    } else {
       responseData = await response.text();
     }
-
+    
     // Convert headers to object
-    const responseHeaders: Record<string, string> = {};
     response.headers.forEach((value, key) => {
       responseHeaders[key] = value;
     });
-
+    
+    success = response.ok;
+    statusCode = response.status;
+    errorMessage = success ? undefined : `Request failed with status: ${response.status}`;
+    
+    // Format the response message and store it in the database
+    const messageContent = formatEndpointResponseMessage({
+      endpointName: endpoint.name,
+      url: endpoint.url,
+      method: endpoint.method,
+      requestBody,
+      responseData,
+      statusCode,
+      responseTime,
+      headers: responseHeaders,
+      success,
+      errorMessage,
+    });
+    
+    // Store as system message - non-blocking, we don't need to wait for this
+    insertSystemMessage(messageContent, jobId, "endpointResponse")
+      .catch(error => {
+        console.error("Failed to store endpoint response as system message:", error);
+      });
+    
     return c.json({
-      success: response.ok,
-      message: response.ok ? "Request executed successfully" : `Request failed with status: ${response.status}`,
+      success,
+      message: success ? "Request executed successfully" : errorMessage,
       data: responseData,
-      statusCode: response.status,
-      responseTime: Math.round(responseTime),
+      statusCode,
+      responseTime,
       headers: responseHeaders,
     }, HttpStatusCodes.OK);
-  }
-  catch (error) {
+    
+  } catch (error) {
+    errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    
+    // Format the error message and store it in the database
+    const messageContent = formatEndpointResponseMessage({
+      endpointName: endpoint.name,
+      url: endpoint.url,
+      method: endpoint.method,
+      requestBody,
+      success: false,
+      errorMessage,
+    });
+    
+    // Store as system message - non-blocking, we don't need to wait for this
+    insertSystemMessage(messageContent, jobId, "endpointResponse")
+      .catch(err => {
+        console.error("Failed to store endpoint error as system message:", err);
+      });
+    
     return c.json({
       success: false,
-      message: error instanceof Error ? error.message : "An unknown error occurred",
+      message: errorMessage,
     }, HttpStatusCodes.OK); // We still return 200 OK but with success: false to differentiate from API errors
   }
 };

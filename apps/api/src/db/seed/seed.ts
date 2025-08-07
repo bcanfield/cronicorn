@@ -240,58 +240,24 @@ async function seedEndpoints(jobId: string) {
   const endpointsData = [
     {
       jobId,
-      name: "Performance Metrics API",
-      url: "https://api.example.com/metrics",
+      name: "HTTPBin Get",
+      url: "https://httpbin.org/get",
       method: "GET",
-      bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      requestSchema: {
-        type: "object",
-        properties: {
-          startDate: { type: "string", format: "date" },
-          endDate: { type: "string", format: "date" },
-          metrics: { type: "array", items: { type: "string" } },
-        },
-        required: ["startDate", "endDate", "metrics"],
-      },
       timeoutMs: 10000,
     },
     {
       jobId,
-      name: "Email Notification Service",
-      url: "https://api.example.com/notifications/email",
+      name: "HTTPBin Post Daily Report",
+      url: "https://httpbin.org/anything",
       method: "POST",
-      bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      requestSchema: {
-        type: "object",
-        properties: {
-          recipients: { type: "array", items: { type: "string", format: "email" } },
-          subject: { type: "string" },
-          body: { type: "string" },
-          attachments: { type: "array", items: { type: "object" } },
-        },
-        required: ["recipients", "subject", "body"],
-      },
-      timeoutMs: 5000,
+      requestSchema: JSON.stringify({
+        job: "daily-report",
+        timestamp: "2025-08-07T14:30:00Z",
+        status: "running",
+      }),
+      timeoutMs: 10000,
     },
-    {
-      jobId,
-      name: "Alert Webhook",
-      url: "https://alerts.example.com/webhook",
-      method: "POST",
-      bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      requestSchema: {
-        type: "object",
-        properties: {
-          level: { type: "string", enum: ["info", "warning", "error", "critical"] },
-          message: { type: "string" },
-          timestamp: { type: "string", format: "date-time" },
-          data: { type: "object" },
-        },
-        required: ["level", "message", "timestamp"],
-      },
-      timeoutMs: 3000,
-      fireAndForget: true,
-    },
+
   ];
 
   for (const endpointData of endpointsData) {

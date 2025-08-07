@@ -8,7 +8,7 @@ import { z } from "zod";
 import { pageSchema, pageSizeSchema, sortDirectionSchema } from "./common";
 import { jobs } from "./jobs";
 
-// ALLOWS US TO DETERMINE
+// ALLOWS US TO DETERMINE WHERE THE MESSAGE IS BEING CREATED FROM
 type MessageSource = "endpointResponse" | "unknown";
 
 /*
@@ -140,16 +140,21 @@ const userMessageSchema = z.object({
   jobId: z.string().uuid(),
 });
 
-// For user messages, we want to enforce a string content
+// For system messages, we want to enforce a string content
 const systemMessageSchema = z.object({
   role: z.literal("system"),
   content: z.string(),
   jobId: z.string().uuid(),
+  source: z.enum(["endpointResponse", "unknown"]).optional(),
 });
 
 // For insert / update from web ui, the role has to be user
 export const insertMessagesSchema = userMessageSchema;
 export type insertMessagesSchema = z.infer<typeof insertMessagesSchema>;
+
+// For inserting system messages
+export const insertSystemMessageSchema = systemMessageSchema;
+export type insertSystemMessageSchema = z.infer<typeof insertSystemMessageSchema>;
 
 // We have a created schema for messages that includes the ID - but is strictly scoped to the user role and content
 export const createdMessagesSchema = z.object({

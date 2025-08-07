@@ -262,6 +262,7 @@ describe("endpoints routes", () => {
 
   describe("post /endpoints/{id}/run", () => {
     let runEndpointId: string;
+    let endpointJobId: string;
 
     beforeAll(async () => {
       // Create an endpoint for testing the run functionality
@@ -276,6 +277,7 @@ describe("endpoints routes", () => {
       if (response.status === 200) {
         const json = await response.json();
         runEndpointId = json.id;
+        endpointJobId = json.jobId;
       }
     });
 
@@ -325,6 +327,43 @@ describe("endpoints routes", () => {
         // The httpbin.org/anything endpoint returns the request data in the response
         expect(json.data.json).toEqual(testBody);
       }
+    });
+
+    it("stores the endpoint execution result as a system message", async () => {
+      // Execute the endpoint
+      const testBody = { test: "message storage" };
+      const response = await client.api.endpoints[":id"].run.$post({
+        param: { id: runEndpointId },
+        json: { requestBody: testBody },
+      });
+      expect(response.status).toBe(200);
+      
+      // Allow some time for async message insertion to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Verify a system message was stored in the database
+      const storedMessages = await db.query.messages.findMany({
+        where: (messages, { eq, and }) => 
+          and(
+            eq(messages.jobId, endpointJobId),
+            eq(messages.role, "system"),
+            eq(messages.source, "endpointResponse")
+          )
+      });
+      
+      expect(storedMessages.length).toBeGreaterThan(0);
+      const latestMessage = storedMessages[storedMessages.length - 1];
+      expect(latestMessage.role).toBe("system");
+      expect(latestMessage.source).toBe("endpointResponse");
+      expect(typeof latestMessage.content).toBe("string");
+      
+      // Verify the content contains expected elements
+      const contentStr = latestMessage.content as string;
+      expect(contentStr).toContain("Endpoint Execution: Runnable Endpoint");
+      expect(contentStr).toContain("**Status:** ✅ Success");
+      expect(contentStr).toContain("**URL:** https://httpbin.org/anything");
+      expect(contentStr).toContain("**Method:** POST");
+      expect(contentStr).toContain("\"test\": \"message storage\"");
     });
   });
 });
