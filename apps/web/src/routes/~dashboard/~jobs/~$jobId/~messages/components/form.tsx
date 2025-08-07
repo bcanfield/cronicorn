@@ -42,9 +42,13 @@ export default function MessageForm({
 
   const handleFormSubmit = async (data: insertMessagesSchema) => {
     setIsLoading(true);
-    form.reset(data);
-    await onSubmit(data);
-    setIsLoading(false);
+    try {
+      form.reset(data);
+      await onSubmit(data);
+    }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -70,7 +70,7 @@ function RouteComponent() {
     <>
       <PageHeader title="Update Job" description="Modify the Job Configuration" />
 
-      <JobForm onSubmit={handleSubmit} initialData={data} onCancel={handleCancel} mode="update" onDelete={handleDelete} />
+      <JobForm onSubmit={handleSubmit} defaultValues={data} onCancel={handleCancel} mode="update" onDelete={handleDelete} />
       <Separator className="my-6" />
 
       <JobEndpointContainer search={search} jobId={jobId} />

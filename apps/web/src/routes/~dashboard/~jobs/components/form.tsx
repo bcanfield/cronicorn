@@ -12,15 +12,15 @@ import { Separator } from "@workspace/ui/components/separator";
 import { Textarea } from "@workspace/ui/components/textarea";
 
 type JobFormProps = {
-  initialData?: selectJobsSchema;
+  defaultValues?: selectJobsSchema;
   mode: "create" | "update";
   onCancel: () => void;
   onSubmit: (data: insertJobsSchema) => Promise<any>;
   onDelete?: () => void;
 };
-export default function JobForm({ initialData, mode, onCancel, onSubmit, onDelete }: JobFormProps) {
+export default function JobForm({ defaultValues, mode, onCancel, onSubmit, onDelete }: JobFormProps) {
   const form = useForm<insertJobsSchema>({
-    defaultValues: initialData,
+    defaultValues,
     resolver: zodResolver(insertJobsSchema),
   });
 
@@ -28,9 +28,13 @@ export default function JobForm({ initialData, mode, onCancel, onSubmit, onDelet
 
   const handleFormSubmit = async (data: insertJobsSchema) => {
     setIsLoading(true);
-    form.reset(data);
-    await onSubmit(data);
-    setIsLoading(false);
+    try {
+      form.reset(data);
+      await onSubmit(data);
+    }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -35,9 +35,13 @@ export default function ApiKeyForm({ defaultValues, onSubmit, onCancel }: ApiKey
 
   async function handleFormSubmit(data: insertApiKeysSchema) {
     setIsLoading(true);
-    form.reset(data);
-    await onSubmit(data);
-    setIsLoading(false);
+    try {
+      form.reset(data);
+      await onSubmit(data);
+    }
+    finally {
+      setIsLoading(false);
+    }
   }
 
   return (

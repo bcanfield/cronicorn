@@ -56,7 +56,7 @@ describe("job form", () => {
       renderWithQueryClient(
         <JobForm
           mode="update"
-          initialData={sampleJob}
+          defaultValues={sampleJob}
           onCancel={mockOnCancel}
           onSubmit={mockOnSubmit}
           onDelete={mockOnDelete}
@@ -73,7 +73,7 @@ describe("job form", () => {
       renderWithQueryClient(
         <JobForm
           mode="update"
-          initialData={sampleJob}
+          defaultValues={sampleJob}
           onCancel={mockOnCancel}
           onSubmit={mockOnSubmit}
           // onDelete not provided
@@ -123,7 +123,7 @@ describe("job form", () => {
       renderWithQueryClient(
         <JobForm
           mode="update"
-          initialData={sampleJob}
+          defaultValues={sampleJob}
           onCancel={mockOnCancel}
           onSubmit={mockOnSubmit}
         />,
@@ -201,7 +201,7 @@ describe("job form", () => {
       renderWithQueryClient(
         <JobForm
           mode="update"
-          initialData={sampleJob}
+          defaultValues={sampleJob}
           onCancel={mockOnCancel}
           onSubmit={mockOnSubmit}
           onDelete={mockOnDelete}
