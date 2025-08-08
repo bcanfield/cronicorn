@@ -45,7 +45,7 @@ This allows for a historical record of endpoint executions that can be accessed 
 
 ## Example Message Content
 
-```markdown
+````markdown
 ## Endpoint Execution: Example Endpoint
 
 **Timestamp:** 2023-07-25T15:30:45.123Z
@@ -56,6 +56,7 @@ This allows for a historical record of endpoint executions that can be accessed 
 **Status Code:** 200
 
 ### Response Data
+
 ```json
 {
   "id": "123",
@@ -63,14 +64,17 @@ This allows for a historical record of endpoint executions that can be accessed 
   "value": 42
 }
 ```
+````
 
 ### Response Headers
+
 ```json
 {
   "content-type": "application/json",
   "x-request-id": "abc123"
 }
 ```
+
 ```
 
 ## Implementation Details
@@ -81,3 +85,4 @@ The endpoint execution and message storage functionality is implemented in:
 - `endpoints.utils.ts`: Contains utility functions for formatting messages and inserting them into the database
   - `formatEndpointResponseMessage`: Formats the endpoint response data into a structured message
   - `insertSystemMessage`: Inserts a system message into the database
+```

@@ -15,32 +15,32 @@ type MessageSource = "endpointResponse" | "unknown";
  * @returns Object with validation result and formatted sizes
  */
 export function validateRequestSize(requestBody: unknown, maxSizeBytes: number): {
-    valid: boolean;
-    actualSize: number;
-    formattedActualSize: string;
-    formattedMaxSize: string;
-    errorMessage?: string;
+  valid: boolean;
+  actualSize: number;
+  formattedActualSize: string;
+  formattedMaxSize: string;
+  errorMessage?: string;
 } {
-    if (!requestBody) {
-        return {
-            valid: true,
-            actualSize: 0,
-            formattedActualSize: "0 Bytes",
-            formattedMaxSize: formatBytes(maxSizeBytes),
-        };
-    }
-
-    const actualSize = calculateObjectSizeBytes(requestBody);
-
+  if (!requestBody) {
     return {
-        valid: actualSize <= maxSizeBytes,
-        actualSize,
-        formattedActualSize: formatBytes(actualSize),
-        formattedMaxSize: formatBytes(maxSizeBytes),
-        errorMessage: actualSize > maxSizeBytes
-            ? `Request body size (${formatBytes(actualSize)}) exceeds the maximum allowed size (${formatBytes(maxSizeBytes)})`
-            : undefined,
+      valid: true,
+      actualSize: 0,
+      formattedActualSize: "0 Bytes",
+      formattedMaxSize: formatBytes(maxSizeBytes),
     };
+  }
+
+  const actualSize = calculateObjectSizeBytes(requestBody);
+
+  return {
+    valid: actualSize <= maxSizeBytes,
+    actualSize,
+    formattedActualSize: formatBytes(actualSize),
+    formattedMaxSize: formatBytes(maxSizeBytes),
+    errorMessage: actualSize > maxSizeBytes
+      ? `Request body size (${formatBytes(actualSize)}) exceeds the maximum allowed size (${formatBytes(maxSizeBytes)})`
+      : undefined,
+  };
 }
 
 /**
@@ -51,37 +51,37 @@ export function validateRequestSize(requestBody: unknown, maxSizeBytes: number):
  * @returns Object with validation result and formatted sizes
  */
 export function validateResponseSize(responseData: unknown, maxSizeBytes: number): {
-    valid: boolean;
-    actualSize: number;
-    formattedActualSize: string;
-    formattedMaxSize: string;
-    truncated: boolean;
-    errorMessage?: string;
+  valid: boolean;
+  actualSize: number;
+  formattedActualSize: string;
+  formattedMaxSize: string;
+  truncated: boolean;
+  errorMessage?: string;
 } {
-    if (!responseData) {
-        return {
-            valid: true,
-            actualSize: 0,
-            formattedActualSize: "0 Bytes",
-            formattedMaxSize: formatBytes(maxSizeBytes),
-            truncated: false,
-        };
-    }
-
-    const actualSize = typeof responseData === "string"
-        ? calculateStringSizeBytes(responseData)
-        : calculateObjectSizeBytes(responseData);
-
+  if (!responseData) {
     return {
-        valid: true, // We always return valid but may truncate the response
-        actualSize,
-        formattedActualSize: formatBytes(actualSize),
-        formattedMaxSize: formatBytes(maxSizeBytes),
-        truncated: actualSize > maxSizeBytes,
-        errorMessage: actualSize > maxSizeBytes
-            ? `Response size (${formatBytes(actualSize)}) exceeds the maximum allowed size (${formatBytes(maxSizeBytes)}). Response will be truncated.`
-            : undefined,
+      valid: true,
+      actualSize: 0,
+      formattedActualSize: "0 Bytes",
+      formattedMaxSize: formatBytes(maxSizeBytes),
+      truncated: false,
     };
+  }
+
+  const actualSize = typeof responseData === "string"
+    ? calculateStringSizeBytes(responseData)
+    : calculateObjectSizeBytes(responseData);
+
+  return {
+    valid: true, // We always return valid but may truncate the response
+    actualSize,
+    formattedActualSize: formatBytes(actualSize),
+    formattedMaxSize: formatBytes(maxSizeBytes),
+    truncated: actualSize > maxSizeBytes,
+    errorMessage: actualSize > maxSizeBytes
+      ? `Response size (${formatBytes(actualSize)}) exceeds the maximum allowed size (${formatBytes(maxSizeBytes)}). Response will be truncated.`
+      : undefined,
+  };
 }
 
 /**
@@ -92,88 +92,88 @@ export function validateResponseSize(responseData: unknown, maxSizeBytes: number
  * @returns Truncated response data and truncation metadata
  */
 export function truncateResponseData(responseData: unknown, maxSizeBytes: number): {
-    data: unknown;
-    truncated: boolean;
-    originalSize: number;
-    truncatedSize: number;
+  data: unknown;
+  truncated: boolean;
+  originalSize: number;
+  truncatedSize: number;
 } {
-    if (!responseData) {
-        return {
-            data: responseData,
-            truncated: false,
-            originalSize: 0,
-            truncatedSize: 0,
-        };
-    }
+  if (!responseData) {
+    return {
+      data: responseData,
+      truncated: false,
+      originalSize: 0,
+      truncatedSize: 0,
+    };
+  }
 
-    // Calculate original size
-    const originalSize = typeof responseData === "string"
-        ? calculateStringSizeBytes(responseData)
-        : calculateObjectSizeBytes(responseData);
+  // Calculate original size
+  const originalSize = typeof responseData === "string"
+    ? calculateStringSizeBytes(responseData)
+    : calculateObjectSizeBytes(responseData);
 
-    // If not exceeding limit, return as is
-    if (originalSize <= maxSizeBytes) {
-        return {
-            data: responseData,
-            truncated: false,
-            originalSize,
-            truncatedSize: originalSize,
-        };
-    }
+  // If not exceeding limit, return as is
+  if (originalSize <= maxSizeBytes) {
+    return {
+      data: responseData,
+      truncated: false,
+      originalSize,
+      truncatedSize: originalSize,
+    };
+  }
 
-    // Handle string responses
-    if (typeof responseData === "string") {
-        // Calculate approximate character limit (each char is ~2 bytes)
-        const charLimit = Math.floor(maxSizeBytes / 2) - 100; // Allow some buffer for truncation message
-        const truncated = `${responseData.substring(0, charLimit)}\n\n... [TRUNCATED: Response exceeded size limit] ...`;
-        return {
-            data: truncated,
-            truncated: true,
-            originalSize,
-            truncatedSize: calculateStringSizeBytes(truncated),
-        };
-    }
+  // Handle string responses
+  if (typeof responseData === "string") {
+    // Calculate approximate character limit (each char is ~2 bytes)
+    const charLimit = Math.floor(maxSizeBytes / 2) - 100; // Allow some buffer for truncation message
+    const truncated = `${responseData.substring(0, charLimit)}\n\n... [TRUNCATED: Response exceeded size limit] ...`;
+    return {
+      data: truncated,
+      truncated: true,
+      originalSize,
+      truncatedSize: calculateStringSizeBytes(truncated),
+    };
+  }
 
-    // Handle objects/arrays
+  // Handle objects/arrays
+  try {
+    const json = JSON.stringify(responseData);
+    // Calculate approximate character limit
+    const charLimit = Math.floor(maxSizeBytes / 2) - 100;
+    const truncatedJson = `${json.substring(0, charLimit)}\n\n... [TRUNCATED: Response exceeded size limit] ...`;
+
+    // For objects, try to parse it back to maintain the structure
     try {
-        const json = JSON.stringify(responseData);
-        // Calculate approximate character limit
-        const charLimit = Math.floor(maxSizeBytes / 2) - 100;
-        const truncatedJson = `${json.substring(0, charLimit)}\n\n... [TRUNCATED: Response exceeded size limit] ...`;
-
-        // For objects, try to parse it back to maintain the structure
-        try {
-            const truncatedObject = JSON.parse(truncatedJson);
-            return {
-                data: truncatedObject,
-                truncated: true,
-                originalSize,
-                truncatedSize: calculateObjectSizeBytes(truncatedObject),
-            };
-        }
-        catch {
-            // If parsing fails, return as string
-            return {
-                data: truncatedJson,
-                truncated: true,
-                originalSize,
-                truncatedSize: calculateStringSizeBytes(truncatedJson),
-            };
-        }
+      const truncatedObject = JSON.parse(truncatedJson);
+      return {
+        data: truncatedObject,
+        truncated: true,
+        originalSize,
+        truncatedSize: calculateObjectSizeBytes(truncatedObject),
+      };
     }
     catch {
-        // If stringification fails, create a simple truncation message
-        const truncationMessage = {
-            _truncated: true,
-            _message: `Original response exceeded the size limit of ${formatBytes(maxSizeBytes)}`,
-        };
-        return {
-            data: truncationMessage,
-            truncated: true,
-            originalSize,
-            truncatedSize: calculateObjectSizeBytes(truncationMessage),
-        };
+      // If parsing fails, return as string
+      return {
+        data: truncatedJson,
+        truncated: true,
+        originalSize,
+        truncatedSize: calculateStringSizeBytes(truncatedJson),
+      };
     }
+  }
+  catch {
+    // If stringification fails, create a simple truncation message
+    const truncationMessage = {
+      _truncated: true,
+      _message: `Original response exceeded the size limit of ${formatBytes(maxSizeBytes)}`,
+    };
+    return {
+      data: truncationMessage,
+      truncated: true,
+      originalSize,
+      truncatedSize: calculateObjectSizeBytes(truncationMessage),
+    };
+  }
 }
 
 /**
@@ -193,97 +193,97 @@ export function truncateResponseData(responseData: unknown, maxSizeBytes: number
  * @returns Formatted message content string
  */
 export function formatEndpointResponseMessage({
-    endpointName,
-    url,
-    method,
-    requestBody,
-    responseData,
-    statusCode,
-    responseTime,
-    headers,
-    success,
-    errorMessage,
+  endpointName,
+  url,
+  method,
+  requestBody,
+  responseData,
+  statusCode,
+  responseTime,
+  headers,
+  success,
+  errorMessage,
 }: {
-    endpointName: string;
-    url: string;
-    method: string;
-    requestBody?: unknown;
-    responseData?: unknown;
-    statusCode?: number;
-    responseTime?: number;
-    headers?: Record<string, string>;
-    success: boolean;
-    errorMessage?: string;
+  endpointName: string;
+  url: string;
+  method: string;
+  requestBody?: unknown;
+  responseData?: unknown;
+  statusCode?: number;
+  responseTime?: number;
+  headers?: Record<string, string>;
+  success: boolean;
+  errorMessage?: string;
 }): string {
-    const timestamp = new Date().toISOString();
+  const timestamp = new Date().toISOString();
 
-    // Format the message in a structured way that's easy for AI to parse
-    let message = `## Endpoint Execution: ${endpointName}\n\n`;
-    message += `**Timestamp:** ${timestamp}\n`;
-    message += `**Status:** ${success ? "✅ Success" : "❌ Failed"}\n`;
-    message += `**URL:** ${url}\n`;
-    message += `**Method:** ${method}\n`;
+  // Format the message in a structured way that's easy for AI to parse
+  let message = `## Endpoint Execution: ${endpointName}\n\n`;
+  message += `**Timestamp:** ${timestamp}\n`;
+  message += `**Status:** ${success ? "✅ Success" : "❌ Failed"}\n`;
+  message += `**URL:** ${url}\n`;
+  message += `**Method:** ${method}\n`;
 
-    // Include timing information if available
-    if (responseTime !== undefined) {
-        message += `**Response Time:** ${responseTime}ms\n`;
+  // Include timing information if available
+  if (responseTime !== undefined) {
+    message += `**Response Time:** ${responseTime}ms\n`;
+  }
+
+  // Include status code if available
+  if (statusCode !== undefined) {
+    message += `**Status Code:** ${statusCode}\n`;
+  }
+
+  // Format request body if present
+  if (requestBody !== undefined) {
+    message += "\n### Request Body\n```json\n";
+    try {
+      message += JSON.stringify(requestBody, null, 2);
     }
-
-    // Include status code if available
-    if (statusCode !== undefined) {
-        message += `**Status Code:** ${statusCode}\n`;
+    catch {
+      message += String(requestBody);
     }
+    message += "\n```\n";
+  }
 
-    // Format request body if present
-    if (requestBody !== undefined) {
-        message += "\n### Request Body\n```json\n";
+  // Format response data if present
+  if (responseData !== undefined) {
+    message += "\n### Response Data\n```json\n";
+    try {
+      if (typeof responseData === "string") {
+        // Try to parse as JSON first
         try {
-            message += JSON.stringify(requestBody, null, 2);
+          const parsed = JSON.parse(responseData);
+          message += JSON.stringify(parsed, null, 2);
         }
         catch {
-            message += String(requestBody);
+          // Not JSON, include as string
+          message += responseData;
         }
-        message += "\n```\n";
+      }
+      else {
+        message += JSON.stringify(responseData, null, 2);
+      }
     }
-
-    // Format response data if present
-    if (responseData !== undefined) {
-        message += "\n### Response Data\n```json\n";
-        try {
-            if (typeof responseData === "string") {
-                // Try to parse as JSON first
-                try {
-                    const parsed = JSON.parse(responseData);
-                    message += JSON.stringify(parsed, null, 2);
-                }
-                catch {
-                    // Not JSON, include as string
-                    message += responseData;
-                }
-            }
-            else {
-                message += JSON.stringify(responseData, null, 2);
-            }
-        }
-        catch {
-            message += String(responseData);
-        }
-        message += "\n```\n";
+    catch {
+      message += String(responseData);
     }
+    message += "\n```\n";
+  }
 
-    // Include headers if available
-    if (headers && Object.keys(headers).length > 0) {
-        message += "\n### Response Headers\n```json\n";
-        message += JSON.stringify(headers, null, 2);
-        message += "\n```\n";
-    }
+  // Include headers if available
+  if (headers && Object.keys(headers).length > 0) {
+    message += "\n### Response Headers\n```json\n";
+    message += JSON.stringify(headers, null, 2);
+    message += "\n```\n";
+  }
 
-    // Include error message if present
-    if (!success && errorMessage) {
-        message += `\n### Error\n${errorMessage}\n`;
-    }
+  // Include error message if present
+  if (!success && errorMessage) {
+    message += `\n### Error\n${errorMessage}\n`;
+  }
 
-    return message;
+  return message;
 }
 
 /**
@@ -295,43 +295,43 @@ export function formatEndpointResponseMessage({
  * @returns The inserted message object or null if insertion failed
  */
 export async function insertSystemMessage(
-    content: string,
-    jobId: string,
-    source: MessageSource = "unknown",
+  content: string,
+  jobId: string,
+  source: MessageSource = "unknown",
 ): Promise<{ id: string } | null> {
-    try {
-        // First validate if the job exists
-        const jobExists = await db.query.jobs.findFirst({ where: eq(jobs.id, jobId) });
+  try {
+    // First validate if the job exists
+    const jobExists = await db.query.jobs.findFirst({ where: eq(jobs.id, jobId) });
 
-        if (!jobExists) {
-            console.error(`Failed to insert system message: Job with ID ${jobId} not found`);
-            return null;
-        }
-
-        // Prepare the message data
-        const messageData = {
-            role: "system" as const,
-            content,
-            jobId,
-            source,
-        };
-
-        // Validate the message data against the schema
-        const { success, error } = insertSystemMessageSchema.safeParse(messageData);
-        if (!success) {
-            console.error("Failed to validate system message data:", error.format());
-            return null;
-        }
-
-        // Insert the message into the database
-        const [inserted] = await db.insert(messages)
-            .values(messageData)
-            .returning({ id: messages.id });
-
-        return inserted;
+    if (!jobExists) {
+      console.error(`Failed to insert system message: Job with ID ${jobId} not found`);
+      return null;
     }
-    catch (error) {
-        console.error("Error inserting system message:", error);
-        return null;
+
+    // Prepare the message data
+    const messageData = {
+      role: "system" as const,
+      content,
+      jobId,
+      source,
+    };
+
+    // Validate the message data against the schema
+    const { success, error } = insertSystemMessageSchema.safeParse(messageData);
+    if (!success) {
+      console.error("Failed to validate system message data:", error.format());
+      return null;
     }
+
+    // Insert the message into the database
+    const [inserted] = await db.insert(messages)
+      .values(messageData)
+      .returning({ id: messages.id });
+
+    return inserted;
+  }
+  catch (error) {
+    console.error("Error inserting system message:", error);
+    return null;
+  }
 }

@@ -337,26 +337,26 @@ describe("endpoints routes", () => {
         json: { requestBody: testBody },
       });
       expect(response.status).toBe(200);
-      
+
       // Allow some time for async message insertion to complete
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       // Verify a system message was stored in the database
       const storedMessages = await db.query.messages.findMany({
-        where: (messages, { eq, and }) => 
+        where: (messages, { eq, and }) =>
           and(
             eq(messages.jobId, endpointJobId),
             eq(messages.role, "system"),
-            eq(messages.source, "endpointResponse")
-          )
+            eq(messages.source, "endpointResponse"),
+          ),
       });
-      
+
       expect(storedMessages.length).toBeGreaterThan(0);
       const latestMessage = storedMessages[storedMessages.length - 1];
       expect(latestMessage.role).toBe("system");
       expect(latestMessage.source).toBe("endpointResponse");
       expect(typeof latestMessage.content).toBe("string");
-      
+
       // Verify the content contains expected elements
       const contentStr = latestMessage.content as string;
       expect(contentStr).toContain("Endpoint Execution: Runnable Endpoint");
