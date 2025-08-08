@@ -9,7 +9,7 @@ import { useTimeline } from "@/web/features/splash-page/timeline/use-timeline";
 import { cn } from "@workspace/ui/lib/utils";
 
 export default function DynamicScheduleTimeline({ scenario }: { scenario: TimelineScenario }) {
-  const { steps, config, description } = scenario;
+  const { steps, config, description, name } = scenario;
   const { currentData, currentStep } = useTimeline({ steps, config });
 
   const currentTime = currentData?.executions[currentData.executions.length - 1]?.time || 0;
@@ -27,8 +27,10 @@ export default function DynamicScheduleTimeline({ scenario }: { scenario: Timeli
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-radial from-primary/5 to-transparent pointer-events-none" />
 
         <div className="relative">
-          <div className="mb-6 text-center">
-            <p className="text-xs text-primary tracking-tight">{description}</p>
+          <div className="mb-6 text-left space-y-1 ">
+            <p className="text-base font-medium   tracking-tight text-primary/85">{name}</p>
+
+            <p className="text-xs  text-muted-foreground tracking-tight">{description}</p>
 
           </div>
 

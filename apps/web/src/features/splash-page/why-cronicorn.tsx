@@ -197,7 +197,7 @@ const Features01Page = () => {
 
             <div className="relative text-left">
               <div className="flex gap-2 items-center">
-                <div className="h-10 w-10 flex items-center justify-center bg-background/50 rounded-full">
+                <div className="h-10 w-10 flex items-center justify-center bg-red-500 rounded-full">
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <span className="text-lg font-semibold">{feature.title}</span>

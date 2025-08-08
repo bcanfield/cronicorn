@@ -9,6 +9,7 @@ import SimpleSetup from "@/web/features/splash-page/simple-setup/simple-setup";
 import DynamicScheduleTimeline from "@/web/features/splash-page/timeline/timeline";
 import { monitoringScenarios } from "@/web/features/splash-page/timeline/timeline-scenario-data";
 import { TimelineTabs } from "@/web/features/splash-page/timeline/timeline-tabs";
+import WhatCronicornDoes from "@/web/features/splash-page/what-cronicorn-does/what-cronicorn-does";
 import WhyCronicorn from "@/web/features/splash-page/why-cronicorn";
 import AppLogo from "@/web/icon.svg?react";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
@@ -180,11 +181,11 @@ export default function Component() {
 
         {/* Timeline demo */}
         <TimelineTabs tabs={tabData} variant="default" />
-
+        <WhatCronicornDoes />
         {/* Setup guide */}
-        <SimpleSetup />
+        {/* <SimpleSetup />
 
-        <WhyCronicorn />
+        <WhyCronicorn /> */}
 
         <div className="flex justify-between items-center w-full max-w-5xl border-t py-8">
           <p>
