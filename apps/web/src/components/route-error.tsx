@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
+import AppLogo from "@/web/icon.svg?react";
 import { buttonVariants } from "@workspace/ui/components/button";
-
-import AppLogo from "../../public/icon.svg?react";
 
 export default function RouteError() {
   return (

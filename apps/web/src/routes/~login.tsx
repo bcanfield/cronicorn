@@ -3,10 +3,10 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Github } from "lucide-react";
 import { z } from "zod";
 
+import AppLogo from "@/web/icon.svg?react";
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { Button } from "@workspace/ui/components/button";
 
-import AppLogo from "../../public/icon.svg?react";
 import RoutePending from "../components/route-pending";
 
 export const Route = createFileRoute("/login")({

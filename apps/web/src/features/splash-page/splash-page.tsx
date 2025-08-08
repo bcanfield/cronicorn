@@ -10,9 +10,8 @@ import DynamicScheduleTimeline from "@/web/features/splash-page/timeline/timelin
 import { monitoringScenarios } from "@/web/features/splash-page/timeline/timeline-scenario-data";
 import { TimelineTabs } from "@/web/features/splash-page/timeline/timeline-tabs";
 import WhyCronicorn from "@/web/features/splash-page/why-cronicorn";
+import AppLogo from "@/web/icon.svg?react";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
-
-import AppLogo from "../../../public/icon.svg?react";
 
 export default function Component() {
   const [mounted, setMounted] = useState(false);

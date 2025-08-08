@@ -3,6 +3,7 @@ import type { LinkProps } from "@tanstack/react-router";
 import { Link, useLocation } from "@tanstack/react-router";
 import { BarChart3, Briefcase, Home, Key } from "lucide-react";
 
+import AppLogo from "@/web/icon.svg?react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,8 +16,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar";
-
-import AppLogo from "../../public/icon.svg?react";
 
 const navigationItems: {
   title: string;
