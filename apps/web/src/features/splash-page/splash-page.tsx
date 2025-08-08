@@ -74,11 +74,11 @@ export default function Component() {
       </div>
 
       {/* Background-colored blur behind hero text */}
-      <div
+      {/* <div
         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-64 bg-black/70 blur-2xl animate-pulse"
         style={{ animationDuration: "10s" }}
       >
-      </div>
+      </div> */}
 
       {/* Faint particles scattered around */}
       <div className="absolute top-16 left-8 w-1 h-1 bg-blue-400/25 rounded-full"></div>

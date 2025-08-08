@@ -35,9 +35,10 @@ export const selectEndpointsSchema = createSelectSchema(endpoints);
 export type selectEndpointsSchema = z.infer<typeof selectEndpointsSchema>;
 
 export const insertEndpointsSchema = createInsertSchema(endpoints, {
-  timeoutMs: z.number().min(1000).max(30000).default(5000).describe("Timeout in milliseconds"),
-  maxRequestSizeBytes: z.number().min(1024).max(10485760).default(1048576).describe("Maximum allowed request body size in bytes (1KB to 10MB, default 1MB)"),
-  maxResponseSizeBytes: z.number().min(1024).max(52428800).default(5242880).describe("Maximum allowed response body size in bytes (1KB to 50MB, default 5MB)"),
+  url: z.string().url().describe("The URL of the endpoint"),
+  timeoutMs: z.number().min(1000).max(30000).default(5000).describe("Timeout in milliseconds").optional(),
+  maxRequestSizeBytes: z.number().min(1024).max(10485760).default(1048576).describe("Maximum allowed request body size in bytes (1KB to 10MB, default 1MB)").optional(),
+  maxResponseSizeBytes: z.number().min(1024).max(52428800).default(5242880).describe("Maximum allowed response body size in bytes (1KB to 50MB, default 5MB)").optional(),
 })
   .omit({ id: true, createdAt: true, updatedAt: true })
   .required({ name: true, url: true, jobId: true });

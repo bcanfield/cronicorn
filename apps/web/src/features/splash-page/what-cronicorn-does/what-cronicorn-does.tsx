@@ -309,7 +309,7 @@ const Features01Page = () => {
         {features.map(feature => (
           <div
             key={feature.title}
-            className="relative group overflow-hidden flex flex-col border rounded-2xl py-6 px-5 bg-card/20"
+            className="relative group overflow-hidden flex flex-col border rounded-lg p-4 bg-card/20"
           >
             {/* Blurred radial blobs (unique per item) */}
             {feature.blobs.map((b, i) => (

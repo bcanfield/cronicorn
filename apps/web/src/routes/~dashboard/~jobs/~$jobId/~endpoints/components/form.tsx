@@ -38,6 +38,11 @@ export default function EndpointForm({
     defaultValues: {
       ...defaultValues,
       jobId: defaultValues?.jobId || jobId,
+      method: defaultValues?.method || "GET", // Set default method to GET
+      // TODO: set these defaults in api
+      maxRequestSizeBytes: defaultValues?.maxRequestSizeBytes ?? undefined,
+      maxResponseSizeBytes: defaultValues?.maxResponseSizeBytes ?? undefined,
+      timeoutMs: defaultValues?.timeoutMs ?? undefined,
     },
   });
 
