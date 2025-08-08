@@ -192,6 +192,7 @@ const Features01Page = () => {
           >
             {/* Blurred radial blobs (unique per item) */}
             {feature.blobs.map((b, i) => (
+              // eslint-disable-next-line react/no-array-index-key
               <Blob key={i} {...b} />
             ))}
 

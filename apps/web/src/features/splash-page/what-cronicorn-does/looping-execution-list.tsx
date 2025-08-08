@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 
-import { Calendar, Clock, Cog, Database, Inbox, Timer, TypeIcon as type, Zap } from "lucide-react";
+import { Calendar, Clock, Inbox, Timer, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@workspace/ui/lib/utils";

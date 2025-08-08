@@ -5,12 +5,10 @@ import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { APP_DESCRIPTION_1, APP_DESCRIPTION_2, DOCS_URL } from "@/web/config/config";
-import SimpleSetup from "@/web/features/splash-page/simple-setup/simple-setup";
 import DynamicScheduleTimeline from "@/web/features/splash-page/timeline/timeline";
 import { monitoringScenarios } from "@/web/features/splash-page/timeline/timeline-scenario-data";
 import { TimelineTabs } from "@/web/features/splash-page/timeline/timeline-tabs";
 import WhatCronicornDoes from "@/web/features/splash-page/what-cronicorn-does/what-cronicorn-does";
-import WhyCronicorn from "@/web/features/splash-page/why-cronicorn";
 import AppLogo from "@/web/icon.svg?react";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
 

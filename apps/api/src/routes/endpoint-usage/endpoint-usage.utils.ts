@@ -10,7 +10,6 @@ import { endpointUsage } from "@/api/db/schema/endpoint-usage";
 /**
  * Record usage data for an endpoint execution
  *
- * @param usageData Object containing endpoint usage metrics
  * @returns The inserted usage record
  */
 export async function recordEndpointUsage({
@@ -58,7 +57,6 @@ export async function recordEndpointUsage({
 /**
  * Get usage statistics for an endpoint or all endpoints
  *
- * @param filter Filter options including endpointId, startDate, endDate
  * @returns Aggregated usage statistics
  */
 export async function getUsageStats({
@@ -152,7 +150,6 @@ export async function getUsageStats({
 /**
  * Get time series data for endpoint usage
  *
- * @param options Options including interval, endpointId, startDate, endDate
  * @returns Array of time series data points
  */
 export async function getUsageTimeSeries({

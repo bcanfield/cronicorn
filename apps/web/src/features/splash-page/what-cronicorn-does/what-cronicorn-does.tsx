@@ -1,4 +1,4 @@
-import { ArrowRight, Bot, Code2, Globe, Rocket, Send, Wallet, Zap } from "lucide-react";
+import { ArrowRight, Bot, Rocket, Send, Zap } from "lucide-react";
 import React from "react";
 
 import { DOCS_URL } from "@/web/config/config";
@@ -313,6 +313,7 @@ const Features01Page = () => {
           >
             {/* Blurred radial blobs (unique per item) */}
             {feature.blobs.map((b, i) => (
+              // eslint-disable-next-line react/no-array-index-key
               <Blob key={i} {...b} />
             ))}
 
