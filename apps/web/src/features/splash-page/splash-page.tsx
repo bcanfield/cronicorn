@@ -4,14 +4,13 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { DOCS_URL } from "@/web/config/config";
-import SimpleSetup from "@/web/features/splash-page/simple-setup/simple-setup";
+import { APP_DESCRIPTION_1, APP_DESCRIPTION_2, DOCS_URL } from "@/web/config/config";
 import DynamicScheduleTimeline from "@/web/features/splash-page/timeline/timeline";
 import { monitoringScenarios } from "@/web/features/splash-page/timeline/timeline-scenario-data";
 import { TimelineTabs } from "@/web/features/splash-page/timeline/timeline-tabs";
+import WhatCronicornDoes from "@/web/features/splash-page/what-cronicorn-does/what-cronicorn-does";
+import AppLogo from "@/web/icon.svg?react";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
-
-import AppLogo from "../../../public/horn.svg?react";
 
 export default function Component() {
   const [mounted, setMounted] = useState(false);
@@ -75,11 +74,11 @@ export default function Component() {
       </div>
 
       {/* Background-colored blur behind hero text */}
-      <div
+      {/* <div
         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-64 bg-black/70 blur-2xl animate-pulse"
         style={{ animationDuration: "10s" }}
       >
-      </div>
+      </div> */}
 
       {/* Faint particles scattered around */}
       <div className="absolute top-16 left-8 w-1 h-1 bg-blue-400/25 rounded-full"></div>
@@ -112,7 +111,7 @@ export default function Component() {
       <header className="relative z-10 px-6 py-6">
         <nav className="flex items-center justify-between max-w-7xl mx-auto gap-8">
           {/* Logo */}
-          <div className="flex items-center space-x-0">
+          <div className="flex items-center space-x-1">
             <div className="relative inline-block">
               <div className="absolute inset-0 -z-10 flex items-center justify-center">
                 <div className="w-full h-full bg-gradient-to-r from-black to-black rounded-lg  blur-2xl  scale-105"></div>
@@ -147,18 +146,12 @@ export default function Component() {
           <div className="animate-fade-in">
             {/* Main Heading */}
             <h1 className="text-5xl md:text-6xl font-medium text-foreground mb-2 leading-tight tracking-tight mt-8">
-              Done writing schedulers?
+              {APP_DESCRIPTION_1}
             </h1>
 
             {/* Subtitle */}
             <p className="text-lg md:text-xl mx-auto text-foreground/70 mb-6 font-light leading-relaxed">
-              No problem — we’ve got your back.
-            </p>
-
-            <p className="text-sm text-foreground mb-12 max-w-xl mx-auto font-light leading-relaxed">
-              <span className="text-foreground font-semibold">Cronicorn</span>
-              {" "}
-              is the adaptive scheduling engine for real-world systems and teams.
+              {APP_DESCRIPTION_2}
             </p>
 
             {/* CTA Section */}
@@ -186,9 +179,11 @@ export default function Component() {
 
         {/* Timeline demo */}
         <TimelineTabs tabs={tabData} variant="default" />
-
+        <WhatCronicornDoes />
         {/* Setup guide */}
-        <SimpleSetup />
+        {/* <SimpleSetup />
+
+        <WhyCronicorn /> */}
 
         <div className="flex justify-between items-center w-full max-w-5xl border-t py-8">
           <p>

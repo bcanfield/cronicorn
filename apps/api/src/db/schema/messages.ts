@@ -8,6 +8,12 @@ import { z } from "zod";
 import { pageSchema, pageSizeSchema, sortDirectionSchema } from "./common";
 import { jobs } from "./jobs";
 
+// ALLOWS US TO DETERMINE WHERE THE MESSAGE IS BEING CREATED FROM
+type MessageSource = "endpointResponse" | "unknown";
+
+/*
+START TYPES TO DEFINE AI SDK LANGUAGEMODELV2 MESSAGE TYPES
+*/
 // Define the message roles as a union type
 type MessageRole = "system" | "user" | "assistant" | "tool";
 
@@ -51,6 +57,9 @@ type RedactedReasoningPart = {
 type MessageContent =
   | string
   | Array<TextPart | ImagePart | FilePart | ToolCallPart | ReasoningPart | RedactedReasoningPart>;
+/*
+END TYPES TO DEFINE AI SDK LANGUAGEMODELV2 MESSAGE TYPES
+*/
 
 export const messages = pgTable("Message", {
   id: text("id")
@@ -59,6 +68,7 @@ export const messages = pgTable("Message", {
   role: text("role").$type<MessageRole>().notNull(),
   content: json("content").$type<MessageContent>().notNull(),
   jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
+  source: text("source").$type<MessageSource>(),
   createdAt: timestamp("createdAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
@@ -130,9 +140,21 @@ const userMessageSchema = z.object({
   jobId: z.string().uuid(),
 });
 
+// For system messages, we want to enforce a string content
+const systemMessageSchema = z.object({
+  role: z.literal("system"),
+  content: z.string(),
+  jobId: z.string().uuid(),
+  source: z.enum(["endpointResponse", "unknown"]).optional(),
+});
+
 // For insert / update from web ui, the role has to be user
 export const insertMessagesSchema = userMessageSchema;
 export type insertMessagesSchema = z.infer<typeof insertMessagesSchema>;
+
+// For inserting system messages
+export const insertSystemMessageSchema = systemMessageSchema;
+export type insertSystemMessageSchema = z.infer<typeof insertSystemMessageSchema>;
 
 // We have a created schema for messages that includes the ID - but is strictly scoped to the user role and content
 export const createdMessagesSchema = z.object({

@@ -89,7 +89,7 @@ export default function createApp() {
         return next();
       }
 
-      console.warn("Using dev auth middleware");
+      // console.warn("Using dev auth middleware");
       // Only set dev user if authUser wasn't already set by API key auth
       if (!c.get("authUser")) {
         const authUser: AuthUser = {

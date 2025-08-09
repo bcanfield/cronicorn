@@ -2,8 +2,7 @@ import { Github } from "lucide-react";
 
 import { ThemeSwitcher } from "@/web/components/theme-switcher";
 import { DOCS_URL, GITHUB_URL } from "@/web/config/config";
-
-import AppLogo from "../../public/horn.svg?react";
+import AppLogo from "@/web/icon.svg?react";
 
 export default function Footer() {
   return (

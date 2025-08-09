@@ -57,7 +57,7 @@ export default function Component({
         {/* Left Code Block */}
         <div className="space-y-2">
           <JsonCodeBlock jsonString={JSON.stringify(jsonContent)} />
-          <p className="text-muted-foreground font-light text-xs">Defining a Job</p>
+          <p className="text-muted-foreground font-light text-xs">An example of a job definition in JSON format.</p>
         </div>
 
       </div>

@@ -2,7 +2,9 @@ import type { selectMessagesSchema } from "@tasks-app/api/schema";
 
 import { Link } from "@tanstack/react-router";
 import { Edit } from "lucide-react";
+import Markdown from "react-markdown";
 
+import ExpandableText from "@/web/components/expandable-test";
 import { formatDate } from "@/web/lib/date-formatter";
 import { Badge } from "@workspace/ui/components/badge";
 import { buttonVariants } from "@workspace/ui/components/button";
@@ -19,28 +21,22 @@ export default function Message({ message }: { message: selectMessagesSchema }) 
   const { id, role, content, createdAt, jobId } = message;
 
   // Format the content for display
-  const formattedContent = typeof content === "string"
-    ? content
-    : Array.isArray(content)
-      ? content.map((part, idx) => {
-        // Create unique keys that don't rely solely on index
-          const uniqueId = `${id.substring(0, 8)}-${idx}`;
-
-          if ("text" in part) {
-            return <p key={`text-${uniqueId}`}>{part.text}</p>;
-          }
-          else if ("type" in part && part.type === "reasoning") {
-            return <p key={`reasoning-${uniqueId}`} className="text-secondary-foreground">{part.text}</p>;
-          }
-          return (
-            <p key={`other-${uniqueId}`}>
-              [Content type:
-              {(part).type}
-              ]
-            </p>
-          );
-        })
-      : <p>[Unsupported content format]</p>;
+  const formattedContent
+    = typeof content === "string"
+      ? content
+      : Array.isArray(content)
+        ? content
+            .map((part) => {
+              if ("text" in part) {
+                return part.text;
+              }
+              else if ("type" in part && part.type === "reasoning") {
+                return part.text;
+              }
+              return `[Content type: ${(part as any).type}]`;
+            })
+            .join("\n\n")
+        : "[Unsupported content format]";
 
   return (
     <Card>
@@ -82,10 +78,14 @@ export default function Message({ message }: { message: selectMessagesSchema }) 
           )}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {formattedContent}
-        </div>
+      <CardContent className="text-xs">
+        <ExpandableText clampLines={8} gradientHeight={64}>
+          <Markdown>
+            {formattedContent}
+          </Markdown>
+
+        </ExpandableText>
+
       </CardContent>
       <CardFooter className="flex justify-between">
         <div className="text-xs text-muted-foreground">
