@@ -191,7 +191,7 @@ importers:
         specifier: 7.60.0
         version: 7.60.0(react@19.1.0)
       react-markdown:
-        specifier: ^10.1.0
+        specifier: 10.1.0
         version: 10.1.0(@types/react@19.1.8)(react@19.1.0)
       resize-observer-polyfill:
         specifier: 1.5.1
