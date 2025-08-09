@@ -25,7 +25,6 @@ function RouteComponent() {
   };
   return (
     <>
-
       <PageHeader title="Create New Job" description="Configure a new job" />
       <JobForm onSubmit={mutateAsync} mode="create" onCancel={handleCancel} />
     </>
