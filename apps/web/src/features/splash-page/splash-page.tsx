@@ -2,7 +2,6 @@
 
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
 
 import { APP_DESCRIPTION_1, APP_DESCRIPTION_2, DOCS_URL } from "@/web/config/config";
 import DynamicScheduleTimeline from "@/web/features/splash-page/timeline/timeline";
@@ -13,21 +12,12 @@ import AppLogo from "@/web/icon.svg?react";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
 
 export default function Component() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const tabData = monitoringScenarios.map(scenario => ({
     id: scenario.id,
     label: scenario.name,
     content: <DynamicScheduleTimeline scenario={scenario} />,
     icon: <div className="w-2 h-2 rounded-full bg-current opacity-60" />,
   }));
-
-  if (!mounted)
-    return null;
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden mb-8">
