@@ -5,4 +5,4 @@ export const GITHUB_URL = "https://github.com/bcanfield/cronicorn";
 
 export const APP_NAME = "Cronicorn";
 export const APP_DESCRIPTION_1 = "Scheduling that adapts to your world";
-export const APP_DESCRIPTION_2 = "No guesswork, no wasted runs, lower costs — more time to build.";
+export const APP_DESCRIPTION_2 = "Describe what should run and when — Cronicorn handles the timing - giving you more time to build.";
