@@ -1,8 +1,9 @@
 import type { LinkProps } from "@tanstack/react-router";
 
 import { Link, useLocation } from "@tanstack/react-router";
-import { Briefcase, Home, Key, Settings } from "lucide-react";
+import { BarChart3, Briefcase, Home, Key } from "lucide-react";
 
+import AppLogo from "@/web/icon.svg?react";
 import {
   Sidebar,
   SidebarContent,
@@ -36,11 +37,11 @@ const navigationItems: {
     url: "/dashboard/api-keys",
     icon: Key,
   },
-  //   {
-  //     title: "Usage",
-  //     url: "/dashboard/usage",
-  //     icon: BarChart3,
-  //   },
+  {
+    title: "Usage",
+    url: "/dashboard/endpoint-usage",
+    icon: BarChart3,
+  },
 
 ];
 
@@ -52,10 +53,10 @@ export function AppSidebar() {
       <SidebarHeader>
         <Link to="/" className="flex items-center gap-2 px-4 py-2">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Settings className="size-4" />
+            <AppLogo className="size-6 text-background " />
           </div>
           <div className="flex flex-col gap-0.5 leading-none">
-            <span className="font-semibold">Dashboard</span>
+            <span className="font-semibold">Cronicorn</span>
             <span className="text-xs text-muted-foreground">v1.0.0</span>
           </div>
         </Link>

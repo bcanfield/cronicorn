@@ -147,7 +147,7 @@ export const monitoringScenarios: TimelineScenario[] = [
   {
     id: "ml-retraining",
     name: "Model Retraining",
-    description: "Retrains the model only when accuracy drops or drift is detected",
+    description: "Retrains when accuracy drops or drift is detected",
     config: {
       maxTime: 30,
       stepDuration: 2000,
@@ -202,7 +202,7 @@ export const monitoringScenarios: TimelineScenario[] = [
   {
     id: "slack-reminders",
     name: "Team Reminders",
-    description: "Sends reminders only when PRs are pending and team is active",
+    description: "Sends when PRs are pending and team is active",
     config: {
       maxTime: 24,
       stepDuration: 1800,

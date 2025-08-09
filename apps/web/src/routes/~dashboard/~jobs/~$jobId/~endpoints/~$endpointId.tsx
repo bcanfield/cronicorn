@@ -6,7 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useConfirmationDialog } from "@/web/components/confirmation-dialog/use-confirmation-dialog";
 import PageHeader from "@/web/components/re-usables/page-header";
 import RoutePending from "@/web/components/route-pending";
-import { createEndpointQueryOptions, deleteEndpoint, updateEndpoint } from "@/web/lib/queries/endpoints.queries";
+import { createEndpointQueryOptions, deleteEndpoint, queryKeys, updateEndpoint } from "@/web/lib/queries/endpoints.queries";
 import { createJobQueryOptions } from "@/web/lib/queries/jobs.queries";
 import queryClient from "@/web/lib/query-client";
 import EndpointForm from "@/web/routes/~dashboard/~jobs/~$jobId/~endpoints/components/form";
@@ -34,9 +34,13 @@ function RouteComponent() {
   const updateMutation = useMutation({
     mutationFn: updateEndpoint,
     onSuccess: () => {
-      // Invalidate queries
+      // Invalidate single endpoint query
       queryClient.invalidateQueries({
-        queryKey: [["list-endpoints"], ["list-endpoint", endpointId]],
+        queryKey: queryKeys.LIST_ENDPOINT(endpointId).queryKey,
+      });
+      // Invalidate list of endpoints for this job
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.LIST_ENDPOINTS(jobId),
       });
       // Navigate back to endpoints list
       navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
@@ -47,7 +51,14 @@ function RouteComponent() {
   const { mutateAsync: deleteMutate } = useMutation({
     mutationFn: deleteEndpoint,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["list-endpoints"] });
+      // Invalidate the specific job's endpoints list
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.LIST_ENDPOINTS(jobId),
+      });
+      // Also invalidate the specific endpoint (though it's deleted, this ensures any cached data is cleared)
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.LIST_ENDPOINT(endpointId).queryKey,
+      });
       navigate({ to: "/dashboard/jobs/$jobId", params: { jobId } });
     },
   });

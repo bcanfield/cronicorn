@@ -1,7 +1,7 @@
 /* eslint-disable ts/no-redeclare */
 
 import { sql } from "drizzle-orm";
-import { boolean, integer, json, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -16,10 +16,13 @@ export const endpoints = pgTable("Endpoint", {
   url: text("url").notNull(),
   method: text("method").default("GET").notNull(),
   bearerToken: text("bearerToken"),
-  requestSchema: json("requestSchema"),
+  requestSchema: text("requestSchema"),
   jobId: text("jobId").notNull().references(() => jobs.id, { onDelete: "cascade" }),
-  timeoutMs: integer("timeoutMs").default(5000),
+  timeoutMs: integer("timeoutMs").default(2000),
   fireAndForget: boolean("fireAndForget").default(false).notNull(),
+  // Size limits for request and response in bytes
+  maxRequestSizeBytes: integer("maxRequestSizeBytes").default(1048576), // Default: 1MB
+  maxResponseSizeBytes: integer("maxResponseSizeBytes").default(5242880), // Default: 5MB
   createdAt: timestamp("createdAt", { mode: "string" })
     .default(sql`now()`)
     .notNull(),
@@ -31,7 +34,12 @@ export const endpoints = pgTable("Endpoint", {
 export const selectEndpointsSchema = createSelectSchema(endpoints);
 export type selectEndpointsSchema = z.infer<typeof selectEndpointsSchema>;
 
-export const insertEndpointsSchema = createInsertSchema(endpoints, {})
+export const insertEndpointsSchema = createInsertSchema(endpoints, {
+  url: z.string().url().describe("The URL of the endpoint"),
+  timeoutMs: z.number().min(1000).max(30000).default(5000).describe("Timeout in milliseconds").optional(),
+  maxRequestSizeBytes: z.number().min(1024).max(10485760).default(1048576).describe("Maximum allowed request body size in bytes (1KB to 10MB, default 1MB)").optional(),
+  maxResponseSizeBytes: z.number().min(1024).max(52428800).default(5242880).describe("Maximum allowed response body size in bytes (1KB to 50MB, default 5MB)").optional(),
+})
   .omit({ id: true, createdAt: true, updatedAt: true })
   .required({ name: true, url: true, jobId: true });
 export type insertEndpointsSchema = z.infer<typeof insertEndpointsSchema>;

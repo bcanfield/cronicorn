@@ -22,6 +22,34 @@
       "when": 1753812644996,
       "tag": "0002_wide_paladin",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1754578066122,
+      "tag": "0003_adorable_corsair",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1754589474986,
+      "tag": "0004_funny_marvel_apes",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1754593836707,
+      "tag": "0005_long_goliath",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1754595475771,
+      "tag": "0006_windy_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

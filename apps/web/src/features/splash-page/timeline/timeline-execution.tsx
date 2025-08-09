@@ -42,7 +42,7 @@ export function TimelineExecutionDot({
     >
       <div
         className={cn(
-          "w-5 h-5 rounded-full border-2 border-background transition-all duration-500 hover:scale-110 cursor-pointer",
+          "size-4 rounded-full border-2 border-background transition-all duration-500 hover:scale-110 cursor-pointer",
           getExecutionStyles(execution.status),
         )}
       />
@@ -50,7 +50,7 @@ export function TimelineExecutionDot({
         <div
           className={cn(
             "absolute left-1/2 transform -translate-x-1/2 transition-all duration-500 z-20",
-            isLabelAbove ? "-top-12" : "-bottom-12",
+            isLabelAbove ? "-top-13" : "-bottom-13",
           )}
         >
           <div className="bg-popover/95 backdrop-blur-md text-popover-foreground text-xs font-semibold px-3 py-1.5 rounded-lg border border-border shadow-lg whitespace-nowrap">

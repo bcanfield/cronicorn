@@ -46,7 +46,7 @@ export function TimelineConditionCard({ condition, className }: TimelineConditio
   return (
     <div
       className={cn(
-        "group relative p-3 rounded-2xl border backdrop-blur-sm transition-all duration-500 hover:scale-[1.02] hover:shadow-xl",
+        "group relative p-2 rounded-md border backdrop-blur-sm transition-all duration-500 hover:scale-[1.02] hover:shadow-xl",
         styles.bg,
         styles.glow,
         className,

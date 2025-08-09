@@ -4,7 +4,7 @@ import { insertMessagesSchema } from "@tasks-app/api/schema";
 
 import { useConfirmationDialog } from "@/web/components/confirmation-dialog/use-confirmation-dialog";
 import PageHeader from "@/web/components/re-usables/page-header";
-import { createMessageQueryOptions, deleteMessage, updateMessage } from "@/web/lib/queries/messages.queries";
+import { createMessageQueryOptions, deleteMessage, queryKeys, updateMessage } from "@/web/lib/queries/messages.queries";
 import queryClient from "@/web/lib/query-client";
 import MessageForm from "@/web/routes/~dashboard/~jobs/~$jobId/~messages/components/form";
 
@@ -26,9 +26,13 @@ function RouteComponent() {
   const updateMutation = useMutation({
     mutationFn: updateMessage,
     onSuccess: () => {
-      // Invalidate queries
+      // Invalidate the messages list
       queryClient.invalidateQueries({
-        queryKey: [["list-messages"], ["list-message", messagesId]],
+        queryKey: queryKeys.LIST_MESSAGES(),
+      });
+      // Invalidate the specific message
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.LIST_MESSAGE(messagesId).queryKey,
       });
       // Navigate back to messages list
       navigate({ to: "/dashboard/jobs/$jobId/messages", params: { jobId } });
@@ -39,7 +43,10 @@ function RouteComponent() {
   const { mutateAsync: deleteMutate } = useMutation({
     mutationFn: deleteMessage,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["list-Messages"] });
+      // Invalidate messages list
+      queryClient.invalidateQueries({ queryKey: queryKeys.LIST_MESSAGES() });
+      // Also invalidate the specific message (though it's deleted)
+      queryClient.invalidateQueries({ queryKey: queryKeys.LIST_MESSAGE(messagesId).queryKey });
       navigate({ to: "/dashboard/jobs/$jobId/messages", params: { jobId } });
     },
   });
