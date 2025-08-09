@@ -3,6 +3,7 @@
 </p>
 
 # Cronicorn
+
 Cronicorn is an **adaptive scheduling engine** for developers and teams.  
 You define a job with:
 - A plain-English description of what should happen and under what conditions
@@ -38,3 +39,10 @@ From there, Cronicorn automatically:
     }
   ]
 }
+```
+
+---
+
+![API Codecov](https://img.shields.io/codecov/c/github/bcanfield/cronicorn?flag=api&logo=codecov&label=API)
+![API Codecov](https://img.shields.io/codecov/c/github/bcanfield/cronicorn?flag=web&logo=codecov&label=Web)
+
