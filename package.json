@@ -12,6 +12,7 @@
     "lint": "pnpm run -r --parallel lint",
     "lint:fix": "pnpm run -r --parallel lint:fix",
     "db:push": "pnpm run -r --parallel db:push",
+    "db:migrate": "pnpm run -r --parallel db:migrate",
     "db:generate": "pnpm run -r --parallel db:generate",
     "db:seed": "pnpm run -r --parallel db:seed",
     "db:studio": "pnpm run -r --parallel db:studio",
