@@ -175,7 +175,7 @@ export default function Component() {
 
         <WhyCronicorn /> */}
 
-        <div className="flex justify-between items-center w-full max-w-5xl border-t py-8">
+        <div className="flex justify-between items-center gap-4 w-full max-w-5xl border-t py-8">
           <p>
             Try it now. It's free, fast, and takes just a few minutes to set up.
 

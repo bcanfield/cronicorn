@@ -150,7 +150,7 @@ const features: Feature[] = [
           <Label>
             Post Update
           </Label>
-          <Textarea className="resize-none" value="Errors are coming in - keep an eye on it" />
+          <Textarea className="resize-none text-xs" value="Errors are coming in - keep an eye on it" />
           <div className="flex justify-end">
             <Button size="sm" className="mt-2">
               Send
@@ -311,6 +311,9 @@ const Features01Page = () => {
             key={feature.title}
             className="relative group overflow-hidden flex flex-col border rounded-lg p-4 bg-card/20"
           >
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-muted/30 to-transparent pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-radial from-primary/5 to-transparent pointer-events-none" />
             {/* Blurred radial blobs (unique per item) */}
             {feature.blobs.map((b, i) => (
               // eslint-disable-next-line react/no-array-index-key
