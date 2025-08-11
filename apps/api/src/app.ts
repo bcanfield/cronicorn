@@ -12,15 +12,15 @@ const app = createApp();
 
 // Add CORS middleware to allow requests from any origin
 // This is important for API accessibility from various clients
-app.use('*', cors({
+app.use("*", cors({
   // Allow requests from any origin (or specify specific origins in an array)
-  origin: '*', 
+  origin: "*",
   // Allow these HTTP methods
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   // Allow these headers in requests
-  allowHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-API-Secret', 'X-Requested-With'],
+  allowHeaders: ["Content-Type", "Authorization", "X-API-Key", "X-API-Secret", "X-Requested-With"],
   // Expose these response headers to the browser
-  exposeHeaders: ['Content-Length', 'X-Request-Id'],
+  exposeHeaders: ["Content-Length", "X-Request-Id"],
   // Allow credentials (cookies, authorization headers)
   credentials: true,
   // How long the preflight request can be cached (in seconds)

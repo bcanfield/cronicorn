@@ -9,7 +9,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile.web
     ports:
-      - "8080:80"
+      - "3000:80"
     depends_on:
       api:
         condition: service_started
