@@ -351,7 +351,7 @@ DATABASE_URL=postgresql://username:password@host:port/database
 
 ### Development Setup
 1. Create GitHub OAuth App in GitHub Developer Settings
-2. Set authorization callback URL to `http://localhost:3000/api/auth/callback/github`
+2. Set authorization callback URL to `http://localhost:3333/api/auth/callback/github`
 3. Copy client ID and secret to environment variables
 
 ## Error Handling

@@ -97,8 +97,8 @@ pnpm db:studio
 1. Go to GitHub → Settings → Developer settings → OAuth Apps
 2. Create new OAuth App:
    - Application name: `Cronicorn Development`
-   - Homepage URL: `http://localhost:3000`
-   - Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
+   - Homepage URL: `http://localhost:3333`
+   - Authorization callback URL: `http://localhost:3333/api/auth/callback/github`
 3. Copy Client ID and Client Secret to `.env` files
 
 ## Development Commands
@@ -192,7 +192,7 @@ pnpm dev
 ```bash
 cd apps/web  
 pnpm dev
-# Web app starts on http://localhost:3000
+# Web app starts on http://localhost:3333
 ```
 
 **Terminal 3: Optional Database Studio**
@@ -384,7 +384,7 @@ pnpm db:push --dry-run
 pnpm kill
 
 # Or manually kill specific ports
-npx kill-port 3000 9999
+npx kill-port 3333 9999
 ```
 
 #### Type Errors

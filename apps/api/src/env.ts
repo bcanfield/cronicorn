@@ -28,7 +28,7 @@ const EnvSchema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("debug"),
   DATABASE_URL: z.string().url(),
   AUTH_SECRET: z.string(),
-  AUTH_URL: z.string().url().default("http://localhost:3000/api/auth"),
+  AUTH_URL: z.string().url().default("http://localhost:3333/api/auth"),
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
   FAKE_AUTH: z.coerce.boolean().default(false),
