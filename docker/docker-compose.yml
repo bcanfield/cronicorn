@@ -2,7 +2,7 @@ version: "3"
 
 services:
   web:
-    container_name: web
+    # container_name: web
     networks:
       - cronicorn
     build:
@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   db:
-    container_name: db
+    # container_name: db
     image: postgres:17
     restart: unless-stopped
     environment:
@@ -34,7 +34,7 @@ services:
     volumes:
       - "../files/crondbvolume:/var/lib/postgresql/data"
   api:
-    container_name: api
+    # container_name: api
     restart: unless-stopped
     depends_on:
       db:
