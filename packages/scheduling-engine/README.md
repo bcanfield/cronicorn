@@ -13,13 +13,13 @@ The scheduling engine is a core component of the Cronicorn system that intellige
 ## Usage
 
 ```typescript
-import { createSchedulingEngine } from '@cronicorn/scheduling-engine';
+import { createSchedulingEngine } from "@cronicorn/scheduling-engine";
 
 // Create and configure the engine
 const engine = createSchedulingEngine({
   database: dbClient,
   aiAgent: {
-    model: 'gpt-4o',
+    model: "gpt-4o",
     temperature: 0.2,
     maxRetries: 2
   },

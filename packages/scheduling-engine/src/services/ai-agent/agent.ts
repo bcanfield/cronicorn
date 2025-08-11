@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { generateText } from "ai";
+import { generateObject } from "ai";
 import { z } from "zod";
 
 import type { AIAgentConfig } from "../../config";
@@ -174,20 +174,19 @@ export class DefaultAIAgentService implements AIAgentService {
       // Format user prompt with context
       const userPrompt = this.formatContextForPlanning(jobContext);
 
-      // Use Vercel AI SDK to generate text with structured output
-      const result = await generateText({
+      // Use Vercel AI SDK to generate object with structured output
+
+      const result = await generateObject({
         model: this.model,
         system: systemPrompt,
         prompt: userPrompt,
         temperature: this.config.temperature ?? 0.2,
         maxRetries: this.config.maxRetries ?? 2,
-        experimental_output: {
-          schema: executionPlanSchema,
-        },
+        schema: executionPlanSchema,
       });
 
       // Return the validated plan
-      return result.experimental_output as unknown as AIAgentPlanResponse;
+      return result.object;
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -214,19 +213,17 @@ export class DefaultAIAgentService implements AIAgentService {
       const userPrompt = this.formatContextForScheduling(jobContext, executionResults);
 
       // Use Vercel AI SDK to generate text with structured output
-      const result = await generateText({
+      const result = await generateObject({
         model: this.model,
         system: systemPrompt,
         prompt: userPrompt,
         temperature: this.config.temperature ?? 0.2,
         maxRetries: this.config.maxRetries ?? 2,
-        experimental_output: {
-          schema: schedulingResponseSchema,
-        },
+        schema: schedulingResponseSchema,
       });
 
       // Return the validated schedule
-      return result.experimental_output as unknown as AIAgentScheduleResponse;
+      return result.object;
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);

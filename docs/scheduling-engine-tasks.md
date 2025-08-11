@@ -2,22 +2,45 @@
 
 This document outlines the step-by-step tasks for implementing the scheduling engine workspace based on the architecture described in the scheduling engine plan. Each task is designed to be focused, testable, and commitable to provide clear progress markers.
 
+## Test-Driven Development Process
+
+To ensure quality and maintainability, we'll follow a test-driven development approach for all components:
+
+1. **Write Test First**: 
+   - Define the expected behavior in a test file before implementing
+   - Structure tests around component interfaces and expected outcomes
+   - Include edge cases and error scenarios
+
+2. **Implement Minimally**: 
+   - Write the minimal code needed to make tests pass
+   - Focus on interface compliance first, then optimization
+
+3. **Refactor**: 
+   - Clean up implementation while keeping tests passing
+   - Extract common patterns and improve readability
+
+4. **Document**:
+   - Update implementation details in the documentation
+   - Add JSDoc comments to clarify complex parts
+
+Each task below should follow this workflow, with tests committed alongside implementation code.
+
 ## Phase 1: Package Setup & Core Structure
 
 ### 1.1 Initial Package Configuration
 
-- [ ] **1.1.1**: Create package directory structure in monorepo
-- [ ] **1.1.2**: Configure `package.json` with dependencies
-- [ ] **1.1.3**: Set up TypeScript configuration (`tsconfig.json`)
+- [x] **1.1.1**: Create package directory structure in monorepo
+- [x] **1.1.2**: Configure `package.json` with dependencies
+- [x] **1.1.3**: Set up TypeScript configuration (`tsconfig.json`)
 - [ ] **1.1.4**: Configure build scripts and entry points
 - [ ] **1.1.5**: Add README.md with workspace overview
 
 ### 1.2 Core Types & Interfaces
 
-- [ ] **1.2.1**: Define `JobContext` interface for context collection
-- [ ] **1.2.2**: Define `ExecutionResults` interface for endpoint responses
-- [ ] **1.2.3**: Define error and event types for the engine
-- [ ] **1.2.4**: Create configuration interface
+- [x] **1.2.1**: Define `JobContext` interface for context collection
+- [x] **1.2.2**: Define `ExecutionResults` interface for endpoint responses
+- [x] **1.2.3**: Define error and event types for the engine
+- [x] **1.2.4**: Create configuration interface
 - [ ] **1.2.5**: Define scheduler state interfaces
 
 ### 1.3 Database Access
@@ -58,25 +81,25 @@ This document outlines the step-by-step tasks for implementing the scheduling en
 
 ### 3.1 AI Agent Interface
 
-- [ ] **3.1.1**: Create core AI agent service interface
-- [ ] **3.1.2**: Implement planning phase integration
-- [ ] **3.1.3**: Implement scheduling phase integration
+- [x] **3.1.1**: Create core AI agent service interface
+- [x] **3.1.2**: Implement planning phase integration
+- [x] **3.1.3**: Implement scheduling phase integration
 - [ ] **3.1.4**: Add token usage tracking and optimization
-- [ ] **3.1.5**: Create context formatting for AI prompts
+- [x] **3.1.5**: Create context formatting for AI prompts
 
 ### 3.2 Prompt Engineering
 
-- [ ] **3.2.1**: Create system instruction templates
-- [ ] **3.2.2**: Implement planning phase prompt builder
-- [ ] **3.2.3**: Implement scheduling phase prompt builder
+- [x] **3.2.1**: Create system instruction templates
+- [x] **3.2.2**: Implement planning phase prompt builder
+- [x] **3.2.3**: Implement scheduling phase prompt builder
 - [ ] **3.2.4**: Add context-aware prompt optimization
 - [ ] **3.2.5**: Create prompt testing utilities
 
 ### 3.3 Response Processing
 
-- [ ] **3.3.1**: Implement schema validation for AI responses
-- [ ] **3.3.2**: Create planning phase response parser
-- [ ] **3.3.3**: Create scheduling phase response parser
+- [x] **3.3.1**: Implement schema validation for AI responses
+- [x] **3.3.2**: Create planning phase response parser
+- [x] **3.3.3**: Create scheduling phase response parser
 - [ ] **3.3.4**: Add semantic validation for responses
 - [ ] **3.3.5**: Implement error handling for malformed responses
 
@@ -92,24 +115,24 @@ This document outlines the step-by-step tasks for implementing the scheduling en
 
 ### 4.1 HTTP Client
 
-- [ ] **4.1.1**: Create base HTTP client for endpoint execution
-- [ ] **4.1.2**: Implement timeout and cancellation support
+- [x] **4.1.1**: Create base HTTP client for endpoint execution
+- [x] **4.1.2**: Implement timeout and cancellation support
 - [ ] **4.1.3**: Add retry logic for transient failures
 - [ ] **4.1.4**: Implement circuit breaker for failing endpoints
 - [ ] **4.1.5**: Add request/response logging
 
 ### 4.2 Execution Engine
 
-- [ ] **4.2.1**: Implement sequential execution strategy
-- [ ] **4.2.2**: Implement parallel execution strategy
-- [ ] **4.2.3**: Create mixed/dependency-based execution strategy
+- [x] **4.2.1**: Implement sequential execution strategy
+- [x] **4.2.2**: Implement parallel execution strategy
+- [x] **4.2.3**: Create mixed/dependency-based execution strategy
 - [ ] **4.2.4**: Add execution progress tracking
 - [ ] **4.2.5**: Implement execution abort capabilities
 
 ### 4.3 Response Processing
 
-- [ ] **4.3.1**: Create response parsing and formatting
-- [ ] **4.3.2**: Implement response truncation for large payloads
+- [x] **4.3.1**: Create response parsing and formatting
+- [x] **4.3.2**: Implement response truncation for large payloads
 - [ ] **4.3.3**: Add response storage in database
 - [ ] **4.3.4**: Create error classification for responses
 - [ ] **4.3.5**: Implement message generation from responses
