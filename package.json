@@ -25,6 +25,6 @@
     "turbo": "2.5.5"
   },
   "devDependencies": {
-    "syncpack": "~14.0.0-alpha.18"
+    "syncpack": "14.0.0-alpha.18"
   }
 }

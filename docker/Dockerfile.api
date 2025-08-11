@@ -18,6 +18,7 @@ WORKDIR /app/apps/api/dist
 ENV NODE_ENV=production
 
 COPY --from=builder /app/apps/api/dist /app/apps/api/dist
+COPY --from=builder /app/apps/api/src/db/migrations /app/apps/api/dist/src/db/migrations
 COPY --from=builder /app/docker/start-api.sh /app/apps/api/start-api.sh
 
 COPY --from=deps /app/node_modules /app/node_modules

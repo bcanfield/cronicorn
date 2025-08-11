@@ -2,12 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import SplashPage from "@/web/features/splash-page/splash-page";
 
-import RoutePending from "../components/route-pending";
-
 export const Route = createFileRoute("/")({
   component: HomeComponent,
-  pendingComponent: RoutePending,
-
 });
 
 export function HomeComponent() {
