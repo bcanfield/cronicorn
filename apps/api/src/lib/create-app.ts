@@ -6,6 +6,7 @@ import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 
 import env from "@/api/env";
+import { logAuthDebug, logAuthError, logAuthInfo, logAuthWarn } from "@/api/lib/auth-logger";
 import { DEV_USER } from "@/api/lib/dev-user";
 import { apiKeyAuth } from "@/api/middlewares/api-key-auth";
 import { pinoLogger } from "@/api/middlewares/pino-logger";
@@ -23,17 +24,22 @@ export function createRouter() {
 }
 
 export default function createApp() {
-  console.warn("🚀 Creating API application");
+  logAuthInfo("", "🚀 Creating API application");
   const app = createRouter().basePath(BASE_PATH) as AppOpenAPI;
+
   app
     .use(
       "*",
       async (c, next) => {
-        console.warn(`📝 [Request] ${c.req.method} ${c.req.path}`);
-        console.warn(`📝 [Headers] ${JSON.stringify(Object.fromEntries(
-          Object.entries(c.req.header())
-            .filter(([key]) => !["cookie", "authorization"].includes(key.toLowerCase()))
-        ))}`);
+        const path = c.req.path;
+        logAuthDebug(path, "📝 [Request] Incoming request", {
+          method: c.req.method,
+          headers: Object.fromEntries(
+            Object.entries(c.req.header())
+              .filter(([key]) => !["cookie", "authorization"].includes(key.toLowerCase())),
+          ),
+        });
+
         c.set("authConfig", createAuthConfig());
         return next();
       },
@@ -44,7 +50,7 @@ export default function createApp() {
   const isPublicRoute = (path: string) => {
     const publicPaths = ["/api/reference", "/api/doc", "/api/health", "/api/auth/session"];
     const result = publicPaths.includes(path);
-    console.warn(`🔍 [Route Check] Path: ${path}, IsPublic: ${result}`);
+    logAuthDebug(path, `🔍 [Route Check] IsPublic: ${result}`);
     return result;
   };
 
@@ -53,10 +59,10 @@ export default function createApp() {
     const path = c.req.path;
     if (isPublicRoute(path)) {
       // Skip authentication for public routes
-      console.warn(`🔓 [Public Route] Skipping auth for ${path}`);
+      logAuthDebug(path, "🔓 [Public Route] Skipping auth");
       return next();
     }
-    console.warn(`🔒 [Protected Route] Continuing auth chain for ${path}`);
+    logAuthDebug(path, "🔒 [Protected Route] Continuing auth chain");
     return next();
   });
 
@@ -65,106 +71,120 @@ export default function createApp() {
     const path = c.req.path;
     // Skip for already-exempted public routes
     if (isPublicRoute(path)) {
-      console.warn(`🔑 [API Key Auth] Skipping for public route: ${path}`);
+      logAuthDebug(path, "🔑 [API Key Auth] Skipping for public route");
       return next();
     }
-    
+
     // Check if API key is present in the request
     const apiKey = c.req.header("X-API-Key");
-    console.warn(`🔑 [API Key Auth] API Key present: ${!!apiKey}, Path: ${path}`);
-    
+    logAuthDebug(path, "🔑 [API Key Auth] Checking", { hasApiKey: !!apiKey });
+
     try {
       // Try API key auth
-      console.warn(`🔑 [API Key Auth] Attempting API key authentication for path: ${path}`);
+      logAuthDebug(path, "🔑 [API Key Auth] Attempting authentication");
       const result = await apiKeyAuth()(c, next);
-      
+
       // Check if API key auth succeeded
       const authUser = c.get("authUser");
       if (authUser) {
-        console.warn(`✅ [API Key Auth] Success - User ID: ${authUser.user?.id}, Path: ${path}`);
+        logAuthInfo(path, "✅ [API Key Auth] Success", { userId: authUser.user?.id });
       }
-      
+
       return result;
     }
     catch (error) {
       // If API key auth fails, continue to next middleware
-      console.warn(`❌ [API Key Auth] Failed for ${path}: ${error instanceof Error ? error.message : String(error)}`);
-      console.warn(`➡️ [API Key Auth] Continuing to session auth for path: ${path}`);
+      const err = error as Error;
+      logAuthWarn(path, "❌ [API Key Auth] Failed", {
+        error: err.message,
+        stack: err.stack,
+      });
+      logAuthDebug(path, "➡️ [API Key Auth] Continuing to session auth");
       return next();
     }
   });
 
   // Then fallback to session auth
   if (env.NODE_ENV === "production" || !env.FAKE_AUTH) {
-    console.warn("🔒 [Session Auth] Using standard auth middleware in PRODUCTION mode");
+    logAuthInfo("", "🔒 [Session Auth] Using standard auth middleware in PRODUCTION mode");
     app.use("*", async (c, next) => {
       const path = c.req.path;
       const isApiKeyAuth = !!c.req.header("X-API-Key");
       const isSessionRoute = path.startsWith("/api/auth/");
       const hasAuthUser = !!c.get("authUser");
-      
-      console.warn(`🔒 [Session Auth] Path: ${path}, IsApiKey: ${isApiKeyAuth}, IsSessionRoute: ${isSessionRoute}, HasAuthUser: ${hasAuthUser}`);
+
+      logAuthDebug(path, "🔒 [Session Auth] Processing request", {
+        isApiKeyAuth,
+        isSessionRoute,
+        hasAuthUser,
+      });
 
       // Skip for public routes or if already authenticated
       if (isPublicRoute(path)) {
-        console.warn(`🔒 [Session Auth] Skipping for public route: ${path}`);
+        logAuthDebug(path, "🔒 [Session Auth] Skipping for public route");
         return next();
       }
-      
+
       if (c.get("authUser")) {
-        console.warn(`✅ [Session Auth] Already authenticated via API key - skipping session auth for path: ${path}`);
+        logAuthDebug(path, "✅ [Session Auth] Already authenticated via API key - skipping session auth");
         return next();
       }
 
       try {
-        console.warn(`🔒 [Session Auth] Attempting session authentication for path: ${path}`);
+        logAuthDebug(path, "🔒 [Session Auth] Attempting session authentication");
         const authCookies = c.req.header("cookie");
         if (authCookies) {
-          console.warn(`🍪 [Cookies] Auth cookies present for path ${path}. Cookie length: ${authCookies.length}`);
-        } else {
-          console.warn(`🍪 [Cookies] No cookies present for path ${path}`);
+          logAuthDebug(path, "🍪 [Cookies] Auth cookies present", {
+            cookieLength: authCookies.length,
+            cookieNames: authCookies.split(";").map(c => c.trim().split("=")[0]),
+          });
         }
-        
+        else {
+          logAuthDebug(path, "🍪 [Cookies] No cookies present");
+        }
+
         const result = await verifyAuth()(c, next);
-        
+
         // Check if session auth succeeded
         const authUser = c.get("authUser");
         if (authUser) {
-          console.warn(`✅ [Session Auth] Success - User ID: ${authUser.user?.id}, Path: ${path}`);
+          logAuthInfo(path, "✅ [Session Auth] Success", { userId: authUser.user?.id });
         }
-        
+        else {
+          logAuthDebug(path, "❓ [Session Auth] No user after verifyAuth (may continue in next middleware)");
+        }
+
         return result;
       }
       catch (error) {
         // Special handling for /api/auth/session - allow unauthenticated
         if (path === "/api/auth/session") {
-          console.warn(`🔓 [Session Auth] Allowing unauthenticated /api/auth/session request`);
+          logAuthInfo(path, "🔓 [Session Auth] Allowing unauthenticated /api/auth/session request");
           return next();
         }
 
-        console.warn(`❌ [Session Auth] Error: ${error instanceof Error ? error.message : String(error)}`);
-        console.warn(`❌ [Session Auth] Stack: ${error instanceof Error && error.stack ? error.stack : 'No stack trace'}`);
+        logAuthError(path, "❌ [Session Auth] Error", error as Error);
         throw error;
       }
     });
   }
   else {
     // Development mode with fake auth
-    console.warn("👨‍💻 [Dev Auth] Using DEV auth middleware");
+    logAuthWarn("", "👨‍💻 [Dev Auth] Using DEV auth middleware");
     app.use("*", async (c, next) => {
       const path = c.req.path;
       const hasAuthUser = !!c.get("authUser");
-      
-      console.warn(`👨‍💻 [Dev Auth] Path: ${path}, HasAuthUser: ${hasAuthUser}`);
+
+      logAuthDebug(path, "👨‍💻 [Dev Auth] Processing request", { hasAuthUser });
 
       // Skip for public routes or if already authenticated
       if (isPublicRoute(path)) {
-        console.warn(`👨‍💻 [Dev Auth] Skipping for public route: ${path}`);
+        logAuthDebug(path, "👨‍💻 [Dev Auth] Skipping for public route");
         return next();
       }
-      
+
       if (c.get("authUser")) {
-        console.warn(`👨‍💻 [Dev Auth] Already authenticated via API key - skipping dev auth for path: ${path}`);
+        logAuthDebug(path, "👨‍💻 [Dev Auth] Already authenticated via API key - skipping dev auth");
         return next();
       }
 
@@ -176,7 +196,7 @@ export default function createApp() {
         },
       };
       c.set("authUser", authUser);
-      console.warn(`👨‍💻 [Dev Auth] Set dev user for path: ${path}, User ID: ${DEV_USER.id}`);
+      logAuthInfo(path, "👨‍💻 [Dev Auth] Set dev user", { userId: DEV_USER.id });
       return next();
     });
   }
@@ -193,26 +213,32 @@ export default function createApp() {
     const apiKey = c.req.header("X-API-Key");
     const authHeader = c.req.header("authorization");
     const hasCookies = !!c.req.header("cookie");
-    
+
     // Final auth status check
-    console.warn(`🔍 [Auth Summary] Path: ${path}`);
-    console.warn(`🔍 [Auth Summary] HasAuthUser: ${!!authUser}`);
-    console.warn(`🔍 [Auth Summary] HasApiKey: ${!!apiKey}`);
-    console.warn(`🔍 [Auth Summary] HasAuthHeader: ${!!authHeader}`);
-    console.warn(`🔍 [Auth Summary] HasCookies: ${hasCookies}`);
-    
+    logAuthDebug(path, "🔍 [Auth Summary]", {
+      hasAuthUser: !!authUser,
+      hasApiKey: !!apiKey,
+      hasAuthHeader: !!authHeader,
+      hasCookies,
+    });
+
     if (authUser) {
-      console.warn(`✅ [Auth Summary] Authenticated as User ID: ${authUser.user?.id}`);
+      logAuthInfo(path, "✅ [Auth Summary] Authentication successful", {
+        userId: authUser.user?.id,
+      });
     }
 
     // If API Key was provided but no authUser is set, something went wrong
     if (apiKey && !authUser) {
-      console.warn(`⚠️ [Auth Error] API key provided but no authUser set for path ${path}`);
+      logAuthError(
+        path,
+        "⚠️ [Auth Error] API key provided but no authUser set",
+      );
     }
-    
+
     // If we have neither API key nor session, and it's not a public route
     if (!authUser && !isPublicRoute(path)) {
-      console.warn(`⚠️ [Auth Warning] No authentication for non-public path: ${path}`);
+      logAuthWarn(path, "⚠️ [Auth Warning] No authentication for non-public path");
     }
 
     return next();
@@ -220,29 +246,35 @@ export default function createApp() {
 
   // Custom error handler with detailed logging
   const customErrorHandler = async (err: Error, c: any) => {
-    console.warn(`❌ [Error] Type: ${err.name}, Message: ${err.message}`);
-    console.warn(`❌ [Error] Path: ${c.req.path}, Method: ${c.req.method}`);
-    console.warn(`❌ [Error] Stack: ${err.stack || 'No stack trace'}`);
-    
-    // Log request details
-    console.warn(`❌ [Error] Headers: ${JSON.stringify(Object.fromEntries(
-      Object.entries(c.req.header())
-        .filter(([key]) => !["cookie", "authorization"].includes(key.toLowerCase()))
-    ))}`);
-    
+    const path = c.req.path;
+
+    logAuthError(path, "❌ [Error] Request processing failed", err, {
+      additionalInfo: {
+        method: c.req.method,
+        headers: Object.fromEntries(
+          Object.entries(c.req.header())
+            .filter(([key]) => !["cookie", "authorization"].includes(key.toLowerCase())),
+        ),
+      },
+    });
+
     // Continue with default error handler
     return onError(err, c);
   };
 
   app.notFound((c) => {
-    console.warn(`🔍 [Not Found] Path: ${c.req.path}, Method: ${c.req.method}`);
+    const path = c.req.path;
+    logAuthWarn(path, "🔍 [Not Found] Route not found", {
+      method: c.req.method,
+      path,
+    });
     return notFound(c);
   })
     .onError(customErrorHandler)
     .use(serveEmojiFavicon("📝"))
     .use(pinoLogger());
 
-  console.warn("🚀 API application created and configured");
+  logAuthInfo("", "🚀 API application created and configured");
   return app;
 }
 
