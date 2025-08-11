@@ -32,7 +32,7 @@ services:
     networks:
       - cronicorn
     volumes:
-      - "../files/crondbvolume:/var/lib/postgresql/data"
+      - "../files/crondbvolume2:/var/lib/postgresql/data"
   api:
     # container_name: api
     restart: unless-stopped
