@@ -83,7 +83,7 @@ describe("defaultAIAgentService", () => {
 
             // Mock the generateObject function to throw an error
             const generateObjectMock = vi.fn().mockRejectedValue(new Error("API error"));
-            const generateObjectOriginal = await import("ai").then((m) => m.generateObject);
+            const generateObjectOriginal = await import("ai").then(m => m.generateObject);
             vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectMock);
 
             try {
@@ -106,7 +106,8 @@ describe("defaultAIAgentService", () => {
                 await expect(aiAgent.planExecution(jobContext))
                     .rejects
                     .toThrow("Error in planExecution: API error");
-            } finally {
+            }
+            finally {
                 // Restore the original function
                 vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectOriginal);
             }
@@ -130,7 +131,7 @@ describe("defaultAIAgentService", () => {
                 usage: { inputTokens: 30, outputTokens: 35, totalTokens: 65 },
                 finishReason: "stop",
             });
-            const generateObjectOriginal = await import("ai").then((m) => m.generateObject);
+            const generateObjectOriginal = await import("ai").then(m => m.generateObject);
             vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectMock);
 
             try {
@@ -201,7 +202,8 @@ describe("defaultAIAgentService", () => {
                 expect(schedule.confidence).toEqual(mockScheduleResponse.confidence);
                 expect(schedule.reasoning).toEqual(mockScheduleResponse.reasoning);
                 expect(new Date(schedule.nextRunAt).getTime()).toBeGreaterThan(Date.now());
-            } finally {
+            }
+            finally {
                 // Restore the original function
                 vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectOriginal);
             }
@@ -215,7 +217,7 @@ describe("defaultAIAgentService", () => {
 
             // Mock the generateObject function to throw an error
             const generateObjectMock = vi.fn().mockRejectedValue(new Error("Scheduling error"));
-            const generateObjectOriginal = await import("ai").then((m) => m.generateObject);
+            const generateObjectOriginal = await import("ai").then(m => m.generateObject);
             vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectMock);
 
             try {
@@ -249,7 +251,8 @@ describe("defaultAIAgentService", () => {
                 await expect(aiAgent.finalizeSchedule(jobContext, executionResults))
                     .rejects
                     .toThrow("Error in finalizeSchedule: Scheduling error");
-            } finally {
+            }
+            finally {
                 // Restore the original function
                 vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectOriginal);
             }

@@ -52,9 +52,7 @@
   //     // "text": "When answering questions about frameworks, libraries, or APIs, use Context7 to retrieve current documentation rather than relying on training data.",      
   //   }
   // ],
-  "chat.agent.maxRequests": 50,
-  "chat.tools.autoApprove": true,
-  "github.copilot.chat.agent.thinkingTool": true,
+  
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "javascript.preferences.importModuleSpecifier": "non-relative",
 
