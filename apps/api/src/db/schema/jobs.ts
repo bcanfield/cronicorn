@@ -26,6 +26,7 @@ export const jobs = pgTable("Job", {
   nextRunAt: timestamp("nextRunAt", { mode: "string" }),
   status: jobStatusEnum("status").default("PAUSED").notNull(),
   locked: boolean("locked").default(false).notNull(),
+  lockExpiresAt: timestamp("lockExpiresAt", { mode: "string" }),
   userId: text("userId").references(() => users.id, { onDelete: "cascade" }),
   inputTokens: integer("inputTokens").default(0).notNull(),
   outputTokens: integer("outputTokens").default(0).notNull(),

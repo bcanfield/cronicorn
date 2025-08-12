@@ -11,6 +11,7 @@ import endpointUsage from "./endpoint-usage/endpoint-usage.index";
 import endpoints from "./endpoints/endpoints.index";
 import jobs from "./jobs/jobs.index";
 import messages from "./messages/messages.index";
+import scheduler from "./scheduler/scheduler.index";
 
 export function registerRoutes(app: AppOpenAPI) {
   return app
@@ -19,7 +20,8 @@ export function registerRoutes(app: AppOpenAPI) {
     .route("/", messages)
     .route("/", contextEntries)
     .route("/", apiKeys)
-    .route("/", endpointUsage);
+    .route("/", endpointUsage)
+    .route("/", scheduler);
 }
 
 // stand alone router type used for api client

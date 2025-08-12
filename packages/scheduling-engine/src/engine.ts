@@ -1,19 +1,20 @@
 /**
  * Core scheduling engine implementation
+ *
+ * Simplified engine that uses API layer for all data operations
  */
-import type { EngineConfig } from "@/config";
-import type { EngineState, ExecutionResults, ProcessingResult } from "@/types";
-
+import type { EngineConfig } from "./config";
 import type {
   AIAgentService,
   DatabaseService,
   EndpointExecutorService,
 } from "./services";
+import type { EngineState, ExecutionResults, ProcessingResult } from "./types";
 
 import {
+  ApiDatabaseService,
   DefaultAIAgentService,
   DefaultEndpointExecutorService,
-  DrizzleDatabaseService,
 } from "./services";
 
 /**
@@ -50,10 +51,10 @@ export class SchedulingEngine {
   constructor(config: EngineConfig) {
     this.config = this.applyDefaultConfig(config);
 
-    // Initialize services
+    // Initialize services - no database config needed for API-based service
     this.aiAgent = new DefaultAIAgentService(this.config.aiAgent);
     this.executor = new DefaultEndpointExecutorService(this.config.execution);
-    this.database = new DrizzleDatabaseService(this.config.database);
+    this.database = new ApiDatabaseService();
   }
 
   /**
@@ -83,7 +84,7 @@ export class SchedulingEngine {
       }
     }, interval);
 
-    console.log(`Scheduling engine started with ${interval}ms interval`);
+    console.warn(`Scheduling engine started with ${interval}ms interval`);
   }
 
   /**
@@ -104,7 +105,7 @@ export class SchedulingEngine {
     this.state.status = "stopped";
     this.state.stopTime = new Date();
 
-    console.log("Scheduling engine stopped");
+    console.warn("Scheduling engine stopped");
   }
 
   /**

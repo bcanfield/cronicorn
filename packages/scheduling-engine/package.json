@@ -1,5 +1,6 @@
 {
   "name": "@cronicorn/scheduling-engine",
+  "type": "module",
   "version": "0.1.0",
   "description": "Intelligent scheduling engine for Cronicorn",
   "main": "dist/index.js",
@@ -22,6 +23,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "2.0.10",
+    "@tasks-app/api-client": "workspace:*",
     "ai": "5.0.10",
     "cron-parser": "4.9.0",
     "drizzle-orm": "0.38.3",

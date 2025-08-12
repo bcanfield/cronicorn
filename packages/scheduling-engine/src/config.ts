@@ -1,5 +1,7 @@
 /**
  * Configuration interface for the scheduling engine
+ *
+ * Simplified config - no database config needed since we use API client
  */
 
 /**
@@ -66,20 +68,6 @@ export type MetricsConfig = {
 };
 
 /**
- * Database configuration options
- */
-export type DatabaseConfig = {
-  /** Database client instance */
-  client: any; // This will be typed properly when we integrate with the actual DB client
-
-  /** Connection pool size */
-  poolSize?: number;
-
-  /** Statement timeout in milliseconds */
-  statementTimeoutMs?: number;
-};
-
-/**
  * Scheduler behavior configuration
  */
 export type SchedulerConfig = {
@@ -97,12 +85,9 @@ export type SchedulerConfig = {
 };
 
 /**
- * Main engine configuration
+ * Main engine configuration - simplified without database config
  */
 export type EngineConfig = {
-  /** Database configuration */
-  database: DatabaseConfig;
-
   /** AI agent configuration */
   aiAgent: AIAgentConfig;
 
@@ -116,5 +101,5 @@ export type EngineConfig = {
   scheduler?: SchedulerConfig;
 
   /** Logger instance (optional) */
-  logger?: any; // Will be properly typed with the logger interface
+  logger?: any;
 };

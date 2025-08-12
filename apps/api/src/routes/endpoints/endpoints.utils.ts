@@ -5,7 +5,7 @@ import { insertSystemMessageSchema, jobs, messages } from "@/api/db/schema";
 import { calculateObjectSizeBytes, calculateStringSizeBytes, formatBytes } from "@/api/lib/size-utils";
 
 // MessageSource is defined but not exported from schema, so we'll define it here
-type MessageSource = "endpointResponse" | "unknown";
+type MessageSource = "endpointResponse" | "unknown" | "scheduler" | "error-handler";
 
 /**
  * Validate request body size against endpoint limits

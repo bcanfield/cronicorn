@@ -1,13 +1,13 @@
 /**
  * Cronicorn Scheduling Engine
  *
- * Main entry point for the scheduling engine that handles intelligent job scheduling,
- * endpoint execution, and AI-driven decision making.
+ * Simplified entry point for the scheduling engine that handles intelligent job scheduling,
+ * endpoint execution, and AI-driven decision making via API layer.
  */
 
-import type { EngineConfig } from "@/config";
+import type { EngineConfig } from "./config";
 
-import { SchedulingEngine } from "@/engine";
+import { SchedulingEngine } from "./engine";
 
 /**
  * Create and initialize a new scheduling engine instance
@@ -19,8 +19,9 @@ export function createSchedulingEngine(config: EngineConfig) {
   return new SchedulingEngine(config);
 }
 
-export * from "./services";
-export * from "@/config";
-export * from "@/engine";
-// Export public types and interfaces
-export * from "@/types";
+// Export core engine and config types
+export * from "./config";
+export * from "./engine";
+
+// Export engine-specific types only (API types come from API package)
+export type { EngineState, ProcessingResult } from "./types";

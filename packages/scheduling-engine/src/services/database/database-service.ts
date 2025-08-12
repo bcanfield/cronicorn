@@ -1,9 +1,12 @@
 /**
- * Database service interface and implementations
+ * Database service interface and API-based implementation
+ * Uses scheduler API routes instead of direct database access for better separation of concerns
  */
-import type { DatabaseConfig } from "../../config";
+
 import type { EndpointExecutionResult, ExecutionResults, JobContext } from "../../types";
 import type { AIAgentPlanResponse, AIAgentScheduleResponse } from "../ai-agent";
+
+import apiClient from "../../api-client";
 
 /**
  * Interface for database operations
@@ -102,23 +105,16 @@ export type DatabaseService = {
 };
 
 /**
- * Database service implementation using Drizzle ORM
+ * API-based database service implementation
+ * Provides better separation of concerns and makes the scheduling engine portable
  */
-export class DrizzleDatabaseService implements DatabaseService {
+export class ApiDatabaseService implements DatabaseService {
   /**
-   * Private database client instance
+   * Create a new API-based database service
+   * No config needed since we use API client
    */
-  private db: any;
-
-  /**
-   * Create a new database service
-   *
-   * @param config Database configuration
-   */
-  constructor(config: DatabaseConfig) {
-    // In a real implementation, we would create a Drizzle client
-    // For now, we'll stub this and assume it's injected for testing
-    this.db = config.client;
+  constructor() {
+    // API client is globally available, no initialization needed
   }
 
   /**
@@ -128,58 +124,42 @@ export class DrizzleDatabaseService implements DatabaseService {
    * @returns Array of job IDs that need processing
    */
   async getJobsToProcess(limit: number): Promise<string[]> {
-    try {
-      // Get the current time
-      const now = new Date();
+    const response = await apiClient.api.scheduler["jobs-to-process"].$get({
+      query: { limit: limit.toString() },
+    });
 
-      // Query for jobs that:
-      // 1. Are active
-      // 2. Are not locked
-      // 3. Have a nextRunAt time in the past or equal to now
-      // 4. Order by nextRunAt (oldest first)
-      // 5. Limit to the specified number
-      const jobs = await this.db.query.jobs.findMany({
-        where: {
-          status: "ACTIVE",
-          locked: false,
-          nextRunAt: { lte: now.toISOString() },
-        },
-        orderBy: [{ nextRunAt: "asc" }],
-        limit,
-      });
+    if (!response.ok) {
+      throw new Error(`Failed to get jobs to process: ${response.status}`);
+    }
 
-      // Extract and return just the job IDs
-      return jobs.map(job => job.id);
-    }
-    catch (error) {
-      // Propagate database errors
-      throw error;
-    }
+    const data = await response.json();
+    return data.jobIds;
   }
 
   /**
-   * Locks a job for processing
+   * Lock a job for processing
    *
    * @param jobId Job ID to lock
    * @param expiresAt When the lock expires
    * @returns Whether the job was successfully locked
    */
   async lockJob(jobId: string, expiresAt: Date): Promise<boolean> {
-    // Update the job with locked flag and lock expiration
-    const result = await this.db.query.jobs.update({
-      where: {
-        id: jobId,
-        locked: false, // Only lock if not already locked (optimistic locking)
-      },
-      set: {
-        locked: true,
-        lockExpiresAt: expiresAt.toISOString(),
-        updatedAt: new Date().toISOString(),
+    const response = await apiClient.api.scheduler.jobs.lock.$post({
+      json: {
+        jobId,
+        expiresAt: expiresAt.toISOString(),
       },
     });
 
-    // If no rows were updated, job was not found or already locked
-    return result.length > 0;
+    if (!response.ok) {
+      if (response.status === 409) {
+        return false; // Job already locked
+      }
+      throw new Error(`Failed to lock job: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success;
   }
 
   /**
@@ -189,20 +169,19 @@ export class DrizzleDatabaseService implements DatabaseService {
    * @returns Whether the job was successfully unlocked
    */
   async unlockJob(jobId: string): Promise<boolean> {
-    // Update the job to remove the lock
-    const result = await this.db.query.jobs.update({
-      where: {
-        id: jobId,
-      },
-      set: {
-        locked: false,
-        lockExpiresAt: null,
-        updatedAt: new Date().toISOString(),
-      },
+    const response = await apiClient.api.scheduler.jobs.unlock.$post({
+      json: { jobId },
     });
 
-    // If no rows were updated, job was not found
-    return result.length > 0;
+    if (!response.ok) {
+      if (response.status === 404) {
+        return false; // Job not found
+      }
+      throw new Error(`Failed to unlock job: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success;
   }
 
   /**
@@ -212,258 +191,192 @@ export class DrizzleDatabaseService implements DatabaseService {
    * @returns Complete job context or null if job not found
    */
   async getJobContext(jobId: string): Promise<JobContext | null> {
-    // Get the job data
-    const job = await this.db.query.jobs.findFirst({
-      where: { id: jobId },
+    const response = await apiClient.api.scheduler.jobs[":id"].context.$get({
+      param: { id: jobId },
     });
 
-    // If job not found, return null
-    if (!job) {
-      return null;
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`Failed to get job context: ${response.status}`);
     }
 
-    // Get associated endpoints
-    const endpoints = await this.db.query.endpoints.findMany({
-      where: { jobId },
-      orderBy: [{ createdAt: "asc" }],
-    });
+    const data = await response.json();
 
-    // Get recent messages
-    const messages = await this.db.query.messages.findMany({
-      where: { jobId },
-      orderBy: [{ timestamp: "desc" }],
-      limit: 50, // Limit to recent messages
-    });
-
-    // Get endpoint usage history
-    const endpointUsage = await this.db.query.endpointUsage.findMany({
-      where: {
-        endpointId: { in: endpoints.map(e => e.id as string) },
-      },
-      orderBy: [{ timestamp: "desc" }],
-      limit: 100, // Limit to recent usage
-    });
-
-    // Build and return job context
+    // Convert API response types to match JobContext interface
     return {
-      job,
-      endpoints,
-      messages,
-      endpointUsage,
-      executionContext: {
-        currentTime: new Date().toISOString(),
-        systemEnvironment: "test", // This would be configured in production
+      ...data,
+      job: {
+        ...data.job,
+        nextRunAt: data.job.nextRunAt || undefined,
       },
+      endpoints: data.endpoints.map(endpoint => ({
+        ...endpoint,
+        requestSchema: endpoint.requestSchema || undefined,
+        timeoutMs: endpoint.timeoutMs || 30000,
+        maxRequestSizeBytes: endpoint.maxRequestSizeBytes || undefined,
+        maxResponseSizeBytes: endpoint.maxResponseSizeBytes || undefined,
+      })),
+      messages: data.messages.map(msg => ({
+        id: msg.id,
+        role: msg.role as "system" | "user" | "assistant" | "tool",
+        content: typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
+        timestamp: msg.createdAt,
+        source: msg.source || undefined,
+      })),
+      endpointUsage: data.endpointUsage.map(usage => ({
+        ...usage,
+        requestSizeBytes: usage.requestSizeBytes || undefined,
+        responseSizeBytes: usage.responseSizeBytes || undefined,
+        executionTimeMs: usage.executionTimeMs || 0,
+        statusCode: usage.statusCode || undefined,
+        truncated: usage.truncated || undefined,
+        errorMessage: usage.errorMessage || undefined,
+      })),
     };
   }
 
+  /**
+   * Record execution plan from AI agent
+   *
+   * @param jobId Job ID the plan is for
+   * @param plan AI agent execution plan
+   * @returns Whether the plan was successfully recorded
+   */
   async recordExecutionPlan(jobId: string, plan: AIAgentPlanResponse): Promise<boolean> {
-    // Insert the execution plan into the jobExecutions table
-    await this.db.query.jobExecutions.insert({
-      jobId,
-      executionPlan: JSON.stringify(plan), // Store plan as JSON string
-      planConfidence: plan.confidence,
-      planReasoning: plan.reasoning,
-      executionStrategy: plan.executionStrategy,
-      createdAt: new Date().toISOString(),
+    const response = await apiClient.api.scheduler.jobs["execution-plan"].$post({
+      json: { jobId, plan },
     });
 
-    return true;
-    // Note: Database errors will propagate naturally without try/catch
+    if (!response.ok) {
+      throw new Error(`Failed to record execution plan: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success;
   }
 
+  /**
+   * Record endpoint execution results
+   *
+   * @param jobId Job ID the results are for
+   * @param results Endpoint execution results
+   * @returns Whether the results were successfully recorded
+   */
   async recordEndpointResults(jobId: string, results: EndpointExecutionResult[]): Promise<boolean> {
-    // Map results to the database schema format
-    const recordsToInsert = results.map(result => ({
+    if (results.length === 0) {
+      return true;
+    }
+
+    const endpointResults = results.map(result => ({
       jobId,
       endpointId: result.endpointId,
-      success: result.success ? 1 : 0, // Convert boolean to number for DB
-      statusCode: result.statusCode,
+      success: result.success ? 1 : 0,
+      statusCode: result.statusCode || null,
+      executionTimeMs: result.executionTimeMs || 0,
       responseContent: result.responseContent ? JSON.stringify(result.responseContent) : null,
       error: result.error || null,
-      executionTimeMs: result.executionTimeMs,
-      timestamp: result.timestamp,
       requestSizeBytes: result.requestSizeBytes || null,
       responseSizeBytes: result.responseSizeBytes || null,
-      truncated: result.truncated ? 1 : 0, // Convert boolean to number for DB
+      truncated: result.truncated ? 1 : 0,
     }));
 
-    // Batch insert all results
-    await this.db.query.endpointResults.insert(recordsToInsert);
+    const response = await apiClient.api.scheduler.jobs["endpoint-results"].$post({
+      json: endpointResults,
+    });
 
-    // Also update endpointUsage for historical tracking
-    // This duplicates some data but is useful for analytics
-    await this.db.query.endpointUsage.insert(
-      results.map(result => ({
-        endpointId: result.endpointId,
-        timestamp: result.timestamp,
-        executionTimeMs: result.executionTimeMs,
-        statusCode: result.statusCode || null,
-        success: result.success ? 1 : 0, // Convert boolean to number for DB
-        errorMessage: result.error || null,
-        requestSizeBytes: result.requestSizeBytes || null,
-        responseSizeBytes: result.responseSizeBytes || null,
-        truncated: result.truncated ? 1 : 0, // Convert boolean to number for DB
-      })),
-    );
+    if (!response.ok) {
+      throw new Error(`Failed to record endpoint results: ${response.status}`);
+    }
 
-    return true;
+    const data = await response.json();
+    return data.success;
   }
 
+  /**
+   * Record execution summary
+   *
+   * @param jobId Job ID the summary is for
+   * @param summary Execution summary
+   * @returns Whether the summary was successfully recorded
+   */
   async recordExecutionSummary(jobId: string, summary: ExecutionResults["summary"]): Promise<boolean> {
-    // Try to update the most recent job execution record
-    const updated = await this.db.query.jobExecutions.update({
-      where: {
-        jobId,
-        // Try to find the most recent execution for this job
-      },
-      set: {
-        executionSummary: JSON.stringify(summary),
-        startTime: summary.startTime,
-        endTime: summary.endTime,
-        durationMs: summary.totalDurationMs,
-        successCount: summary.successCount,
-        failureCount: summary.failureCount,
-        updatedAt: new Date().toISOString(),
-      },
+    const response = await apiClient.api.scheduler.jobs["execution-summary"].$post({
+      json: { jobId, summary },
     });
 
-    // If no records were updated, create a new execution record
-    if (!updated || updated.length === 0) {
-      await this.db.query.jobExecutions.insert({
-        jobId,
-        executionSummary: JSON.stringify(summary),
-        startTime: summary.startTime,
-        endTime: summary.endTime,
-        durationMs: summary.totalDurationMs,
-        successCount: summary.successCount,
-        failureCount: summary.failureCount,
-        createdAt: new Date().toISOString(),
-      });
+    if (!response.ok) {
+      throw new Error(`Failed to record execution summary: ${response.status}`);
     }
 
-    return true;
+    const data = await response.json();
+    return data.success;
   }
 
+  /**
+   * Update job schedule
+   *
+   * @param jobId Job ID to update
+   * @param schedule Schedule response from AI agent
+   * @returns Whether the schedule was successfully updated
+   */
   async updateJobSchedule(jobId: string, schedule: AIAgentScheduleResponse): Promise<boolean> {
-    // Update the job with the new next run time
-    await this.db.query.jobs.update({
-      where: { id: jobId },
-      set: {
-        nextRunAt: schedule.nextRunAt,
-        updatedAt: new Date().toISOString(),
+    const response = await apiClient.api.scheduler.jobs.schedule.$post({
+      json: { jobId, schedule },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update job schedule: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success;
+  }
+
+  /**
+   * Record job error
+   *
+   * @param jobId Job ID the error is for
+   * @param error Error message
+   * @param errorCode Optional error code
+   * @returns Whether the error was successfully recorded
+   */
+  async recordJobError(jobId: string, error: string, errorCode?: string): Promise<boolean> {
+    const response = await apiClient.api.scheduler.jobs.error.$post({
+      json: {
+        jobId,
+        error,
+        errorCode,
       },
     });
 
-    // If there are recommended actions, record them as system messages
-    if (schedule.recommendedActions && schedule.recommendedActions.length > 0) {
-      // Format recommendations as a message
-      const content = `Recommended actions from schedule analysis:
-${schedule.recommendedActions.map((action) => {
-        return `- [${action.priority.toUpperCase()}] ${action.type}: ${action.details}`;
-      }).join("\n")}
-
-Reasoning: ${schedule.reasoning}
-Confidence: ${(schedule.confidence * 100).toFixed(0)}%`;
-
-      // Store as a system message
-      await this.db.query.messages.insert({
-        jobId,
-        role: "system",
-        content,
-        timestamp: new Date().toISOString(),
-      });
+    if (!response.ok) {
+      throw new Error(`Failed to record job error: ${response.status}`);
     }
 
-    return true;
+    const data = await response.json();
+    return data.success;
   }
 
-  async recordJobError(jobId: string, error: string, errorCode?: string): Promise<boolean> {
-    // Record the error in the job_errors table
-    await this.db.query.jobErrors.insert({
-      jobId,
-      errorMessage: error,
-      errorCode: errorCode || null,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Also record as a system message for visibility in job context
-    await this.db.query.messages.insert({
-      jobId,
-      role: "system",
-      content: `ERROR${errorCode ? ` [${errorCode}]` : ""}: ${error}`,
-      timestamp: new Date().toISOString(),
-    });
-
-    return true;
-  }
-
+  /**
+   * Get engine metrics
+   *
+   * @returns Engine metrics data
+   */
   async getEngineMetrics(): Promise<{
     activeJobs: number;
     jobsProcessedLastHour: number;
     avgProcessingTimeMs: number;
     errorRate: number;
   }> {
-    // Get the timestamp for one hour ago
-    const oneHourAgo = new Date();
-    oneHourAgo.setHours(oneHourAgo.getHours() - 1);
-    const oneHourAgoISO = oneHourAgo.toISOString();
+    const response = await apiClient.api.scheduler.metrics.$get();
 
-    // Count active jobs
-    const activeJobs = await this.db.query.jobs.count({
-      where: { status: "ACTIVE" },
-    });
-
-    // Count jobs processed in the last hour
-    const jobsProcessedLastHour = await this.db.query.jobExecutions.count({
-      where: {
-        createdAt: { gte: oneHourAgoISO },
-      },
-    });
-
-    // Get average processing time
-    const recentExecutions = await this.db.query.jobExecutions.findMany({
-      where: {
-        // Get executions with duration data from last day
-        durationMs: { notNull: true },
-        createdAt: { gte: new Date(Date.now() - 86400000).toISOString() },
-      },
-      orderBy: [{ createdAt: "desc" }],
-      limit: 100, // Limit to recent executions for performance
-    });
-
-    // Calculate average processing time
-    let avgProcessingTimeMs = 0;
-    if (recentExecutions.length > 0) {
-      const totalDuration = recentExecutions.reduce(
-        (sum: number, exec: { durationMs?: number }) => sum + (exec.durationMs || 0),
-        0,
-      );
-      avgProcessingTimeMs = Math.round(totalDuration / recentExecutions.length);
+    if (!response.ok) {
+      throw new Error(`Failed to get engine metrics: ${response.status}`);
     }
 
-    // Count errors in the last hour
-    const errorCount = await this.db.query.jobErrors.count({
-      where: {
-        timestamp: { gte: oneHourAgoISO },
-      },
-    });
-
-    // Count total executions in the same period for error rate
-    const totalExecutions = await this.db.query.jobExecutions.count({
-      where: {
-        createdAt: { gte: oneHourAgoISO },
-      },
-    });
-
-    // Calculate error rate (avoid division by zero)
-    const errorRate = totalExecutions > 0 ? errorCount / totalExecutions : 0;
-
-    return {
-      activeJobs,
-      jobsProcessedLastHour,
-      avgProcessingTimeMs,
-      errorRate,
-    };
+    const data = await response.json();
+    return data;
   }
 }

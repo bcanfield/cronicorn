@@ -318,6 +318,9 @@ importers:
       '@tasks-app/api':
         specifier: workspace:*
         version: link:../../apps/api
+      '@tasks-app/api-client':
+        specifier: workspace:*
+        version: link:../api-client
       ai:
         specifier: 5.0.10
         version: 5.0.10(zod@3.25.76)

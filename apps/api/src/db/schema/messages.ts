@@ -9,7 +9,7 @@ import { pageSchema, pageSizeSchema, sortDirectionSchema } from "./common";
 import { jobs } from "./jobs";
 
 // ALLOWS US TO DETERMINE WHERE THE MESSAGE IS BEING CREATED FROM
-type MessageSource = "endpointResponse" | "unknown";
+type MessageSource = "endpointResponse" | "unknown" | "scheduler" | "error-handler";
 
 /*
 START TYPES TO DEFINE AI SDK LANGUAGEMODELV2 MESSAGE TYPES
@@ -145,7 +145,7 @@ const systemMessageSchema = z.object({
   role: z.literal("system"),
   content: z.string(),
   jobId: z.string().uuid(),
-  source: z.enum(["endpointResponse", "unknown"]).optional(),
+  source: z.enum(["endpointResponse", "unknown", "scheduler", "error-handler"]).optional(),
 });
 
 // For insert / update from web ui, the role has to be user

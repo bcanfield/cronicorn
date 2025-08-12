@@ -14,74 +14,74 @@ import { vi } from "vitest";
  * Creates a mock AI planning response for testing
  */
 export function createMockPlanResponse() {
-    return {
-        endpointsToCall: [
-            {
-                endpointId: "endpoint-1",
-                parameters: { query: "test" },
-                headers: {},
-                priority: 1,
-                critical: true,
-            },
-        ],
-        executionStrategy: "sequential",
-        reasoning: "This is a test plan created by the mock AI agent.",
-        confidence: 0.95,
-    };
+  return {
+    endpointsToCall: [
+      {
+        endpointId: "endpoint-1",
+        parameters: { query: "test" },
+        headers: {},
+        priority: 1,
+        critical: true,
+      },
+    ],
+    executionStrategy: "sequential",
+    reasoning: "This is a test plan created by the mock AI agent.",
+    confidence: 0.95,
+  };
 }
 
 /**
  * Creates a mock AI scheduling response for testing
  */
 export function createMockScheduleResponse() {
-    return {
-        nextRunAt: new Date(Date.now() + 3600000).toISOString(),
-        reasoning: "Based on test results, scheduling for one hour from now.",
-        confidence: 0.9,
-        recommendedActions: [
-            {
-                type: "modify_frequency",
-                details: "Consider increasing frequency based on data freshness needs.",
-                priority: "medium",
-            },
-        ],
-    };
+  return {
+    nextRunAt: new Date(Date.now() + 3600000).toISOString(),
+    reasoning: "Based on test results, scheduling for one hour from now.",
+    confidence: 0.9,
+    recommendedActions: [
+      {
+        type: "modify_frequency",
+        details: "Consider increasing frequency based on data freshness needs.",
+        priority: "medium",
+      },
+    ],
+  };
 }
 
 /**
  * Creates mock AI agent for testing with the AI SDK approach
  */
 export function createTestAIAgent() {
-    // Planning phase mock
-    const mockPlanModel = new MockLanguageModelV2({
-        doGenerate: async () => ({
-            finishReason: "stop",
-            usage: { inputTokens: 25, outputTokens: 40, totalTokens: 65 },
-            content: [{
-                type: "text",
-                text: JSON.stringify(createMockPlanResponse()),
-            }],
-            warnings: [],
-        }),
-    });
+  // Planning phase mock
+  const mockPlanModel = new MockLanguageModelV2({
+    doGenerate: async () => ({
+      finishReason: "stop",
+      usage: { inputTokens: 25, outputTokens: 40, totalTokens: 65 },
+      content: [{
+        type: "text",
+        text: JSON.stringify(createMockPlanResponse()),
+      }],
+      warnings: [],
+    }),
+  });
 
-    // Scheduling phase mock
-    const mockScheduleModel = new MockLanguageModelV2({
-        doGenerate: async () => ({
-            finishReason: "stop",
-            usage: { inputTokens: 30, outputTokens: 35, totalTokens: 65 },
-            content: [{
-                type: "text",
-                text: JSON.stringify(createMockScheduleResponse()),
-            }],
-            warnings: [],
-        }),
-    });
+  // Scheduling phase mock
+  const mockScheduleModel = new MockLanguageModelV2({
+    doGenerate: async () => ({
+      finishReason: "stop",
+      usage: { inputTokens: 30, outputTokens: 35, totalTokens: 65 },
+      content: [{
+        type: "text",
+        text: JSON.stringify(createMockScheduleResponse()),
+      }],
+      warnings: [],
+    }),
+  });
 
-    return {
-        planningModel: mockPlanModel,
-        schedulingModel: mockScheduleModel,
-    };
+  return {
+    planningModel: mockPlanModel,
+    schedulingModel: mockScheduleModel,
+  };
 }
 
 /**
@@ -89,13 +89,13 @@ export function createTestAIAgent() {
  * @param planSchema The Zod schema for plan validation
  */
 export function mockGenerateObjectForPlanning(planSchema: z.ZodType<any>) {
-    // This matches the structure returned by AI SDK's generateObject
-    return {
-        object: createMockPlanResponse() as z.infer<typeof planSchema>,
-        text: JSON.stringify(createMockPlanResponse()),
-        usage: { inputTokens: 25, outputTokens: 40, totalTokens: 65 },
-        finishReason: "stop",
-    };
+  // This matches the structure returned by AI SDK's generateObject
+  return {
+    object: createMockPlanResponse() as z.infer<typeof planSchema>,
+    text: JSON.stringify(createMockPlanResponse()),
+    usage: { inputTokens: 25, outputTokens: 40, totalTokens: 65 },
+    finishReason: "stop",
+  };
 }
 
 /**
@@ -103,13 +103,13 @@ export function mockGenerateObjectForPlanning(planSchema: z.ZodType<any>) {
  * @param scheduleSchema The Zod schema for schedule validation
  */
 export function mockGenerateObjectForScheduling(scheduleSchema: z.ZodType<any>) {
-    // This matches the structure returned by AI SDK's generateObject
-    return {
-        object: createMockScheduleResponse() as z.infer<typeof scheduleSchema>,
-        text: JSON.stringify(createMockScheduleResponse()),
-        usage: { inputTokens: 30, outputTokens: 35, totalTokens: 65 },
-        finishReason: "stop",
-    };
+  // This matches the structure returned by AI SDK's generateObject
+  return {
+    object: createMockScheduleResponse() as z.infer<typeof scheduleSchema>,
+    text: JSON.stringify(createMockScheduleResponse()),
+    usage: { inputTokens: 30, outputTokens: 35, totalTokens: 65 },
+    finishReason: "stop",
+  };
 }
 
 /**
@@ -119,49 +119,49 @@ export function mockGenerateObjectForScheduling(scheduleSchema: z.ZodType<any>) 
  * consistent mocks for the AI functions we use
  */
 export function setupAISDKMocks() {
-    vi.mock("ai", async () => {
-        const actual = await vi.importActual("ai");
+  vi.mock("ai", async () => {
+    const actual = await vi.importActual("ai");
+
+    return {
+      ...actual as any,
+      generateObject: vi.fn().mockImplementation(({ schema }) => {
+        if (schema.shape?.endpointsToCall) {
+          return mockGenerateObjectForPlanning(schema);
+        }
+        else if (schema.shape?.nextRunAt) {
+          return mockGenerateObjectForScheduling(schema);
+        }
 
         return {
-            ...actual as any,
-            generateObject: vi.fn().mockImplementation(({ schema }) => {
-                if (schema.shape?.endpointsToCall) {
-                    return mockGenerateObjectForPlanning(schema);
-                }
-                else if (schema.shape?.nextRunAt) {
-                    return mockGenerateObjectForScheduling(schema);
-                }
-
-                return {
-                    object: {},
-                    text: "{}",
-                    usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-                    finishReason: "stop",
-                };
-            }),
-            generateText: vi.fn().mockImplementation(() => ({
-                text: "Mock generated text",
-                usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
-                finishReason: "stop",
-            })),
+          object: {},
+          text: "{}",
+          usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+          finishReason: "stop",
         };
-    });
+      }),
+      generateText: vi.fn().mockImplementation(() => ({
+        text: "Mock generated text",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+        finishReason: "stop",
+      })),
+    };
+  });
 
-    // Mock OpenAI provider
-    vi.mock("@ai-sdk/openai", () => ({
-        openai: vi.fn().mockReturnValue({}),
-    }));
+  // Mock OpenAI provider
+  vi.mock("@ai-sdk/openai", () => ({
+    openai: vi.fn().mockReturnValue({}),
+  }));
 
-    // Add additional provider mocks as needed
+  // Add additional provider mocks as needed
 }
 
 /**
  * Cleans up AI SDK mocks
  */
 export function cleanupAISDKMocks() {
-    vi.resetModules();
-    vi.clearAllMocks();
-    vi.restoreAllMocks();
+  vi.resetModules();
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
 }
 
 /**

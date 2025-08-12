@@ -22,6 +22,7 @@ describe("job form", () => {
     id: "test-id",
     nextRunAt: null,
     locked: false,
+    lockExpiresAt: null,
     userId: null,
     inputTokens: 0,
     outputTokens: 0,

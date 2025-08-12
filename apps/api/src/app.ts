@@ -7,6 +7,7 @@ import endpointUsage from "@/api/routes/endpoint-usage/endpoint-usage.index";
 import endpoints from "@/api/routes/endpoints/endpoints.index";
 import jobs from "@/api/routes/jobs/jobs.index";
 import messages from "@/api/routes/messages/messages.index";
+import scheduler from "@/api/routes/scheduler/scheduler.index";
 
 const app = createApp();
 
@@ -35,6 +36,7 @@ const routes = [
   messages,
   endpoints,
   endpointUsage,
+  scheduler,
 ] as const;
 
 routes.forEach((route) => {
