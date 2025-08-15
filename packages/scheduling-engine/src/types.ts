@@ -74,6 +74,11 @@ export type EngineState = {
     failedJobs: number;
     totalEndpointCalls: number;
     aiAgentCalls: number;
+    // performance metrics
+    totalCyclesProcessed?: number;
+    totalProcessingTimeMs?: number;
+    lastCycleDurationMs?: number;
+    avgCycleDurationMs?: number;
   };
 };
 

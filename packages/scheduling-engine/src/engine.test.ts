@@ -528,4 +528,36 @@ describe("schedulingEngine", () => {
             // concurrency evidence: at least some planExecution calls overlapped in microtask queue – approximate by timing
         });
     });
+
+    describe("performance tracking", () => {
+        it("tracks performance metrics across cycles", async () => {
+            mockDatabase.getJobsToProcess.mockResolvedValueOnce([]); // first empty cycle
+            await engine.processCycle();
+
+            mockDatabase.getJobsToProcess.mockResolvedValueOnce(["job-a"]);
+            mockDatabase.lockJob.mockResolvedValue(true);
+            mockDatabase.getJobContext.mockResolvedValue({
+                job: { id: "job-a", definitionNL: "def", status: "ACTIVE", locked: false, createdAt: testTimestamp, updatedAt: testTimestamp },
+                endpoints: [],
+                messages: [],
+                endpointUsage: [],
+                executionContext: { currentTime: testTimestamp, systemEnvironment: "test" },
+            });
+            mockAIAgent.planExecution.mockResolvedValue({ endpointsToCall: [], executionStrategy: "sequential", reasoning: "r", confidence: 0.9 });
+            mockExecutor.executeEndpoints.mockResolvedValue([]);
+            mockAIAgent.finalizeSchedule.mockResolvedValue({ nextRunAt: testTimestamp, reasoning: "r", confidence: 0.8 });
+            mockDatabase.recordExecutionPlan.mockResolvedValue(true);
+            mockDatabase.recordEndpointResults.mockResolvedValue(true);
+            mockDatabase.recordExecutionSummary.mockResolvedValue(true);
+            mockDatabase.updateJobSchedule.mockResolvedValue(true);
+            mockDatabase.unlockJob.mockResolvedValue(true);
+
+            await engine.processCycle();
+
+            const state = engine.getState();
+            expect(state.stats.totalCyclesProcessed).toBe(2);
+            expect(state.stats.lastCycleDurationMs).toBeGreaterThanOrEqual(0);
+            expect(state.stats.avgCycleDurationMs).toBeGreaterThanOrEqual(0);
+        });
+    });
 });

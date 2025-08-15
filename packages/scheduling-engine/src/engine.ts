@@ -171,6 +171,14 @@ export class SchedulingEngine {
     this.state.stats.successfulJobs += result.successfulJobs;
     this.state.stats.failedJobs += result.failedJobs;
 
+    // performance metrics
+    this.state.stats.totalCyclesProcessed = (this.state.stats.totalCyclesProcessed || 0) + 1;
+    this.state.stats.totalProcessingTimeMs = (this.state.stats.totalProcessingTimeMs || 0) + (result.duration || 0);
+    this.state.stats.lastCycleDurationMs = result.duration;
+    this.state.stats.avgCycleDurationMs = Math.round(
+      (this.state.stats.totalProcessingTimeMs || 0) / (this.state.stats.totalCyclesProcessed || 1),
+    );
+
     return result;
   }
 
