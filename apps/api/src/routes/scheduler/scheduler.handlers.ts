@@ -25,6 +25,7 @@ import type {
   RecordExecutionSummaryRoute,
   RecordJobErrorRoute,
   UnlockJobRoute,
+  UpdateExecutionStatusRoute,
   UpdateJobScheduleRoute,
 } from "./scheduler.routes.js";
 
@@ -196,13 +197,13 @@ export const getJobContext: AppRouteHandler<GetJobContextRoute> = async (c) => {
     truncated: usage.truncated || null,
     errorMessage: usage.error || null,
   })); // Use a type-safe approach to determine environment
-    // Get environment for execution context
+  // Get environment for execution context
   const nodeEnv: "development" | "production" | "test"
-        = (env.NODE_ENV === "test"
-          ? "test"
-          : env.NODE_ENV === "production"
-            ? "production"
-            : "development") as "development" | "production" | "test";
+    = (env.NODE_ENV === "test"
+      ? "test"
+      : env.NODE_ENV === "production"
+        ? "production"
+        : "development") as "development" | "production" | "test";
 
   // Construct the context object
   const jobContext = {
@@ -414,8 +415,8 @@ export const updateJobSchedule: AppRouteHandler<UpdateJobScheduleRoute> = async 
     // Format recommendations as a message
     const content = `Recommended actions from schedule analysis:
 ${schedule.recommendedActions.map((action) => {
-  return `- [${action.priority.toUpperCase()}] ${action.type}: ${action.details}`;
-}).join("\n")}
+      return `- [${action.priority.toUpperCase()}] ${action.type}: ${action.details}`;
+    }).join("\n")}
 
 Reasoning: ${schedule.reasoning}
 Confidence: ${(schedule.confidence * 100).toFixed(0)}%`;
@@ -536,4 +537,42 @@ export const getEngineMetrics: AppRouteHandler<GetEngineMetricsRoute> = async (c
     avgProcessingTimeMs,
     errorRate,
   }, HttpStatusCodes.OK);
+};
+
+/**
+ * Update execution status
+ */
+export const updateExecutionStatus: AppRouteHandler<UpdateExecutionStatusRoute> = async (c) => {
+  const { jobId, status, errorMessage, errorCode } = c.req.valid("json");
+
+  // Find most recent execution for this job
+  const recentExecution = await db.query.jobExecutions.findFirst({
+    where: (fields, { eq }) => eq(fields.jobId, jobId),
+    orderBy: (fields, { desc }) => desc(fields.createdAt),
+  });
+
+  if (!recentExecution) {
+    return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
+  }
+
+  // Update execution status
+  await db.update(jobExecutions)
+    .set({
+      status,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(jobExecutions.id, recentExecution.id));
+
+  if (status === "FAILED" && errorMessage) {
+    // Record error in jobErrors table
+    await db.insert(jobErrors).values({
+      id: crypto.randomUUID(),
+      jobId,
+      errorMessage,
+      errorCode: errorCode || null,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  return c.json({ success: true }, HttpStatusCodes.OK);
 };

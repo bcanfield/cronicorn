@@ -13,6 +13,7 @@ const router = createRouter()
   .openapi(routes.recordExecutionSummary, handlers.recordExecutionSummary)
   .openapi(routes.updateJobSchedule, handlers.updateJobSchedule)
   .openapi(routes.recordJobError, handlers.recordJobError)
-  .openapi(routes.getEngineMetrics, handlers.getEngineMetrics);
+  .openapi(routes.getEngineMetrics, handlers.getEngineMetrics)
+  .openapi(routes.updateExecutionStatus, handlers.updateExecutionStatus);
 
 export default router;

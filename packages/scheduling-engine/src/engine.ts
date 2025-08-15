@@ -180,6 +180,14 @@ export class SchedulingEngine {
       if (!locked)
         return; // skip silently
 
+      // mark execution RUNNING (best effort)
+      try {
+        await this.database.updateExecutionStatus?.(jobId, "RUNNING");
+      }
+      catch {
+        /* optional */
+      }
+
       const jobContext = await this.database.getJobContext(jobId);
       if (!jobContext) {
         await this.database.unlockJob(jobId);
@@ -228,6 +236,12 @@ export class SchedulingEngine {
       aggregate.errors.push({ message: errorMessage, jobId });
       try {
         await this.database.recordJobError(jobId, errorMessage);
+        try {
+          await this.database.updateExecutionStatus?.(jobId, "FAILED", errorMessage);
+        }
+        catch {
+          /* optional */
+        }
         await this.database.unlockJob(jobId);
       }
       catch { /* swallow */ }

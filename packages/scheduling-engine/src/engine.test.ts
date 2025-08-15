@@ -342,6 +342,55 @@ describe("schedulingEngine", () => {
 
             expect(customMockDatabase.getJobsToProcess).toHaveBeenCalledWith(5);
         });
+
+        it("marks execution RUNNING then FAILED on error", async () => {
+            const jobIds = ["job-err-1"];
+            mockDatabase.getJobsToProcess.mockResolvedValue(jobIds);
+            mockDatabase.lockJob.mockResolvedValue(true);
+            mockDatabase.getJobContext.mockResolvedValue({
+                job: { id: "job-err-1", definitionNL: "d", status: "ACTIVE", locked: false, createdAt: testTimestamp, updatedAt: testTimestamp },
+                endpoints: [],
+                messages: [],
+                endpointUsage: [],
+                executionContext: { currentTime: testTimestamp, systemEnvironment: "test" },
+            });
+            mockDatabase.updateExecutionStatus = vi.fn().mockResolvedValue(true);
+            mockAIAgent.planExecution.mockRejectedValue(new Error("boom"));
+
+            const result = await engine.processCycle();
+            expect(result.failedJobs).toBe(1);
+            expect(mockDatabase.updateExecutionStatus).toHaveBeenCalledWith("job-err-1", "RUNNING");
+            expect(mockDatabase.updateExecutionStatus).toHaveBeenCalledWith("job-err-1", "FAILED", "boom");
+        });
+
+        it("marks execution RUNNING and does not set FAILED on success", async () => {
+            const jobIds = ["job-ok-1"];
+            mockDatabase.getJobsToProcess.mockResolvedValue(jobIds);
+            mockDatabase.lockJob.mockResolvedValue(true);
+            mockDatabase.getJobContext.mockResolvedValue({
+                job: { id: "job-ok-1", definitionNL: "d", status: "ACTIVE", locked: false, createdAt: testTimestamp, updatedAt: testTimestamp },
+                endpoints: [],
+                messages: [],
+                endpointUsage: [],
+                executionContext: { currentTime: testTimestamp, systemEnvironment: "test" },
+            });
+            mockDatabase.updateExecutionStatus = vi.fn().mockResolvedValue(true);
+            mockAIAgent.planExecution.mockResolvedValue({ endpointsToCall: [], executionStrategy: "sequential", reasoning: "r", confidence: 0.9 });
+            mockExecutor.executeEndpoints.mockResolvedValue([]);
+            mockAIAgent.finalizeSchedule.mockResolvedValue({ nextRunAt: testTimestamp, reasoning: "r", confidence: 0.8 });
+            mockDatabase.recordExecutionPlan.mockResolvedValue(true);
+            mockDatabase.recordEndpointResults.mockResolvedValue(true);
+            mockDatabase.recordExecutionSummary.mockResolvedValue(true);
+            mockDatabase.updateJobSchedule.mockResolvedValue(true);
+            mockDatabase.unlockJob.mockResolvedValue(true);
+
+            const result = await engine.processCycle();
+            expect(result.successfulJobs).toBe(1);
+            expect(mockDatabase.updateExecutionStatus).toHaveBeenCalledWith("job-ok-1", "RUNNING");
+            // ensure FAILED not called (only RUNNING call count =1)
+            const failedCall = mockDatabase.updateExecutionStatus.mock.calls.find((c: any[]) => c[1] === "FAILED");
+            expect(failedCall).toBeUndefined();
+        });
     });
 
     describe("error handling", () => {

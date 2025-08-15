@@ -113,6 +113,16 @@ const engineMetricsSchema = z.object({
 });
 
 /**
+ * Schema for updating job execution status
+ */
+const updateExecutionStatusSchema = z.object({
+  jobId: z.string().uuid(),
+  status: z.enum(["RUNNING", "FAILED"]).describe("Execution status to set"),
+  errorMessage: z.string().optional(),
+  errorCode: z.string().optional(),
+});
+
+/**
  * Routes definition
  */
 export const getJobsToProcess = createRoute({
@@ -391,6 +401,32 @@ export const getEngineMetrics = createRoute({
   },
 });
 
+export const updateExecutionStatus = createRoute({
+  path: "/scheduler/jobs/execution-status",
+  method: "post",
+  tags,
+  summary: "Update job execution status",
+  operationId: "updateExecutionStatus",
+  description: "Updates the most recent job execution record status (RUNNING or FAILED) and optionally records an error message",
+  request: {
+    body: jsonContentRequired(updateExecutionStatusSchema, "Job ID and new execution status"),
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({ success: z.boolean() }),
+      "Whether the status was successfully updated",
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      "Job or execution not found",
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      z.object({ message: z.string() }),
+      "API key authentication required",
+    ),
+  },
+});
+
 export type GetJobsToProcessRoute = typeof getJobsToProcess;
 export type LockJobRoute = typeof lockJob;
 export type UnlockJobRoute = typeof unlockJob;
@@ -401,3 +437,4 @@ export type RecordExecutionSummaryRoute = typeof recordExecutionSummary;
 export type UpdateJobScheduleRoute = typeof updateJobSchedule;
 export type RecordJobErrorRoute = typeof recordJobError;
 export type GetEngineMetricsRoute = typeof getEngineMetrics;
+export type UpdateExecutionStatusRoute = typeof updateExecutionStatus;

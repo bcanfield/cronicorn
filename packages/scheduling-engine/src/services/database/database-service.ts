@@ -92,6 +92,17 @@ export type DatabaseService = {
   recordJobError: (jobId: string, error: string, errorCode?: string) => Promise<boolean>;
 
   /**
+   * Update execution status
+   *
+   * @param jobId Job ID to update
+   * @param status New status for the job
+   * @param errorMessage Optional error message for failed status
+   * @param errorCode Optional error code for failed status
+   * @returns Whether the execution status was successfully updated
+   */
+  updateExecutionStatus: (jobId: string, status: "RUNNING" | "FAILED", errorMessage?: string, errorCode?: string) => Promise<boolean>;
+
+  /**
    * Get engine metrics
    *
    * @returns Engine metrics data
@@ -353,6 +364,28 @@ export class ApiDatabaseService implements DatabaseService {
 
     if (!response.ok) {
       throw new Error(`Failed to record job error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success;
+  }
+
+  /**
+   * Update execution status
+   *
+   * @param jobId Job ID to update
+   * @param status New status for the job
+   * @param errorMessage Optional error message for failed status
+   * @param errorCode Optional error code for failed status
+   * @returns Whether the execution status was successfully updated
+   */
+  async updateExecutionStatus(jobId: string, status: "RUNNING" | "FAILED", errorMessage?: string, errorCode?: string): Promise<boolean> {
+    const response = await (apiClient.api.scheduler as any)["jobs/execution-status"].$post({
+      json: { jobId, status, errorMessage, errorCode },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update execution status: ${response.status}`);
     }
 
     const data = await response.json();
