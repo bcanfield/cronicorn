@@ -103,10 +103,10 @@ describe("defaultAIAgentService", () => {
           endpointUsage: [],
         };
 
-        // Check that the error is properly caught and rethrown
+        // Check that the error is properly caught and rethrown (now includes classification tag)
         await expect(aiAgent.planExecution(jobContext))
           .rejects
-          .toThrow("Error in planExecution: API error");
+          .toThrow(/Error in planExecution \[schema_parse_error\]: API error/);
       }
       finally {
         // Restore the original function
@@ -249,10 +249,10 @@ describe("defaultAIAgentService", () => {
           },
         };
 
-        // Check that the error is properly caught and rethrown
+        // Check that the error is properly caught and rethrown (now includes classification tag)
         await expect(aiAgent.finalizeSchedule(jobContext, executionResults))
           .rejects
-          .toThrow("Error in finalizeSchedule: Scheduling error");
+          .toThrow(/Error in finalizeSchedule \[schema_parse_error\]: Scheduling error/);
       }
       finally {
         // Restore the original function
@@ -367,6 +367,17 @@ describe("defaultAIAgentService", () => {
       const mock = vi.spyOn(await import("ai"), "generateObject").mockResolvedValue({ object: invalidPlan, usage: {}, text: JSON.stringify(invalidPlan), finishReason: "stop" } as any);
       const ctx: JobContext = { job: { id: "j-no-repair", definitionNL: "d", status: "ACTIVE", locked: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, endpoints: [], messages: [], endpointUsage: [] };
       await expect(aiAgent.planExecution(ctx)).rejects.toThrow(/Semantic validation failed/);
+      mock.mockRestore();
+      vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectOriginal);
+    });
+
+    it("adds classification tag on unrepaired semantic failure", async () => {
+      const aiAgent = new DefaultAIAgentService({ model: "test-model", validateSemantics: true, semanticStrict: true, repairMalformedResponses: false });
+      const invalidPlan = { endpointsToCall: [], executionStrategy: "parallel", concurrencyLimit: 1, reasoning: "r", confidence: 0.9 } as any; // semantic violation
+      const generateObjectOriginal = await import("ai").then(m => m.generateObject);
+      const mock = vi.spyOn(await import("ai"), "generateObject").mockResolvedValue({ object: invalidPlan, usage: {}, text: JSON.stringify(invalidPlan), finishReason: "stop" } as any);
+      const ctx: JobContext = { job: { id: "j-cat", definitionNL: "d", status: "ACTIVE", locked: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, endpoints: [], messages: [], endpointUsage: [] };
+      await expect(aiAgent.planExecution(ctx)).rejects.toThrow(/\[semantic_violation\]/);
       mock.mockRestore();
       vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectOriginal);
     });

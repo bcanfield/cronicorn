@@ -131,6 +131,13 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **3.3.3**: Create scheduling phase response parser
 - [x] **3.3.4**: Add semantic validation for responses *(implemented: validatePlanSemantics & validateScheduleSemantics with strict/non-strict modes + tests)*
 - [ ] **3.3.5**: Implement error handling for malformed responses
+  - [x] **3.3.5.a** Basic single-attempt repair flow (deterministic retry for schema/semantic failures)
+  - [ ] **3.3.5.b** Response classification taxonomy (schema_parse_error, semantic_violation, empty_response, invalid_enum_value, structural_inconsistency, repair_failed)
+  - [ ] **3.3.5.c** Metrics instrumentation (malformedResponses, repairAttempts, repairSuccesses, repairFailures by phase)
+  - [ ] **3.3.5.d** Configurable multi-attempt repair (maxRepairAttempts)
+  - [ ] **3.3.5.e** Salvage partial structures (drop invalid endpoints / dependencies) when non-strict
+  - [ ] **3.3.5.f** Persist malformed response metadata (classification + attempts) for later analytics
+  - [ ] **3.3.5.g** Structured error surface (MalformedResponseError type) & propagation
 
 ### 3.4 Fallback Strategies
 
@@ -291,6 +298,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - Context-aware prompt optimization added (limits historical messages & endpoint usage slices; configurable via aiAgent.promptOptimization).
 - Prompt testing utilities implemented (shared module + tests verifying trimming, floors, token reduction, preservation guarantees).
 - Semantic validation added (plan & schedule issues flagged; strict mode throws, non-strict annotates reasoning; fully tested).
+- Malformed response handling (initial): basic deterministic repair attempt implemented (3.3.5.a); remaining taxonomy, metrics, multi-attempt repair, salvage, persistence, and structured error surface scheduled.
 
 ## 🎯 Rationale for Next Task (3.2.5)
 Add prompt testing utilities to quantify optimization impact (token delta, reasoning retention) and guard against regressions before adding semantic validation.

@@ -169,6 +169,17 @@ const schedulingResponseSchema = z.object({
 });
 
 /**
+ * Malformed response classification taxonomy (3.3.5.b)
+ */
+type MalformedResponseCategory =
+  | "schema_parse_error"
+  | "semantic_violation"
+  | "empty_response"
+  | "invalid_enum_value"
+  | "structural_inconsistency"
+  | "repair_failed"; // reserved for later phases
+
+/**
  * Default AI Agent service implementation using Vercel AI SDK
  */
 export class DefaultAIAgentService implements AIAgentService {
@@ -183,6 +194,31 @@ export class DefaultAIAgentService implements AIAgentService {
   constructor(config: Partial<AIAgentConfig>) {
     this.config = AIAgentConfigSchema.parse(config || {});
     this.model = openai(this.config.model);
+  }
+
+  // classification helpers (internal for 3.3.5.b; structured error surface later 3.3.5.g)
+  private classifyPlanError(message: string): MalformedResponseCategory {
+    if (/Semantic validation failed/i.test(message))
+      return "semantic_violation";
+    if (/Invalid enum value|executionStrategy/i.test(message))
+      return "invalid_enum_value";
+    if (/depends on unknown endpoint|self-dependency|circular/i.test(message))
+      return "structural_inconsistency";
+    if (/ZodError|schema|parsing|parse/i.test(message))
+      return "schema_parse_error";
+    if (/empty|no content|missing/i.test(message))
+      return "empty_response";
+    return "schema_parse_error"; // default conservative bucket
+  }
+
+  private classifyScheduleError(message: string): MalformedResponseCategory {
+    if (/Semantic validation failed/i.test(message))
+      return "semantic_violation";
+    if (/ZodError|schema|parsing|parse/i.test(message))
+      return "schema_parse_error";
+    if (/empty|no content|missing/i.test(message))
+      return "empty_response";
+    return "schema_parse_error";
   }
 
   /**
@@ -224,7 +260,8 @@ export class DefaultAIAgentService implements AIAgentService {
       if (repaired)
         return repaired;
       const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new Error(`Error in planExecution: ${errorMessage}`);
+      const category = this.classifyPlanError(errorMessage);
+      throw new Error(`Error in planExecution [${category}]: ${errorMessage}`);
     }
   }
 
@@ -269,7 +306,8 @@ export class DefaultAIAgentService implements AIAgentService {
       if (repaired)
         return repaired;
       const errorMessage = error instanceof Error ? error.message : String(error);
-      throw new Error(`Error in finalizeSchedule: ${errorMessage}`);
+      const category = this.classifyScheduleError(errorMessage);
+      throw new Error(`Error in finalizeSchedule [${category}]: ${errorMessage}`);
     }
   }
 
