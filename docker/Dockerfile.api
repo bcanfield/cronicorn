@@ -14,6 +14,7 @@ RUN pnpm --filter @tasks-app/api... build
 
 FROM base AS runner
 WORKDIR /app/apps/api/dist
+RUN corepack enable
 
 ENV NODE_ENV=production
 
@@ -27,5 +28,4 @@ COPY --from=deps /app/apps/api/package.json /app/apps/api/package.json
 COPY --from=deps /app/package.json /app/package.json
 
 EXPOSE 9999
-# CMD ["bun", "run", "/app/apps/api/dist/src/index.js"]
 CMD ["/app/apps/api/start-api.sh"]

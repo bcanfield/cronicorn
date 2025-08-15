@@ -6,23 +6,25 @@ This document outlines the step-by-step tasks for implementing the scheduling en
 
 **Architecture Status**: ✅ **EXCELLENT** – Core services + orchestration loop (processCycle + worker pool) implemented, token usage now persisted
 **Implementation Status**: 🟢 **CORE LOOP OPERATIONAL** – Concurrency, state transitions, performance + token metrics in place
-**Next Critical Task**: **3.2.5 Prompt testing utilities** (to lock in optimization changes)
+- **Recent Update**: Malformed response metrics instrumentation (3.3.5.c) completed (counters + classification integration)
+**Next Critical Task**: **3.3.5.d Multi-attempt repair configuration** (extends single-attempt flow)
 
 ### 🚀 Immediate Next Steps (Priority Order):
 
-1. **HIGH**: 3.2.5 Prompt testing utilities
-2. **HIGH**: 3.3.4 Semantic validation for AI responses
-3. **HIGH**: 3.3.5 Robust malformed response handling
-4. **HIGH**: 4.1.3 HTTP retry logic for transient endpoint failures
-5. **MEDIUM**: 4.2.4 Execution progress tracking
-6. **MEDIUM**: 4.2.5 Execution abort capabilities
-7. **MEDIUM**: 5.1.3 Enhanced error recovery (structured retry/backoff framework)
-8. **LOW**: 3.4.x fallback strategies (after semantic validation & retries)
+1. **HIGH**: 3.3.5.d Configurable multi-attempt repair (maxRepairAttempts)
+2. **HIGH**: 3.3.5.e Salvage partial structures (non-strict degradation)
+3. **HIGH**: 3.3.5.f Persist malformed response metadata
+4. **HIGH**: 3.3.5.g Structured MalformedResponseError surface
+5. **HIGH**: 4.1.3 HTTP retry logic for transient endpoint failures
+6. **MEDIUM**: 4.2.4 Execution progress tracking
+7. **MEDIUM**: 4.2.5 Execution abort capabilities
+8. **MEDIUM**: 5.1.3 Enhanced error recovery (structured retry/backoff framework)
+9. **LOW**: 3.4.x fallback strategies (after semantic validation & retries)
 
 ### 📊 Progress Summary:
 - ✅ **Phase 1**: Package setup and core types (100%)
 - ✅ **Phase 2**: Core components via API layer (100%)
-- ✅ **Phase 3**: AI Agent integration (now 80% – remaining: 3.2.5, 3.3.4, 3.3.5, 3.4.x)
+- ✅ **Phase 3**: AI Agent integration (now 82% – remaining: 3.3.5.d–g, 3.4.x)
 - ✅ **Phase 4**: Endpoint execution (60% – retries, circuit breaker, logging, progress/abort pending)
 - 🟡 **Phase 5**: Engine integration (50% – loop & pipeline done: 5.1.1, 5.1.2; need 5.1.3–5.1.5 + CLI/events)
 - 🔶 **Phase 6**: Testing (35% – unit coverage good for engine core; lacks integration/perf suites)
@@ -133,7 +135,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [ ] **3.3.5**: Implement error handling for malformed responses
   - [x] **3.3.5.a** Basic single-attempt repair flow (deterministic retry for schema/semantic failures)
   - [x] **3.3.5.b** Response classification taxonomy (schema_parse_error, semantic_violation, empty_response, invalid_enum_value, structural_inconsistency, repair_failed)
-  - [ ] **3.3.5.c** Metrics instrumentation (malformedResponses, repairAttempts, repairSuccesses, repairFailures by phase)
+  - [x] **3.3.5.c** Metrics instrumentation (malformedResponses, repairAttempts, repairSuccesses, repairFailures by phase)
   - [ ] **3.3.5.d** Configurable multi-attempt repair (maxRepairAttempts)
   - [ ] **3.3.5.e** Salvage partial structures (drop invalid endpoints / dependencies) when non-strict
   - [ ] **3.3.5.f** Persist malformed response metadata (classification + attempts) for later analytics
@@ -298,7 +300,8 @@ Each task below should follow this workflow, with tests committed alongside impl
 - Context-aware prompt optimization added (limits historical messages & endpoint usage slices; configurable via aiAgent.promptOptimization).
 - Prompt testing utilities implemented (shared module + tests verifying trimming, floors, token reduction, preservation guarantees).
 - Semantic validation added (plan & schedule issues flagged; strict mode throws, non-strict annotates reasoning; fully tested).
-- Malformed response handling (initial): basic deterministic repair attempt implemented (3.3.5.a); classification taxonomy added (3.3.5.b). Metrics instrumentation (3.3.5.c) in progress next.
+- Malformed response handling initial layers: single deterministic repair + classification taxonomy.
+- Metrics instrumentation for malformed response handling (3.3.5.c) completed: internal metricsHook chaining and wrapper integration counting malformedResponses*, repairAttempts*, repairSuccesses*, repairFailures* per phase. (Review later for potential consolidation to avoid double-counting when extending multi-attempt logic.)
 
 ## 🎯 Rationale for Next Task (3.2.5)
 Add prompt testing utilities to quantify optimization impact (token delta, reasoning retention) and guard against regressions before adding semantic validation.
