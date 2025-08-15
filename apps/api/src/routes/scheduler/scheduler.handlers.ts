@@ -13,6 +13,7 @@ import {
     jobs,
     messages,
 } from "@/api/db/schema";
+import env from "@/api/env";
 
 import type {
     GetEngineMetricsRoute,
@@ -195,7 +196,13 @@ export const getJobContext: AppRouteHandler<GetJobContextRoute> = async (c) => {
         truncated: usage.truncated || null,
         errorMessage: usage.error || null,
     })); // Use a type-safe approach to determine environment
-    const nodeEnv: "development" | "production" | "test" = "development";
+    // Get environment for execution context
+    const nodeEnv: "development" | "production" | "test"
+        = (env.NODE_ENV === "test"
+            ? "test"
+            : env.NODE_ENV === "production"
+                ? "production"
+                : "development") as "development" | "production" | "test";
 
     // Construct the context object
     const jobContext = {
