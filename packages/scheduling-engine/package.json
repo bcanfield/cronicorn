@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint . --max-warnings 0",

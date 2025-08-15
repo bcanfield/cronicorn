@@ -205,6 +205,7 @@ export class DefaultAIAgentService implements AIAgentService {
         schema: executionPlanSchema,
       });
       let object = result.object;
+      // semantic validation
       if (this.config.validateSemantics) {
         const issues = this.validatePlanSemantics(object);
         if (issues.length) {
@@ -212,7 +213,6 @@ export class DefaultAIAgentService implements AIAgentService {
             throw new Error(`Semantic validation failed: ${issues.join("; ")}`);
           }
           else {
-            // append warning into reasoning for traceability
             object = { ...object, reasoning: `${object.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` } as any;
           }
         }
@@ -220,6 +220,9 @@ export class DefaultAIAgentService implements AIAgentService {
       return { ...object, usage: result.usage };
     }
     catch (error) {
+      const repaired = await this.tryRepairPlan(error, jobContext);
+      if (repaired)
+        return repaired;
       const errorMessage = error instanceof Error ? error.message : String(error);
       throw new Error(`Error in planExecution: ${errorMessage}`);
     }
@@ -262,6 +265,9 @@ export class DefaultAIAgentService implements AIAgentService {
       return { ...object, usage: result.usage };
     }
     catch (error) {
+      const repaired = await this.tryRepairSchedule(error, jobContext, executionResults);
+      if (repaired)
+        return repaired;
       const errorMessage = error instanceof Error ? error.message : String(error);
       throw new Error(`Error in finalizeSchedule: ${errorMessage}`);
     }
@@ -399,12 +405,12 @@ Failures: ${results.summary.failureCount}
 
 Endpoint Results:
 ${results.results.map((r) => {
-  const status = r.success ? "SUCCESS" : "FAILURE";
-  const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
-  const error = r.error ? `\n  Error: ${r.error}` : "";
+      const status = r.success ? "SUCCESS" : "FAILURE";
+      const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
+      const error = r.error ? `\n  Error: ${r.error}` : "";
 
-  return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
-}).join("\n\n")}`;
+      return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
+    }).join("\n\n")}`;
   }
 
   /**
@@ -458,5 +464,73 @@ ${results.results.map((r) => {
       issues.push("confidence outside 0-1 range");
     }
     return issues;
+  }
+
+  private async tryRepairPlan(originalError: unknown, jobContext: JobContext): Promise<AIAgentPlanResponse | null> {
+    if (!this.config.repairMalformedResponses)
+      return null;
+    const errMsg = originalError instanceof Error ? originalError.message : String(originalError);
+    // Only attempt repair for semantic or schema-related failures
+    if (!/Semantic validation failed|Error parsing|schema/i.test(errMsg))
+      return null;
+    try {
+      const optimized = this.optimizeContext(jobContext);
+      const rescuePrompt = `${this.createPlanningSystemPrompt()}\n\nThe previous response was malformed or semantically invalid (reason: ${errMsg}). Produce a corrected JSON object strictly matching the required schema.`;
+      const userPrompt = this.formatContextForPlanning(optimized);
+      const result = await generateObject({
+        model: this.model,
+        system: rescuePrompt,
+        prompt: userPrompt,
+        temperature: 0, // make deterministic for repair
+        maxRetries: 1,
+        schema: executionPlanSchema,
+      });
+      let object = result.object;
+      if (this.config.validateSemantics) {
+        const issues = this.validatePlanSemantics(object);
+        if (issues.length) {
+          if (this.config.semanticStrict)
+            throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
+          object = { ...object, reasoning: `${object.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` } as any;
+        }
+      }
+      return { ...object, usage: result.usage };
+    }
+    catch {
+      return null;
+    }
+  }
+
+  private async tryRepairSchedule(originalError: unknown, jobContext: JobContext, executionResults: ExecutionResults): Promise<AIAgentScheduleResponse | null> {
+    if (!this.config.repairMalformedResponses)
+      return null;
+    const errMsg = originalError instanceof Error ? originalError.message : String(originalError);
+    if (!/Semantic validation failed|Error parsing|schema/i.test(errMsg))
+      return null;
+    try {
+      const rescuePrompt = `${this.createSchedulingSystemPrompt()}\n\nThe previous response was malformed or semantically invalid (reason: ${errMsg}). Produce a corrected JSON object strictly matching the required schema.`;
+      const userPrompt = this.formatContextForScheduling(jobContext, executionResults);
+      const result = await generateObject({
+        model: this.model,
+        system: rescuePrompt,
+        prompt: userPrompt,
+        temperature: 0,
+        maxRetries: 1,
+        schema: schedulingResponseSchema,
+      });
+      let object = result.object;
+      if (this.config.validateSemantics) {
+        const issues = this.validateScheduleSemantics(object);
+        if (issues.length) {
+          if (this.config.semanticStrict)
+            throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
+          object = { ...object, reasoning: `${object.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` } as any;
+        }
+      }
+      return { ...object, usage: result.usage };
+    }
+    catch {
+      return null;
+    }
   }
 }

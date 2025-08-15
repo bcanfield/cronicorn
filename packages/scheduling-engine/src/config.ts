@@ -22,6 +22,7 @@ export const AIAgentConfigSchema = z.object({
   promptOptimization: PromptOptimizationConfigSchema.default({}).describe("Prompt optimization controls"),
   validateSemantics: z.boolean().default(true).describe("Enable semantic validation of AI responses"),
   semanticStrict: z.boolean().default(true).describe("Treat semantic issues as errors (true) or warnings (false)"),
+  repairMalformedResponses: z.boolean().default(true).describe("Attempt automated repair when AI response is malformed or schema-invalid"),
 });
 
 /** Endpoint execution config */
