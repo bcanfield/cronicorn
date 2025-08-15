@@ -142,7 +142,7 @@ pnpm start:dev    # run CLI start with tsx
 
 Example shape returned by `engine.getState()`:
 
-```ts
+```
 {
   status: 'running' | 'stopped' | 'paused' | 'error',
   startTime?: Date
