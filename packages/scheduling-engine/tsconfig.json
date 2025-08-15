@@ -2,9 +2,14 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "rootDir": "src",
+    "baseUrl": "./",
+    // "rootDir": "src",
+    // "module": "ESNext",
+    // "moduleResolution": "Node",
     "paths": {
-      "@/api/*": ["../../apps/api/src/*"]
+      "@/api/*": ["../../apps/api/src/*"],
+      "@/engine/*": ["./src/*"]
+
     },
     "typeRoots": ["./node_modules/@types"],
     "types": ["node"],
@@ -14,6 +19,5 @@
   },
   "watchOptions": {
     "excludeDirectories": ["**/node_modules", "**/packages/web"]
-  },
-  "include": ["src"]
+  }
 }

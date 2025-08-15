@@ -3,10 +3,10 @@
  * Uses scheduler API routes instead of direct database access for better separation of concerns
  */
 
-import type { EndpointExecutionResult, ExecutionResults, JobContext } from "../../types";
-import type { AIAgentPlanResponse, AIAgentScheduleResponse } from "../ai-agent";
+import type { EndpointExecutionResult, ExecutionResults, JobContext } from "../../types.js";
+import type { AIAgentPlanResponse, AIAgentScheduleResponse } from "../ai-agent/index.js";
 
-import apiClient from "../../api-client";
+import apiClient from "../../api-client.js";
 
 /**
  * Interface for database operations

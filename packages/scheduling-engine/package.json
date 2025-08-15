@@ -3,10 +3,13 @@
   "type": "module",
   "version": "0.1.0",
   "description": "Intelligent scheduling engine for Cronicorn",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "cronicorn-engine": "dist/src/cli.js"
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -15,8 +18,10 @@
     "typecheck": "tsc --noEmit",
     "lint:fix": "eslint . --max-warnings 0 --fix",
     "clean": "rm -rf dist node_modules",
-    "start": "node dist/index.js",
-    "start:dev": "tsx src/index.ts"
+    "start": "node dist/src/cli.js start",
+    "start:dev": "tsx src/cli.ts start",
+    "process": "node dist/src/cli.js process",
+    "process:dev": "tsx src/cli.ts process"
   },
   "peerDependencies": {
     "@tasks-app/api": "workspace:*"
@@ -40,6 +45,7 @@
     "@types/uuid": "~9.0.7",
     "@vitest/coverage-v8": "~2.1.9",
     "eslint": "~9.31.0",
+    "tsc-alias": "~1.8.10",
     "tsx": "~4.19.2",
     "typescript": "~5.8.3",
     "vitest": "~2.1.8"

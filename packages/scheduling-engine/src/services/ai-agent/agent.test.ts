@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ExecutionResults, JobContext } from "../../types";
+import type { ExecutionResults, JobContext } from "../../types.js";
 
-import { cleanupAISDKMocks, createMockPlanResponse, createMockScheduleResponse, setupAISDKMocks } from "../../tests/ai-agent-test-utils";
-import { DefaultAIAgentService } from "./agent";
+import { cleanupAISDKMocks, createMockPlanResponse, createMockScheduleResponse, setupAISDKMocks } from "../../tests/ai-agent-test-utils.js";
+import { DefaultAIAgentService } from "./agent.js";
 
 describe("defaultAIAgentService", () => {
   beforeEach(() => {

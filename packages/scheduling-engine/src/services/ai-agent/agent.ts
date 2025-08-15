@@ -2,11 +2,11 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 
-import type { AIAgentConfig } from "../../config";
+import type { AIAgentConfig } from "../../config.js";
 /**
  * AI Agent service interface and implementation
  */
-import type { ExecutionResults, JobContext } from "../../types";
+import type { ExecutionResults, JobContext } from "../../types.js";
 
 /**
  * Planning phase response from the AI agent
@@ -385,11 +385,11 @@ Failures: ${results.summary.failureCount}
 
 Endpoint Results:
 ${results.results.map((r) => {
-  const status = r.success ? "SUCCESS" : "FAILURE";
-  const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
-  const error = r.error ? `\n  Error: ${r.error}` : "";
+      const status = r.success ? "SUCCESS" : "FAILURE";
+      const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
+      const error = r.error ? `\n  Error: ${r.error}` : "";
 
-  return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
-}).join("\n\n")}`;
+      return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
+    }).join("\n\n")}`;
   }
 }

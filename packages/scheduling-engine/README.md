@@ -1,81 +1,92 @@
 # Cronicorn Scheduling Engine
 
-The scheduling engine is a core component of the Cronicorn system that intelligently processes jobs, determines optimal scheduling, executes endpoints, and manages the job lifecycle.
+Intelligent scheduling engine for Cronicorn that handles job processing, AI-driven decision making, and endpoint execution.
 
-## Features
+## Overview
 
-- Intelligent job scheduling using AI agent
-- Context-aware execution planning
-- Endpoint execution with error handling and retries
-- Fallback strategies for resilience
-- Comprehensive metrics collection
+The scheduling engine is responsible for:
+
+- **Job Discovery**: Finding jobs that need to be processed based on schedule
+- **Context Analysis**: Gathering and analyzing job context (messages, endpoint history)
+- **AI Agent Orchestration**: Using AI to determine optimal actions and scheduling
+- **Endpoint Execution**: Calling endpoints with appropriate context as directed by the AI agent
+- **Result Processing**: Handling endpoint responses and updating job status
+- **Intelligent Scheduling**: Determining the optimal next run time based on AI agent output
+
+## Architecture
+
+The engine operates through a two-phase AI consultation process:
+
+### Phase 1: Execution Planning
+
+- Receives job definition, available endpoints, and past messages
+- Determines which endpoints to call and with what parameters
+- Plans execution strategy (sequential vs. parallel) and dependencies
+- Provides initial scheduling estimate
+
+### Phase 2: Schedule Finalization
+
+- Receives all previous context plus execution results
+- Analyzes endpoint responses to extract timing signals
+- Makes final decision on next run time based on complete data
+- Recommends additional actions (retries, notifications)
+
+## Installation
+
+```bash
+pnpm install @cronicorn/scheduling-engine
+```
 
 ## Usage
+
+### As a Library
 
 ```typescript
 import { createSchedulingEngine } from "@cronicorn/scheduling-engine";
 
-// Create and configure the engine
 const engine = createSchedulingEngine({
-  database: dbClient,
   aiAgent: {
     model: "gpt-4o",
     temperature: 0.2,
-    maxRetries: 2
+    maxRetries: 2,
   },
   execution: {
     maxConcurrency: 5,
-    defaultTimeoutMs: 30000
+    defaultTimeoutMs: 30000,
+    maxEndpointRetries: 3,
   },
   metrics: {
-    enabled: true
-  }
+    enabled: true,
+    trackTokenUsage: true,
+  },
+  scheduler: {
+    maxBatchSize: 20,
+    processingIntervalMs: 60000,
+  },
 });
 
 // Start the engine
 await engine.start();
 
 // Process a single cycle
-await engine.processCycle();
+const result = await engine.processCycle();
 
 // Stop the engine
 await engine.stop();
 ```
 
-## Architecture
-
-The scheduling engine consists of several core components:
-
-1. **Job Scheduler**: Discovers and processes jobs based on their schedule
-2. **Context Provider**: Gathers context for AI decision making
-3. **AI Agent**: Makes intelligent decisions about execution and scheduling
-4. **Endpoint Executor**: Executes endpoints and processes responses
-5. **Metrics Collector**: Tracks performance and usage metrics
-
-## Development
-
-### Setup
+### As a CLI Tool
 
 ```bash
-# Install dependencies
-pnpm install
+# Start the engine (runs continuously)
+npx cronicorn-engine start
 
-# Build the package
-pnpm build
+# Run a single processing cycle
+npx cronicorn-engine process
 
-# Run tests
-pnpm test
-```
+# Check engine status
+npx cronicorn-engine status
 
-### CLI Commands
-
-```bash
-# Start the engine
-pnpm scheduling-engine:start
-
-# Process a single cycle
-pnpm scheduling-engine:process
-
-# Check status
-pnpm scheduling-engine:status
+# Show help
+npx cronicorn-engine help
 ```

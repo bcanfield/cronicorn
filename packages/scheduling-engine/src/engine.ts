@@ -3,19 +3,19 @@
  *
  * Simplified engine that uses API layer for all data operations
  */
-import type { EngineConfig } from "./config";
+import type { EngineConfig } from "./config.js";
 import type {
   AIAgentService,
   DatabaseService,
   EndpointExecutorService,
-} from "./services";
-import type { EngineState, ExecutionResults, ProcessingResult } from "./types";
+} from "./services/index.js";
+import type { EngineState, ExecutionResults, ProcessingResult } from "./types.js";
 
 import {
   ApiDatabaseService,
   DefaultAIAgentService,
   DefaultEndpointExecutorService,
-} from "./services";
+} from "./services/index.js";
 
 /**
  * Main scheduling engine class

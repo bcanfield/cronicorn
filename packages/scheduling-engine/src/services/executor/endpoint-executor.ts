@@ -4,9 +4,9 @@ import PQueue from "p-queue";
 /**
  * Endpoint executor service
  */
-import type { ExecutionConfig } from "../../config";
-import type { EndpointExecutionResult, JobContext } from "../../types";
-import type { AIAgentPlanResponse } from "../ai-agent";
+import type { ExecutionConfig } from "../../config.js";
+import type { EndpointExecutionResult, JobContext } from "../../types.js";
+import type { AIAgentPlanResponse } from "../ai-agent/index.js";
 
 /**
  * Interface for Endpoint Executor Service

@@ -2,4 +2,4 @@
  * Executor service exports
  */
 
-export * from "./endpoint-executor";
+export * from "./endpoint-executor.js";

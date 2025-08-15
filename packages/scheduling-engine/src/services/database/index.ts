@@ -2,4 +2,4 @@
  * Database service exports
  */
 
-export * from "./database-service";
+export * from "./database-service.js";
