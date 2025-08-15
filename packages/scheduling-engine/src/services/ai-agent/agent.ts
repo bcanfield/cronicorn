@@ -204,7 +204,20 @@ export class DefaultAIAgentService implements AIAgentService {
         maxRetries: this.config.maxRetries ?? 2,
         schema: executionPlanSchema,
       });
-      return { ...result.object, usage: result.usage };
+      let object = result.object;
+      if (this.config.validateSemantics) {
+        const issues = this.validatePlanSemantics(object);
+        if (issues.length) {
+          if (this.config.semanticStrict) {
+            throw new Error(`Semantic validation failed: ${issues.join("; ")}`);
+          }
+          else {
+            // append warning into reasoning for traceability
+            object = { ...object, reasoning: `${object.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` } as any;
+          }
+        }
+      }
+      return { ...object, usage: result.usage };
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -224,13 +237,8 @@ export class DefaultAIAgentService implements AIAgentService {
     executionResults: ExecutionResults,
   ): Promise<AIAgentScheduleResponse> {
     try {
-      // Format system prompt
       const systemPrompt = this.createSchedulingSystemPrompt();
-
-      // Format user prompt with context and execution results
       const userPrompt = this.formatContextForScheduling(jobContext, executionResults);
-
-      // Use Vercel AI SDK to generate text with structured output
       const result = await generateObject({
         model: this.model,
         system: systemPrompt,
@@ -239,8 +247,19 @@ export class DefaultAIAgentService implements AIAgentService {
         maxRetries: this.config.maxRetries ?? 2,
         schema: schedulingResponseSchema,
       });
-
-      return { ...result.object, usage: result.usage };
+      let object = result.object;
+      if (this.config.validateSemantics) {
+        const issues = this.validateScheduleSemantics(object);
+        if (issues.length) {
+          if (this.config.semanticStrict) {
+            throw new Error(`Semantic validation failed: ${issues.join("; ")}`);
+          }
+          else {
+            object = { ...object, reasoning: `${object.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` } as any;
+          }
+        }
+      }
+      return { ...object, usage: result.usage };
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -396,5 +415,48 @@ ${results.results.map((r) => {
    */
   private optimizeContext(jobContext: JobContext): JobContext {
     return optimizeJobContext(jobContext, this.config.promptOptimization);
+  }
+
+  private validatePlanSemantics(plan: AIAgentPlanResponse): string[] {
+    const issues: string[] = [];
+    // concurrency strategy consistency
+    if (plan.executionStrategy === "parallel" && plan.concurrencyLimit && plan.concurrencyLimit < 2) {
+      issues.push("Parallel strategy requires concurrencyLimit >= 2");
+    }
+    // dependency existence & cycles
+    const ids = new Set(plan.endpointsToCall.map(e => e.endpointId));
+    for (const ep of plan.endpointsToCall) {
+      if (ep.dependsOn) {
+        for (const dep of ep.dependsOn) {
+          if (!ids.has(dep))
+            issues.push(`Endpoint ${ep.endpointId} depends on unknown endpoint ${dep}`);
+          if (dep === ep.endpointId)
+            issues.push(`Endpoint ${ep.endpointId} has self-dependency`);
+        }
+      }
+    }
+    // critical endpoints must have priority defined (already required) and priority >=1
+    for (const ep of plan.endpointsToCall) {
+      if (ep.critical && (ep.priority === undefined || ep.priority < 1)) {
+        issues.push(`Critical endpoint ${ep.endpointId} must have priority >=1`);
+      }
+    }
+    return issues;
+  }
+
+  private validateScheduleSemantics(schedule: AIAgentScheduleResponse): string[] {
+    const issues: string[] = [];
+    // nextRunAt should be in the future
+    if (Number.isNaN(Date.parse(schedule.nextRunAt))) {
+      issues.push("nextRunAt is not a valid date");
+    }
+    else if (Date.parse(schedule.nextRunAt) <= Date.now()) {
+      issues.push("nextRunAt is not in the future");
+    }
+    // confidence sanity
+    if (schedule.confidence < 0.0 || schedule.confidence > 1.0) {
+      issues.push("confidence outside 0-1 range");
+    }
+    return issues;
   }
 }

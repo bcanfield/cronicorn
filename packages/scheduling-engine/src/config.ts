@@ -20,6 +20,8 @@ export const AIAgentConfigSchema = z.object({
   maxPromptTokens: z.number().int().positive().optional().describe("Soft ceiling for prompt token budgeting"),
   streaming: z.boolean().optional().describe("Enable streaming responses (experimental)"),
   promptOptimization: PromptOptimizationConfigSchema.default({}).describe("Prompt optimization controls"),
+  validateSemantics: z.boolean().default(true).describe("Enable semantic validation of AI responses"),
+  semanticStrict: z.boolean().default(true).describe("Treat semantic issues as errors (true) or warnings (false)"),
 });
 
 /** Endpoint execution config */

@@ -129,7 +129,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **3.3.1**: Implement schema validation for AI responses
 - [x] **3.3.2**: Create planning phase response parser
 - [x] **3.3.3**: Create scheduling phase response parser
-- [ ] **3.3.4**: Add semantic validation for responses
+- [x] **3.3.4**: Add semantic validation for responses *(implemented: validatePlanSemantics & validateScheduleSemantics with strict/non-strict modes + tests)*
 - [ ] **3.3.5**: Implement error handling for malformed responses
 
 ### 3.4 Fallback Strategies
@@ -290,12 +290,13 @@ Each task below should follow this workflow, with tests committed alongside impl
 - Execution status transitions (RUNNING / FAILED) instrumented.
 - Context-aware prompt optimization added (limits historical messages & endpoint usage slices; configurable via aiAgent.promptOptimization).
 - Prompt testing utilities implemented (shared module + tests verifying trimming, floors, token reduction, preservation guarantees).
+- Semantic validation added (plan & schedule issues flagged; strict mode throws, non-strict annotates reasoning; fully tested).
 
 ## 🎯 Rationale for Next Task (3.2.5)
 Add prompt testing utilities to quantify optimization impact (token delta, reasoning retention) and guard against regressions before adding semantic validation.
 
-## 🎯 Rationale for Next Task (3.3.4)
-Add semantic validation for AI responses to ensure structural + semantic correctness ahead of malformed response handling and fallback strategies.
+## 🎯 Rationale for Next Task (3.3.5)
+Implement robust malformed response handling (schema mismatch, partial outputs, repair attempts) to harden AI integration before fallback strategies.
 
 ## Success Criteria
 

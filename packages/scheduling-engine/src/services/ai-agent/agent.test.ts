@@ -283,4 +283,30 @@ describe("defaultAIAgentService", () => {
       expect(nonSystem.length).toBeGreaterThanOrEqual(2);
     });
   });
+
+  describe("semantic validation", () => {
+    it("fails planning with semantic issue when strict", async () => {
+      const aiAgent = new DefaultAIAgentService({ model: "test-model", validateSemantics: true, semanticStrict: true });
+      // mock generateObject to return invalid plan (parallel with concurrencyLimit 1)
+      const invalidPlan = { endpointsToCall: [], executionStrategy: "parallel", concurrencyLimit: 1, reasoning: "r", confidence: 0.9 } as any;
+      const generateObjectOriginal = await import("ai").then(m => m.generateObject);
+      const mock = vi.spyOn(await import("ai"), "generateObject").mockResolvedValue({ object: invalidPlan, usage: {}, text: JSON.stringify(invalidPlan), finishReason: "stop" } as any);
+      const ctx: JobContext = { job: { id: "j", definitionNL: "d", status: "ACTIVE", locked: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, endpoints: [], messages: [], endpointUsage: [] };
+      await expect(aiAgent.planExecution(ctx)).rejects.toThrow(/Semantic validation failed/);
+      mock.mockRestore();
+      vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectOriginal);
+    });
+
+    it("appends warnings when non-strict", async () => {
+      const aiAgent = new DefaultAIAgentService({ model: "test-model", validateSemantics: true, semanticStrict: false });
+      const invalidPlan = { endpointsToCall: [], executionStrategy: "parallel", concurrencyLimit: 1, reasoning: "r", confidence: 0.9 } as any;
+      const generateObjectOriginal = await import("ai").then(m => m.generateObject);
+      const mock = vi.spyOn(await import("ai"), "generateObject").mockResolvedValue({ object: invalidPlan, usage: {}, text: JSON.stringify(invalidPlan), finishReason: "stop" } as any);
+      const ctx: JobContext = { job: { id: "j", definitionNL: "d", status: "ACTIVE", locked: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, endpoints: [], messages: [], endpointUsage: [] };
+      const plan = await aiAgent.planExecution(ctx);
+      expect(plan.reasoning).toMatch(/SemanticWarnings/);
+      mock.mockRestore();
+      vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectOriginal);
+    });
+  });
 });
