@@ -196,4 +196,36 @@ describe("scheduling engine", () => {
     expect(res.jobsProcessed).toBe(5);
     expect(cai.planExecution.mock.calls.length).toBe(5);
   });
+
+  it("updates malformed/repair metrics counters", async () => {
+    // Arrange one job that triggers malformed then repair success in plan, and malformed + repair failure in schedule
+    dbMock.mocks.getJobsToProcess.mockResolvedValue(["m1"]);
+    dbMock.mocks.getJobContext.mockImplementation(async id => makeContext(id));
+    // Plan: first call throws semantic error triggering repair (success), second returns valid
+    let planCall = 0;
+    aiMock.planExecution.mockImplementation(async () => {
+      planCall++;
+      if (planCall === 1)
+        throw new Error("Semantic validation failed: issue");
+      return { endpointsToCall: [], executionStrategy: "sequential", reasoning: "repaired", confidence: 0.9 };
+    });
+    // Schedule: first throws schema parse (repair attempt) then throws again (failure)
+    let schedCall = 0;
+    aiMock.finalizeSchedule.mockImplementation(async () => {
+      schedCall++;
+      if (schedCall === 1)
+        throw new Error("Error parsing schedule schema");
+      throw new Error("Error parsing schedule schema");
+    });
+    // Act
+    await engine.processCycle();
+    const s = engine.getState().stats;
+    // Assert plan metrics
+    expect(s.repairAttemptsPlan).toBe(1);
+    expect(s.repairSuccessesPlan).toBe(1);
+    // Schedule failed twice: one malformed + attempt + failure
+    expect(s.repairAttemptsSchedule).toBe(1);
+    expect(s.repairFailuresSchedule).toBe(1);
+    expect(s.malformedResponsesSchedule).toBe(1); // final thrown error classified malformed
+  });
 });

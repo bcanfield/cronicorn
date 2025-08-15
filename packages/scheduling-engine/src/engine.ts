@@ -1,13 +1,9 @@
-/**
- * Core scheduling engine implementation
- *
- * Simplified engine that uses API layer for all data operations
- */
 import type { EngineConfig } from "./config.js";
-import type { AIAgentMetricsEvent } from "./services/ai-agent/types.js";
+import type { AIAgentMetricsEvent, AIAgentPlanResponse, AIAgentScheduleResponse } from "./services/ai-agent/types.js";
 import type { AIAgentService, DatabaseService, EndpointExecutorService } from "./services/index.js";
-import type { EngineState, ExecutionResults, ProcessingResult } from "./types.js";
+import type { EngineState, ExecutionResults, JobContext, ProcessingResult } from "./types.js";
 
+import { classifyPlanError, classifyScheduleError } from "./services/ai-agent/classification.js";
 import { ApiDatabaseService, DefaultAIAgentService, DefaultEndpointExecutorService } from "./services/index.js";
 
 /**
@@ -87,8 +83,12 @@ export class SchedulingEngine {
         }
       }
     };
-    // attach metrics hook without using any casts
-    this.config.aiAgent.metricsHook = metricsHook;
+    // Preserve any user-supplied hook by chaining after internal metrics update
+    const userHook = this.config.aiAgent.metricsHook;
+    this.config.aiAgent.metricsHook = (evt: AIAgentMetricsEvent) => {
+      metricsHook(evt);
+      userHook?.(evt);
+    };
     this.aiAgent = deps?.aiAgent || new DefaultAIAgentService(this.config.aiAgent);
     this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution);
     this.database = deps?.database || new ApiDatabaseService();
@@ -219,6 +219,60 @@ export class SchedulingEngine {
     return result;
   }
 
+  private async runPlanWithWrapper(jobContext: JobContext): Promise<AIAgentPlanResponse> {
+    try {
+      return await this.aiAgent.planExecution(jobContext);
+    }
+    catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const alreadyClassified = /Error in planExecution \[/.test(msg);
+      const repairable = /Semantic validation failed|Error parsing|schema/i.test(msg) && !alreadyClassified;
+      if (repairable && this.config.aiAgent.repairMalformedResponses) {
+        this.state.stats.repairAttemptsPlan = (this.state.stats.repairAttemptsPlan ?? 0) + 1;
+        try {
+          const repaired = await this.aiAgent.planExecution(jobContext);
+          this.state.stats.repairSuccessesPlan = (this.state.stats.repairSuccessesPlan ?? 0) + 1;
+          return repaired;
+        }
+        catch (err2) {
+          this.state.stats.repairFailuresPlan = (this.state.stats.repairFailuresPlan ?? 0) + 1;
+          this.state.stats.malformedResponsesPlan = (this.state.stats.malformedResponsesPlan ?? 0) + 1;
+          throw err2;
+        }
+      }
+      classifyPlanError(msg); // classification side-effect for future differentiation (value unused)
+      this.state.stats.malformedResponsesPlan = (this.state.stats.malformedResponsesPlan ?? 0) + 1;
+      throw err;
+    }
+  }
+
+  private async runScheduleWithWrapper(jobContext: JobContext, executionResults: ExecutionResults): Promise<AIAgentScheduleResponse> {
+    try {
+      return await this.aiAgent.finalizeSchedule(jobContext, executionResults);
+    }
+    catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const alreadyClassified = /Error in finalizeSchedule \[/.test(msg);
+      const repairable = /Semantic validation failed|Error parsing|schema/i.test(msg) && !alreadyClassified;
+      if (repairable && this.config.aiAgent.repairMalformedResponses) {
+        this.state.stats.repairAttemptsSchedule = (this.state.stats.repairAttemptsSchedule ?? 0) + 1;
+        try {
+          const repaired = await this.aiAgent.finalizeSchedule(jobContext, executionResults);
+          this.state.stats.repairSuccessesSchedule = (this.state.stats.repairSuccessesSchedule ?? 0) + 1;
+          return repaired;
+        }
+        catch (err2) {
+          this.state.stats.repairFailuresSchedule = (this.state.stats.repairFailuresSchedule ?? 0) + 1;
+          this.state.stats.malformedResponsesSchedule = (this.state.stats.malformedResponsesSchedule ?? 0) + 1;
+          throw err2;
+        }
+      }
+      classifyScheduleError(msg);
+      this.state.stats.malformedResponsesSchedule = (this.state.stats.malformedResponsesSchedule ?? 0) + 1;
+      throw err;
+    }
+  }
+
   private async processSingleJob(jobId: string, aggregate: ProcessingResult): Promise<void> {
     try {
       const locked = await this.database.lockJob(jobId, new Date(Date.now() + (this.config.scheduler?.staleLockThresholdMs ?? 300000)));
@@ -252,7 +306,7 @@ export class SchedulingEngine {
       };
 
       this.state.stats.aiAgentCalls++;
-      const executionPlan = await this.aiAgent.planExecution(contextWithTime);
+      const executionPlan = await this.runPlanWithWrapper(contextWithTime);
       // accumulate & persist token usage
       if (executionPlan.usage && this.config.metrics?.trackTokenUsage) {
         const { inputTokens = 0, outputTokens = 0, totalTokens = 0, reasoningTokens, cachedInputTokens } = executionPlan.usage;
@@ -289,7 +343,7 @@ export class SchedulingEngine {
       this.state.stats.totalEndpointCalls += endpointResults.length;
 
       this.state.stats.aiAgentCalls++;
-      const scheduleResponse = await this.aiAgent.finalizeSchedule(contextWithTime, executionSummary);
+      const scheduleResponse = await this.runScheduleWithWrapper(contextWithTime, executionSummary);
       if (scheduleResponse.usage && this.config.metrics?.trackTokenUsage) {
         const { inputTokens = 0, outputTokens = 0, totalTokens = 0, reasoningTokens, cachedInputTokens } = scheduleResponse.usage;
         this.state.stats.aiInputTokens = (this.state.stats.aiInputTokens || 0) + inputTokens;
