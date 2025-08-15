@@ -123,6 +123,17 @@ const updateExecutionStatusSchema = z.object({
 });
 
 /**
+ * Schema for updating job token usage
+ */
+const updateJobTokenUsageSchema = z.object({
+  jobId: z.string().uuid(),
+  inputTokensDelta: z.number().optional(),
+  outputTokensDelta: z.number().optional(),
+  reasoningTokensDelta: z.number().optional(),
+  cachedInputTokensDelta: z.number().optional(),
+});
+
+/**
  * Routes definition
  */
 export const getJobsToProcess = createRoute({
@@ -427,6 +438,21 @@ export const updateExecutionStatus = createRoute({
   },
 });
 
+export const updateJobTokenUsage = createRoute({
+  path: "/scheduler/jobs/token-usage",
+  method: "post",
+  tags,
+  summary: "Update job token usage",
+  operationId: "updateJobTokenUsage",
+  description: "Increments token usage counters for a job (plan + schedule AI calls)",
+  request: { body: jsonContentRequired(updateJobTokenUsageSchema, "Token usage deltas for a job") },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(z.object({ success: z.boolean() }), "Whether the token usage was updated"),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Job not found"),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(z.object({ message: z.string() }), "API key authentication required"),
+  },
+});
+
 export type GetJobsToProcessRoute = typeof getJobsToProcess;
 export type LockJobRoute = typeof lockJob;
 export type UnlockJobRoute = typeof unlockJob;
@@ -438,3 +464,4 @@ export type UpdateJobScheduleRoute = typeof updateJobSchedule;
 export type RecordJobErrorRoute = typeof recordJobError;
 export type GetEngineMetricsRoute = typeof getEngineMetrics;
 export type UpdateExecutionStatusRoute = typeof updateExecutionStatus;
+export type UpdateJobTokenUsageRoute = typeof updateJobTokenUsage;

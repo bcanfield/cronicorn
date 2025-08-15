@@ -71,7 +71,7 @@ describe("defaultAIAgentService", () => {
       expect(plan.confidence).toBeGreaterThan(0);
 
       // This should match our mock response in ai-agent-test-utils.ts
-      const mockPlan = createMockPlanResponse();
+      const mockPlan = { ...createMockPlanResponse(), usage: { inputTokens: 25, outputTokens: 40, totalTokens: 65 } };
       expect(plan).toEqual(mockPlan);
     });
 

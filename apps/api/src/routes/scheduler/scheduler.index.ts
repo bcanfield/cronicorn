@@ -14,6 +14,7 @@ const router = createRouter()
   .openapi(routes.updateJobSchedule, handlers.updateJobSchedule)
   .openapi(routes.recordJobError, handlers.recordJobError)
   .openapi(routes.getEngineMetrics, handlers.getEngineMetrics)
-  .openapi(routes.updateExecutionStatus, handlers.updateExecutionStatus);
+  .openapi(routes.updateExecutionStatus, handlers.updateExecutionStatus)
+  .openapi(routes.updateJobTokenUsage, handlers.updateJobTokenUsage);
 
 export default router;

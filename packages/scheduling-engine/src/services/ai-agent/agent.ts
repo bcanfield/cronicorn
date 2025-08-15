@@ -9,6 +9,26 @@ import type { AIAgentConfig } from "../../config.js";
 import type { ExecutionResults, JobContext } from "../../types.js";
 
 /**
+ * Token usage information
+ */
+export type TokenUsage = {
+  /** Number of input tokens */
+  inputTokens?: number;
+
+  /** Number of output tokens */
+  outputTokens?: number;
+
+  /** Total number of tokens */
+  totalTokens?: number;
+
+  /** Number of tokens used for reasoning */
+  reasoningTokens?: number;
+
+  /** Number of cached input tokens */
+  cachedInputTokens?: number;
+};
+
+/**
  * Planning phase response from the AI agent
  */
 export type AIAgentPlanResponse = {
@@ -49,7 +69,7 @@ export type AIAgentPlanResponse = {
   confidence: number;
 
   /** token usage (optional) */
-  usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
+  usage?: TokenUsage;
 };
 
 /**
@@ -78,7 +98,7 @@ export type AIAgentScheduleResponse = {
   }>;
 
   /** token usage (optional) */
-  usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
+  usage?: TokenUsage;
 };
 
 /**

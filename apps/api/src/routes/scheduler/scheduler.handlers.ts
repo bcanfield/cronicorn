@@ -27,6 +27,7 @@ import type {
   UnlockJobRoute,
   UpdateExecutionStatusRoute,
   UpdateJobScheduleRoute,
+  UpdateJobTokenUsageRoute,
 } from "./scheduler.routes.js";
 
 /**
@@ -573,6 +574,30 @@ export const updateExecutionStatus: AppRouteHandler<UpdateExecutionStatusRoute> 
       timestamp: new Date().toISOString(),
     });
   }
+
+  return c.json({ success: true }, HttpStatusCodes.OK);
+};
+
+/**
+ * Update job token usage counters
+ */
+export const updateJobTokenUsage: AppRouteHandler<UpdateJobTokenUsageRoute> = async (c) => {
+  const { jobId, inputTokensDelta = 0, outputTokensDelta = 0, reasoningTokensDelta = 0, cachedInputTokensDelta = 0 } = c.req.valid("json");
+
+  // Ensure job exists
+  const job = await db.query.jobs.findFirst({ where: (f, { eq }) => eq(f.id, jobId) });
+  if (!job) {
+    return c.json({ message: HttpStatusPhrases.NOT_FOUND }, HttpStatusCodes.NOT_FOUND);
+  }
+
+  await db.update(jobs).set({
+    inputTokens: (job.inputTokens || 0) + inputTokensDelta,
+    outputTokens: (job.outputTokens || 0) + outputTokensDelta,
+    reasoningTokens: (job.reasoningTokens || 0) + reasoningTokensDelta,
+    cachedInputTokens: (job.cachedInputTokens || 0) + cachedInputTokensDelta,
+    totalTokens: (job.totalTokens || 0) + inputTokensDelta + outputTokensDelta + reasoningTokensDelta,
+    updatedAt: new Date().toISOString(),
+  }).where(eq(jobs.id, jobId));
 
   return c.json({ success: true }, HttpStatusCodes.OK);
 };

@@ -4,26 +4,30 @@ This document outlines the step-by-step tasks for implementing the scheduling en
 
 ## 🎯 CURRENT STATUS & NEXT STEPS
 
-**Architecture Status**: ✅ **EXCELLENT** - Service architecture complete with API integration layer  
-**Implementation Status**: 🟡 **CORE LOOP MISSING** - Services exist but orchestration logic incomplete  
-**Next Critical Task**: **Implement main processing loop in SchedulingEngine class**
+**Architecture Status**: ✅ **EXCELLENT** – Core services + orchestration loop (processCycle + worker pool) implemented, token usage now persisted
+**Implementation Status**: 🟢 **CORE LOOP OPERATIONAL** – Concurrency, state transitions, performance + token metrics in place
+**Next Critical Task**: **3.2.4 Add context-aware prompt optimization** (improves AI plan/schedule quality before adding fallbacks/resilience)
 
 ### 🚀 Immediate Next Steps (Priority Order):
 
-1. **CRITICAL**: Complete `SchedulingEngine.processJobs()` method - the core orchestration logic
-2. **CRITICAL**: Add proper error handling and recovery in the engine
-3. **HIGH**: Configure build scripts to make package consumable
-4. **HIGH**: Create CLI interface to run the engine
-5. **MEDIUM**: Add comprehensive integration tests
+1. **HIGH**: 3.2.4 Context-aware prompt optimization
+2. **HIGH**: 3.2.5 Prompt testing utilities (to lock in optimization changes)
+3. **HIGH**: 3.3.4 Semantic validation for AI responses
+4. **HIGH**: 3.3.5 Robust malformed response handling
+5. **HIGH**: 4.1.3 HTTP retry logic for transient endpoint failures
+6. **MEDIUM**: 4.2.4 Execution progress tracking
+7. **MEDIUM**: 4.2.5 Execution abort capabilities
+8. **MEDIUM**: 5.1.3 Enhanced error recovery (structured retry/backoff framework)
+9. **LOW**: 3.4.x fallback strategies (after semantic validation & retries)
 
 ### 📊 Progress Summary:
-- ✅ **Phase 1**: Package setup and core types (95% complete)
-- ✅ **Phase 2**: Core components via API layer (90% complete) 
-- ✅ **Phase 3**: AI Agent integration (100% complete)
-- ✅ **Phase 4**: Endpoint execution (100% complete)
-- 🟡 **Phase 5**: Engine integration (20% complete) - **BLOCKING**
-- ❌ **Phase 6**: Testing (30% complete)
-- ❌ **Phase 7**: Production readiness (10% complete)
+- ✅ **Phase 1**: Package setup and core types (100%)
+- ✅ **Phase 2**: Core components via API layer (100%)
+- ✅ **Phase 3**: AI Agent integration (now 80% – remaining: 3.2.4, 3.2.5, 3.3.4, 3.3.5, 3.4.x)
+- ✅ **Phase 4**: Endpoint execution (60% – retries, circuit breaker, logging, progress/abort pending)
+- 🟡 **Phase 5**: Engine integration (50% – loop & pipeline done: 5.1.1, 5.1.2; need 5.1.3–5.1.5 + CLI/events)
+- 🔶 **Phase 6**: Testing (35% – unit coverage good for engine core; lacks integration/perf suites)
+- 🔶 **Phase 7**: Production readiness (15%)
 
 ---
 
@@ -110,7 +114,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **3.1.2**: Implement planning phase integration
 - [x] **3.1.3**: Implement scheduling phase integration
 - [x] **3.1.4**: Add token usage tracking and optimization (in-memory accumulation)
-  - [ ] **3.1.4a**: Persist token usage per cycle/job to database & expose via metrics (future)
+  - [x] **3.1.4a**: Persist token usage per cycle/job to database & expose via metrics (implemented: updateJobTokenUsage route + engine persistence)
 - [x] **3.1.5**: Create context formatting for AI prompts
 
 ### 3.2 Prompt Engineering
@@ -118,7 +122,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **3.2.1**: Create system instruction templates
 - [x] **3.2.2**: Implement planning phase prompt builder
 - [x] **3.2.3**: Implement scheduling phase prompt builder
-- [ ] **3.2.4**: Add context-aware prompt optimization
+- [ ] **3.2.4**: Add context-aware prompt optimization *(NEXT)*
 - [ ] **3.2.5**: Create prompt testing utilities
 
 ### 3.3 Response Processing
@@ -155,115 +159,155 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [ ] **4.2.4**: Add execution progress tracking
 - [ ] **4.2.5**: Implement execution abort capabilities
 
-### 4.3 Response Processing
-
-- [x] **4.3.1**: Create response parsing and formatting
-- [x] **4.3.2**: Implement response truncation for large payloads
-- [x] **4.3.3**: Add response storage in database (via API)
-- [x] **4.3.4**: Create error classification for responses
-- [x] **4.3.5**: Implement message generation from responses
-
 ## Phase 5: Core Engine Integration - **CRITICAL PATH**
 
 ### 5.1 Main Engine Loop
 
-- [ ] **5.1.1**: Create main scheduling loop ⭐ **NEXT PRIORITY**
-- [ ] **5.1.2**: Implement job processing pipeline ⭐ **NEXT PRIORITY**
-- [ ] **5.1.3**: Add error handling and recovery ⭐ **NEXT PRIORITY**
+- [x] **5.1.1**: Create main scheduling loop (interval + processCycle)
+- [x] **5.1.2**: Implement job processing pipeline (lock → plan → execute → summarize → schedule → unlock)
+- [ ] **5.1.3**: Add enhanced error handling and recovery (categorize, retry policies, escalation)
 - [ ] **5.1.4**: Implement graceful shutdown
-- [ ] **5.1.5**: Add startup and initialization logic
+- [ ] **5.1.5**: Add startup and initialization logic (self-checks, warm-up)
 
-### 5.2 CLI Integration
+### 5.2 CLI Integration (pending start)
 
-- [ ] **5.2.1**: Create CLI command structure
-- [ ] **5.2.2**: Implement `start` command for running the engine
-- [ ] **5.2.3**: Create `process` command for single cycle execution
-- [ ] **5.2.4**: Add `status` command for checking engine state
-- [ ] **5.2.5**: Implement `unlock-jobs` command for stuck jobs
+- [ ] **5.2.x** tasks unchanged
 
-### 5.3 Event System
+### 5.3 Event System (pending start)
 
-- [ ] **5.3.1**: Define core event types
-- [ ] **5.3.2**: Create event emitter interface
-- [ ] **5.3.3**: Implement event listeners and handlers
-- [ ] **5.3.4**: Add event logging and monitoring
-- [ ] **5.3.5**: Create event-driven hooks for extensibility
+- [ ] **5.3.x** tasks unchanged
 
-## Phase 6: Testing & Quality Assurance
+## Phase 6: Testing & Quality
 
-### 6.1 Unit Testing
+### 6.1 Integration Test Suite
+- [ ] **6.1.1**: Engine ↔ API round‑trip tests (lock → plan → execute → schedule persistence)
+- [ ] **6.1.2**: Multi-job concurrent cycle integration test
+- [ ] **6.1.3**: Failure path integration (plan error, endpoint error, schedule error)
+- [ ] **6.1.4**: Token usage persistence end-to-end validation
 
-- [ ] **6.1.1**: Create test harness for scheduler components
-- [ ] **6.1.2**: Implement unit tests for job scheduler
-- [ ] **6.1.3**: Create unit tests for context provider
-- [ ] **6.1.4**: Implement tests for AI agent integration
-- [ ] **6.1.5**: Add tests for endpoint execution
+### 6.2 AI Prompt / Response Quality
+- [ ] **6.2.1**: Baseline prompt snapshot tests (pre-optimization)
+- [ ] **6.2.2**: Optimized prompt snapshot comparison
+- [ ] **6.2.3**: Structured response regression tests (schema evolution guard)
+- [ ] **6.2.4**: Malformed response fixture suite (feeds 3.3.5)
 
-### 6.2 Integration Testing
+### 6.3 Performance & Load
+- [ ] **6.3.1**: Cycle throughput benchmark harness
+- [ ] **6.3.2**: Concurrency scaling test (1, 5, 10 workers)
+- [ ] **6.3.3**: Latency distribution reporting (p50/p95)
+- [ ] **6.3.4**: Token cost per cycle tracking test
 
-- [ ] **6.2.1**: Set up integration test environment
-- [ ] **6.2.2**: Create mock AI agent for testing
-- [ ] **6.2.3**: Implement endpoint mock server
-- [ ] **6.2.4**: Create end-to-end tests for job processing
-- [ ] **6.2.5**: Add database integration tests
+### 6.4 Reliability & Stress
+- [ ] **6.4.1**: Lock contention simulation (duplicate lock attempts)
+- [ ] **6.4.2**: Endpoint failure storm (>=70% failure rate) resilience test
+- [ ] **6.4.3**: Slow endpoint timeout enforcement test
+- [ ] **6.4.4**: Forced crash recovery test (mid-cycle unlock verification)
 
-### 6.3 Performance Testing
+### 6.5 Coverage & Quality Gates
+- [ ] **6.5.1**: Enforce coverage thresholds (engine >=85%, AI services >=80%)
+- [ ] **6.5.2**: Add coverage diff check (fail PR on drop >2%)
+- [ ] **6.5.3**: Mutation testing spike (evaluate stryker-js) *(optional)*
 
-- [ ] **6.3.1**: Create performance testing harness
-- [ ] **6.3.2**: Implement load tests for job processing
-- [ ] **6.3.3**: Add benchmarks for AI agent operations
-- [ ] **6.3.4**: Create concurrency tests
-- [ ] **6.3.5**: Implement resource usage monitoring
+### 6.6 Prompt Optimization Regression
+- [ ] **6.6.1**: Track tokens before/after optimization (assert non-regression)
+- [ ] **6.6.2**: Ensure relevance filter never drops required system instructions
+- [ ] **6.6.3**: Guard against over-truncation (min context floor)
 
-## Phase 7: Production Readiness
+### 6.7 Test Infrastructure
+- [ ] **6.7.1**: Test utility factories for jobs / endpoints / histories
+- [ ] **6.7.2**: Shared mock AI agent behavior matrix
+- [ ] **6.7.3**: Deterministic randomization utilities
 
-### 7.1 Logging & Monitoring
+### 6.8 CI Optimization
+- [ ] **6.8.1**: Split fast vs slow test groups
+- [ ] **6.8.2**: Parallelize via Vitest shards
+- [ ] **6.8.3**: Cache prompt snapshots between runs
 
-- [ ] **7.1.1**: Implement structured logging
-- [ ] **7.1.2**: Add error reporting and alerting
-- [ ] **7.1.3**: Create operational metrics
-- [ ] **7.1.4**: Implement job audit logging
-- [ ] **7.1.5**: Add health check endpoints
+## Phase 7: Production Readiness & Ops
 
-### 7.2 Security Hardening
+### 7.1 Configuration & Validation
+- [ ] **7.1.1**: Central config schema (zod) + runtime validation
+- [ ] **7.1.2**: Safe defaults & override precedence docs
+- [ ] **7.1.3**: Misconfiguration error surfaces (fail fast)
 
-- [ ] **7.2.1**: Review and secure authentication
-- [ ] **7.2.2**: Implement proper secret handling
-- [ ] **7.2.3**: Add rate limiting and protection
-- [ ] **7.2.4**: Create security audit logging
-- [ ] **7.2.5**: Implement job isolation safeguards
+### 7.2 Health & Probes
+- [ ] **7.2.1**: Liveness probe (loop heartbeat)
+- [ ] **7.2.2**: Readiness probe (dependencies + warm-up complete)
+- [ ] **7.2.3**: Metrics endpoint exposure design
 
-### 7.3 Documentation
+### 7.3 Observability (Logging)
+- [ ] **7.3.1**: Structured log contexts (jobId, cycleId)
+- [ ] **7.3.2**: Correlation ID propagation across services
+- [ ] **7.3.3**: Log volume tuning & sampling rules
 
-- [ ] **7.3.1**: Create API documentation
-- [ ] **7.3.2**: Write operational runbook
-- [ ] **7.3.3**: Document configuration options
-- [ ] **7.3.4**: Create troubleshooting guide
-- [ ] **7.3.5**: Add code examples and usage patterns
+### 7.4 Metrics Export
+- [ ] **7.4.1**: Prometheus/OpenTelemetry adapter abstraction
+- [ ] **7.4.2**: Metric naming conventions & cardinality audit
+- [ ] **7.4.3**: Export cycle performance & token usage gauges
 
-### 7.4 Deployment
+### 7.5 Alerting & Monitoring
+- [ ] **7.5.1**: Failure rate alert thresholds
+- [ ] **7.5.2**: Stalled job detection alert
+- [ ] **7.5.3**: Token spike anomaly detection baseline
 
-- [ ] **7.4.1**: Create Docker container configuration
-- [ ] **7.4.2**: Implement deployment scripts
-- [ ] **7.4.3**: Add health check and monitoring setup
-- [ ] **7.4.4**: Create scaling configuration
-- [ ] **7.4.5**: Document deployment patterns
+### 7.6 Graceful Shutdown & Draining
+- [ ] **7.6.1**: Drain worker pool (no new locks, finish in-flight)
+- [ ] **7.6.2**: Forced unlock safeguard after timeout
+- [ ] **7.6.3**: Shutdown integration test
 
-## Implementation Steps
+### 7.7 Retry & Backoff Tuning
+- [ ] **7.7.1**: Data-driven retry configuration (capture failure taxonomy)
+- [ ] **7.7.2**: Adaptive backoff (exponential + jitter)
+- [ ] **7.7.3**: Retry exhaustion escalation path
 
-To get started with this task list, follow these steps:
+### 7.8 Circuit Breaker Telemetry
+- [ ] **7.8.1**: Capture open/half-open/close transitions
+- [ ] **7.8.2**: Reset strategy & cooldown configuration
+- [ ] **7.8.3**: Endpoint health dashboard metrics
 
-1. Begin with Phase 1 to set up the package structure
-2. Implement core types and interfaces to establish the foundation
-3. Build components incrementally, ensuring each is tested before moving on
-4. Follow the phase order for logical dependency management
+### 7.9 Security & Secrets
+- [ ] **7.9.1**: Secrets boundary review (API keys, tokens)
+- [ ] **7.9.2**: Sensitive log scrubbing
+- [ ] **7.9.3**: Principle of least privilege audit
 
-For each task:
-1. Create a feature branch (e.g., `git checkout -b scheduling-engine/task-1-1-1`)
-2. Complete the implementation
-3. Write appropriate tests
-4. Submit a PR with a clear description of the changes
-5. After review and merge, mark the task as completed
+### 7.10 Hardening & Resource Limits
+- [ ] **7.10.1**: Timeout budget review (AI, HTTP, cycle)
+- [ ] **7.10.2**: Memory & concurrency caps exposure
+- [ ] **7.10.3**: Defensive guards (max endpoints per job, max plan size)
+
+### 7.11 Deployment Runbook
+- [ ] **7.11.1**: Cold start checklist
+- [ ] **7.11.2**: Rollback procedure
+- [ ] **7.11.3**: Capacity planning notes
+
+### 7.12 Documentation & Tuning Guide
+- [ ] **7.12.1**: Ops tuning matrix (latency vs cost vs accuracy)
+- [ ] **7.12.2**: Failure scenario playbook
+- [ ] **7.12.3**: Metrics & alert interpretation guide
+
+## ✅ Recent Completion Notes
+- Token usage persistence added (API route + engine calls after plan & schedule) — eliminates in-memory only limitation for reporting.
+- Performance metrics captured per cycle (avg, last, total time) — ready for future dashboard.
+- Execution status transitions (RUNNING / FAILED) instrumented.
+
+## 🎯 Rationale for Next Task (3.2.4)
+Improving prompt quality (context-aware optimization) will:
+- Reduce unnecessary endpoint calls (cost + latency)
+- Provide better scheduling reasoning input for downstream semantic validation (3.3.4)
+- Stabilize AI token usage patterns before implementing retries & fallbacks, ensuring cleaner baseline metrics.
+
+## 🛠 Proposed 3.2.4 Implementation Outline
+1. Add PromptOptimizer service (interface + default implementation)
+2. Inject into AI agent or engine pre-plan phase to enrich context (dynamic relevance filtering, message trimming, endpoint ranking hints)
+3. Config flag: metrics.promptOptimizationEnabled
+4. Tests:
+   - Ensures optimizer invoked when enabled
+   - Verifies context reduction logic
+   - Asserts deterministic optimization boundaries (max messages, endpoint relevance scoring)
+5. Metrics: track promptsBefore/After sizes
+
+Confirm proceeding with 3.2.4 or choose an alternative (e.g., 4.1.3 retries) before implementation.
+
 
 ## Success Criteria
 

@@ -103,6 +103,19 @@ export type DatabaseService = {
   updateExecutionStatus: (jobId: string, status: "RUNNING" | "FAILED", errorMessage?: string, errorCode?: string) => Promise<boolean>;
 
   /**
+   * Update job token usage
+   *
+   * Persists incremental (delta) token usage counts for a job. Each provided field
+   * is added to the existing cumulative totals in the database. Omitted fields are
+   * treated as zero and ignored.
+   *
+   * @param params Object containing the jobId and optional delta fields to increment
+   * @returns Whether the token usage was successfully updated
+   */
+  // Update job token usage (delta increments for cumulative counters)
+  updateJobTokenUsage: (params: { jobId: string; inputTokensDelta?: number; outputTokensDelta?: number; reasoningTokensDelta?: number; cachedInputTokensDelta?: number }) => Promise<boolean>;
+
+  /**
    * Get engine metrics
    *
    * @returns Engine metrics data
@@ -388,6 +401,26 @@ export class ApiDatabaseService implements DatabaseService {
       throw new Error(`Failed to update execution status: ${response.status}`);
     }
 
+    const data = await response.json();
+    return data.success;
+  }
+
+  /**
+   * Update job token usage
+   *
+   * Persists incremental (delta) token usage counts for a job. Each provided field
+   * is added to the existing cumulative totals in the database. Omitted fields are
+   * treated as zero and ignored.
+   *
+   * @param params Object containing the jobId and optional delta fields to increment
+   * @returns Whether the token usage was successfully updated
+   */
+  // Update job token usage (delta increments for cumulative counters)
+  async updateJobTokenUsage(params: { jobId: string; inputTokensDelta?: number; outputTokensDelta?: number; reasoningTokensDelta?: number; cachedInputTokensDelta?: number }): Promise<boolean> {
+    const response = await (apiClient.api.scheduler as any)["jobs/token-usage"].$post({ json: params });
+    if (!response.ok) {
+      throw new Error(`Failed to update job token usage: ${response.status}`);
+    }
     const data = await response.json();
     return data.success;
   }
