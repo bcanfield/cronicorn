@@ -19,7 +19,7 @@ This document provides a comprehensive blueprint of the `cronicorn` monorepo, au
   - `packages/ui`: UI primitives and global styles
 
 Configuration files scanned:
-- `package.json`, `tsconfig.json`, `turbo.json`, `docker-compose.yml`
+- `package.json`, `tsconfig.json`, `docker-compose.yml`
 - Framework configs: `eslintrc`, `vitest.config.ts`, `vite.config.ts`, `drizzle.config.ts`
 
 ---
@@ -28,7 +28,7 @@ Configuration files scanned:
 
 The architecture follows a **layered monolith** within a monorepo:
 
-1. **Root orchestration** (Turbo, pnpm workspaces)
+1. **Root orchestration** (pnpm workspaces)
 2. **Core packages** (`types`, `ui`) providing cross-application utilities
 3. **API service** (`apps/api`): HTTP REST endpoints using Hono, business logic in handlers, Drizzle-driven DB layer
 4. **Web client** (`apps/web`): React SPA with file-based routing, data loaders calling the API
@@ -55,7 +55,7 @@ Key principles:
 ## 4. Core Architectural Components
 
 ### 4.1 Root Orchestrator
-- **Purpose:** Bootstraps workspaces, caching, and pipeline (`turbo.json`)
+- **Purpose:** Bootstraps workspaces, and caching
 - **Structure:** monorepo config files, workspace-level scripts
 - **Interactions:** Executes build/test/typecheck tasks across packages
 
@@ -93,7 +93,7 @@ Key principles:
 | Layer             | Contents                 | Depends On              |
 |-------------------|--------------------------|-------------------------|
 | Infrastructure    | Docker, Nginx, Env files | —                       |
-| Orchestration     | Turbo, pnpm scripts      | Infrastructure          |
+| Orchestration     | pnpm scripts             | Infrastructure          |
 | Packages          | `types`, `ui`            | —                       |
 | API Service       | Hono, Drizzle            | `types`, Infrastructure |
 | Web Client        | React, Tailwind          | `types`, `ui`, API      |

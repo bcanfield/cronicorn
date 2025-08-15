@@ -56,7 +56,7 @@ ${PROJECT_TYPE == "Auto-detect" ?
 ${IS_MONOREPO == "Auto-detect" ? 
 "Determine if this is a monorepo by looking for:
 - Multiple distinct projects with their own configuration files
-- Workspace configuration files (lerna.json, nx.json, turborepo.json, etc.)
+- Workspace configuration files (lerna.json, nx.json, etc.)
 - Cross-project references and shared dependency patterns
 - Root-level orchestration scripts and configuration" : ""}
 

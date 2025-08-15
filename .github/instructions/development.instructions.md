@@ -424,7 +424,6 @@ pnpm install
 - Database connection pooling
 
 #### Build Performance
-- Turbo caching for builds
 - Parallel builds where possible
 - Incremental TypeScript compilation
 - Optimized dependency resolution

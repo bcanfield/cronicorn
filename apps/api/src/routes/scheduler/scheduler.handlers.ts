@@ -416,8 +416,8 @@ export const updateJobSchedule: AppRouteHandler<UpdateJobScheduleRoute> = async 
     // Format recommendations as a message
     const content = `Recommended actions from schedule analysis:
 ${schedule.recommendedActions.map((action) => {
-      return `- [${action.priority.toUpperCase()}] ${action.type}: ${action.details}`;
-    }).join("\n")}
+  return `- [${action.priority.toUpperCase()}] ${action.type}: ${action.details}`;
+}).join("\n")}
 
 Reasoning: ${schedule.reasoning}
 Confidence: ${(schedule.confidence * 100).toFixed(0)}%`;
