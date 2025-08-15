@@ -213,6 +213,12 @@ export class SchedulingEngine {
 
       this.state.stats.aiAgentCalls++;
       const executionPlan = await this.aiAgent.planExecution(contextWithTime);
+      // accumulate token usage
+      if (executionPlan.usage && this.config.metrics?.trackTokenUsage) {
+        this.state.stats.aiInputTokens = (this.state.stats.aiInputTokens || 0) + (executionPlan.usage.inputTokens || 0);
+        this.state.stats.aiOutputTokens = (this.state.stats.aiOutputTokens || 0) + (executionPlan.usage.outputTokens || 0);
+        this.state.stats.aiTotalTokens = (this.state.stats.aiTotalTokens || 0) + (executionPlan.usage.totalTokens || 0);
+      }
       await this.database.recordExecutionPlan(jobId, executionPlan);
 
       const endpointResults = await this.executor.executeEndpoints(contextWithTime, executionPlan);
@@ -233,6 +239,11 @@ export class SchedulingEngine {
 
       this.state.stats.aiAgentCalls++;
       const scheduleResponse = await this.aiAgent.finalizeSchedule(contextWithTime, executionSummary);
+      if (scheduleResponse.usage && this.config.metrics?.trackTokenUsage) {
+        this.state.stats.aiInputTokens = (this.state.stats.aiInputTokens || 0) + (scheduleResponse.usage.inputTokens || 0);
+        this.state.stats.aiOutputTokens = (this.state.stats.aiOutputTokens || 0) + (scheduleResponse.usage.outputTokens || 0);
+        this.state.stats.aiTotalTokens = (this.state.stats.aiTotalTokens || 0) + (scheduleResponse.usage.totalTokens || 0);
+      }
       await this.database.updateJobSchedule(jobId, scheduleResponse);
 
       await this.database.unlockJob(jobId);

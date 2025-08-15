@@ -47,6 +47,9 @@ export type AIAgentPlanResponse = {
 
   /** Confidence in the plan (0.0 to 1.0) */
   confidence: number;
+
+  /** token usage (optional) */
+  usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
 };
 
 /**
@@ -73,6 +76,9 @@ export type AIAgentScheduleResponse = {
     /** Urgency of the action */
     priority: "low" | "medium" | "high";
   }>;
+
+  /** token usage (optional) */
+  usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
 };
 
 /**
@@ -185,8 +191,7 @@ export class DefaultAIAgentService implements AIAgentService {
         schema: executionPlanSchema,
       });
 
-      // Return the validated plan
-      return result.object;
+      return { ...result.object, usage: result.usage };
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -222,8 +227,7 @@ export class DefaultAIAgentService implements AIAgentService {
         schema: schedulingResponseSchema,
       });
 
-      // Return the validated schedule
-      return result.object;
+      return { ...result.object, usage: result.usage };
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -385,11 +389,11 @@ Failures: ${results.summary.failureCount}
 
 Endpoint Results:
 ${results.results.map((r) => {
-  const status = r.success ? "SUCCESS" : "FAILURE";
-  const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
-  const error = r.error ? `\n  Error: ${r.error}` : "";
+      const status = r.success ? "SUCCESS" : "FAILURE";
+      const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
+      const error = r.error ? `\n  Error: ${r.error}` : "";
 
-  return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
-}).join("\n\n")}`;
+      return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
+    }).join("\n\n")}`;
   }
 }

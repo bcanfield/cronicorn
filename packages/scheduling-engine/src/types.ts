@@ -79,6 +79,10 @@ export type EngineState = {
     totalProcessingTimeMs?: number;
     lastCycleDurationMs?: number;
     avgCycleDurationMs?: number;
+    // AI token metrics
+    aiInputTokens?: number;
+    aiOutputTokens?: number;
+    aiTotalTokens?: number;
   };
 };
 

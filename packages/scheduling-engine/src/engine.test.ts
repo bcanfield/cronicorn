@@ -391,6 +391,33 @@ describe("schedulingEngine", () => {
             const failedCall = mockDatabase.updateExecutionStatus.mock.calls.find((c: any[]) => c[1] === "FAILED");
             expect(failedCall).toBeUndefined();
         });
+
+        it("accumulates AI token usage when provided", async () => {
+            const jobIds = ["job-tokens-1"];
+            mockDatabase.getJobsToProcess.mockResolvedValue(jobIds);
+            mockDatabase.lockJob.mockResolvedValue(true);
+            mockDatabase.getJobContext.mockResolvedValue({
+                job: { id: "job-tokens-1", definitionNL: "d", status: "ACTIVE", locked: false, createdAt: testTimestamp, updatedAt: testTimestamp },
+                endpoints: [],
+                messages: [],
+                endpointUsage: [],
+                executionContext: { currentTime: testTimestamp, systemEnvironment: "test" },
+            });
+            mockAIAgent.planExecution.mockResolvedValue({ endpointsToCall: [], executionStrategy: "sequential", reasoning: "r", confidence: 0.9, usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 } });
+            mockExecutor.executeEndpoints.mockResolvedValue([]);
+            mockAIAgent.finalizeSchedule.mockResolvedValue({ nextRunAt: testTimestamp, reasoning: "r", confidence: 0.8, usage: { inputTokens: 4, outputTokens: 6, totalTokens: 10 } });
+            mockDatabase.recordExecutionPlan.mockResolvedValue(true);
+            mockDatabase.recordEndpointResults.mockResolvedValue(true);
+            mockDatabase.recordExecutionSummary.mockResolvedValue(true);
+            mockDatabase.updateJobSchedule.mockResolvedValue(true);
+            mockDatabase.unlockJob.mockResolvedValue(true);
+
+            await engine.processCycle();
+            const state = engine.getState();
+            expect(state.stats.aiInputTokens).toBe(14);
+            expect(state.stats.aiOutputTokens).toBe(11);
+            expect(state.stats.aiTotalTokens).toBe(25);
+        });
     });
 
     describe("error handling", () => {

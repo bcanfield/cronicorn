@@ -109,7 +109,8 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **3.1.1**: Create core AI agent service interface
 - [x] **3.1.2**: Implement planning phase integration
 - [x] **3.1.3**: Implement scheduling phase integration
-- [ ] **3.1.4**: Add token usage tracking and optimization
+- [x] **3.1.4**: Add token usage tracking and optimization (in-memory accumulation)
+  - [ ] **3.1.4a**: Persist token usage per cycle/job to database & expose via metrics (future)
 - [x] **3.1.5**: Create context formatting for AI prompts
 
 ### 3.2 Prompt Engineering
