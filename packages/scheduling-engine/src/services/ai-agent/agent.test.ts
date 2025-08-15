@@ -21,6 +21,7 @@ describe("defaultAIAgentService", () => {
         model: "test-model",
         temperature: 0.2,
         maxRetries: 2,
+        promptOptimization: { enabled: true, maxMessages: 10, minRecentMessages: 3, maxEndpointUsageEntries: 5 },
       });
 
       // Create a mock job context
@@ -121,6 +122,7 @@ describe("defaultAIAgentService", () => {
         model: "test-model",
         temperature: 0.2,
         maxRetries: 2,
+        promptOptimization: { enabled: true, maxMessages: 10, minRecentMessages: 3, maxEndpointUsageEntries: 5 },
       });
 
       // Mock the generateObject function to return our mock schedule response
@@ -256,6 +258,29 @@ describe("defaultAIAgentService", () => {
         // Restore the original function
         vi.spyOn(await import("ai"), "generateObject").mockImplementation(generateObjectOriginal);
       }
+    });
+  });
+
+  describe("prompt optimization", () => {
+    it("optimizes messages and endpoint usage per config", () => {
+      const aiAgent = new DefaultAIAgentService({
+        model: "test-model",
+        temperature: 0.2,
+        maxRetries: 2,
+        promptOptimization: { enabled: true, maxMessages: 5, minRecentMessages: 2, maxEndpointUsageEntries: 2 },
+      });
+      const jobContext: JobContext = {
+        job: { id: "job-opt", definitionNL: "def", status: "ACTIVE", locked: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        endpoints: [],
+        messages: Array.from({ length: 12 }).map((_, i) => ({ id: `m${i}`, role: i % 5 === 0 ? "system" as const : "user" as const, content: `msg-${i}`, timestamp: new Date().toISOString() })),
+        endpointUsage: Array.from({ length: 6 }).map((_, i) => ({ id: `u${i}`, endpointId: "e", timestamp: new Date().toISOString(), executionTimeMs: 10, success: 1 })),
+      };
+      const optimized = (aiAgent as any).optimizeContext(jobContext);
+      expect(optimized.messages.length).toBeLessThanOrEqual(5);
+      expect(optimized.endpointUsage.length).toBeLessThanOrEqual(2);
+      // ensure at least minRecentMessages respected when available
+      const nonSystem = optimized.messages.filter((m: any) => m.role !== "system");
+      expect(nonSystem.length).toBeGreaterThanOrEqual(2);
     });
   });
 });

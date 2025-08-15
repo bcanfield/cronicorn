@@ -5,18 +5,20 @@
  * endpoint execution, and AI-driven decision making via API layer.
  */
 
-import type { EngineConfig } from "./config.js";
+import type { EngineConfig, EngineConfigInput } from "./config.js";
 
+import { validateEngineConfig } from "./config.js";
 import { SchedulingEngine } from "./engine.js";
 
 /**
  * Create and initialize a new scheduling engine instance
  *
- * @param config Engine configuration
+ * @param config Partial engine configuration
  * @returns Initialized SchedulingEngine instance
  */
-export function createSchedulingEngine(config: EngineConfig) {
-  return new SchedulingEngine(config);
+export function createSchedulingEngine(config: EngineConfigInput): SchedulingEngine {
+  const validated: EngineConfig = validateEngineConfig(config || {});
+  return new SchedulingEngine(validated);
 }
 
 // Export core engine and config types

@@ -8,8 +8,7 @@
 
 /* eslint-disable no-console */
 
-import type { EngineConfig } from "./config.js";
-
+import { type EngineConfig, type EngineConfigInput, validateEngineConfig } from "./config.js";
 import { createSchedulingEngine } from "./index.js";
 
 // CLI argument parsing
@@ -48,12 +47,18 @@ const env = {
 /**
  * Load configuration from environment variables
  */
-function loadConfig(): EngineConfig {
-  const config: EngineConfig = {
+function loadConfig(): any {
+  const partial: EngineConfigInput = {
     aiAgent: {
       model: env.getOrDefault("CRONICORN_AI_MODEL", "gpt-4o"),
       temperature: env.getFloat("CRONICORN_AI_TEMPERATURE", 0.2),
       maxRetries: env.getNumber("CRONICORN_AI_MAX_RETRIES", 2),
+      promptOptimization: {
+        enabled: env.getBoolean("CRONICORN_PROMPT_OPT_ENABLED", true),
+        maxMessages: env.getNumber("CRONICORN_PROMPT_OPT_MAX_MESSAGES", 10),
+        minRecentMessages: env.getNumber("CRONICORN_PROMPT_OPT_MIN_RECENT", 3),
+        maxEndpointUsageEntries: env.getNumber("CRONICORN_PROMPT_OPT_MAX_USAGE", 5),
+      },
     },
     execution: {
       maxConcurrency: env.getNumber("CRONICORN_MAX_CONCURRENCY", 5),
@@ -73,10 +78,10 @@ function loadConfig(): EngineConfig {
       processingIntervalMs: env.getNumber("CRONICORN_PROCESSING_INTERVAL_MS", 60000),
       autoUnlockStaleJobs: env.getBoolean("CRONICORN_AUTO_UNLOCK_STALE_JOBS", true),
       staleLockThresholdMs: env.getNumber("CRONICORN_STALE_LOCK_THRESHOLD_MS", 300000),
+      jobProcessingConcurrency: env.getNumber("CRONICORN_JOB_PROCESSING_CONCURRENCY", 1),
     },
   };
-
-  return config;
+  return validateEngineConfig(partial);
 }
 
 /**
@@ -105,6 +110,10 @@ Environment Variables:
   CRONICORN_MAX_BATCH_SIZE             Max jobs per processing cycle (default: 20)
   CRONICORN_PROCESSING_INTERVAL_MS     Processing interval in ms (default: 60000)
   CRONICORN_STALE_LOCK_THRESHOLD_MS    Stale lock threshold in ms (default: 300000)
+  CRONICORN_PROMPT_OPT_ENABLED         Enable prompt optimization (default: true)
+  CRONICORN_PROMPT_OPT_MAX_MESSAGES    Max messages for prompt (default: 10)
+  CRONICORN_PROMPT_OPT_MIN_RECENT      Min recent non-system messages kept (default: 3)
+  CRONICORN_PROMPT_OPT_MAX_USAGE       Max endpoint usage entries (default: 5)
 
 Examples:
   cronicorn-engine start              # Start the engine

@@ -2,11 +2,9 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 
-import type { AIAgentConfig } from "../../config.js";
-/**
- * AI Agent service interface and implementation
- */
 import type { ExecutionResults, JobContext } from "../../types.js";
+
+import { type AIAgentConfig, AIAgentConfigSchema } from "../../config.js";
 
 /**
  * Token usage information
@@ -181,9 +179,9 @@ export class DefaultAIAgentService implements AIAgentService {
    *
    * @param config AI agent configuration
    */
-  constructor(config: AIAgentConfig) {
-    this.config = config;
-    this.model = openai(config.model);
+  constructor(config: Partial<AIAgentConfig>) {
+    this.config = AIAgentConfigSchema.parse(config || {});
+    this.model = openai(this.config.model);
   }
 
   /**
@@ -194,14 +192,9 @@ export class DefaultAIAgentService implements AIAgentService {
    */
   async planExecution(jobContext: JobContext): Promise<AIAgentPlanResponse> {
     try {
-      // Format system prompt
+      const optimized = this.optimizeContext(jobContext);
       const systemPrompt = this.createPlanningSystemPrompt();
-
-      // Format user prompt with context
-      const userPrompt = this.formatContextForPlanning(jobContext);
-
-      // Use Vercel AI SDK to generate object with structured output
-
+      const userPrompt = this.formatContextForPlanning(optimized);
       const result = await generateObject({
         model: this.model,
         system: systemPrompt,
@@ -210,7 +203,6 @@ export class DefaultAIAgentService implements AIAgentService {
         maxRetries: this.config.maxRetries ?? 2,
         schema: executionPlanSchema,
       });
-
       return { ...result.object, usage: result.usage };
     }
     catch (error) {
@@ -280,29 +272,7 @@ export class DefaultAIAgentService implements AIAgentService {
    * @returns Formatted context for prompt
    */
   private formatContextForPlanning(jobContext: JobContext): string {
-    return `# Current Time
-${jobContext.executionContext?.currentTime}
-
-# Job Definition
-${jobContext.job.definitionNL}
-
-# Available Endpoints
-${this.formatEndpoints(jobContext.endpoints)}
-
-# Recent History
-${this.formatMessages(jobContext.messages, 10)}
-
-# Endpoint Usage History
-${this.formatEndpointUsage(jobContext.endpointUsage, 5)}
-
-# Instructions
-Analyze the job definition and history to create an execution plan:
-
-1. Determine which endpoints to call based on the job definition and context
-2. Specify parameters and headers for each endpoint call
-3. Set execution priority (order) and identify dependencies between endpoints
-4. Choose between sequential, parallel, or mixed execution strategy
-5. Provide a preliminary estimate for the next run time`;
+    return `# Current Time\n${jobContext.executionContext?.currentTime}\n\n# Job Definition\n${jobContext.job.definitionNL}\n\n# Available Endpoints\n${this.formatEndpoints(jobContext.endpoints)}\n\n# Recent History\n${this.formatMessages(jobContext.messages, 10)}\n\n# Endpoint Usage History\n${this.formatEndpointUsage(jobContext.endpointUsage, 5)}\n\n# Instructions\nAnalyze the job definition and history to create an execution plan:\n\n1. Determine which endpoints to call based on the job definition and context\n2. Specify parameters and headers for each endpoint call\n3. Set execution priority (order) and identify dependencies between endpoints\n4. Choose between sequential, parallel, or mixed execution strategy\n5. Provide a preliminary estimate for the next run time`;
   }
 
   /**
@@ -415,5 +385,33 @@ ${results.results.map((r) => {
 
       return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
     }).join("\n\n")}`;
+  }
+
+  /**
+   * Optimize context for prompt based on configuration
+   *
+   * @param jobContext Job context
+   * @returns Optimized job context
+   */
+  private optimizeContext(jobContext: JobContext): JobContext {
+    const cfg = this.config.promptOptimization;
+    if (!cfg || cfg.enabled === false)
+      return jobContext;
+
+    const maxMessages = cfg.maxMessages ?? 10;
+    const minRecent = cfg.minRecentMessages ?? 3;
+    const usageLimit = cfg.maxEndpointUsageEntries ?? 5;
+
+    const messages = jobContext.messages;
+
+    // Keep system messages + last N recent messages ensuring at least minRecent
+    const systemMessages = messages.filter(m => m.role === "system");
+    const recent = messages.filter(m => m.role !== "system").slice(-Math.max(minRecent, maxMessages));
+    const optimizedMessages = [...systemMessages, ...recent].slice(-maxMessages);
+
+    // Optimize endpoint usage data
+    const optimizedUsage = jobContext.endpointUsage.slice(-usageLimit);
+
+    return { ...jobContext, messages: optimizedMessages, endpointUsage: optimizedUsage };
   }
 }

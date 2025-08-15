@@ -6,24 +6,23 @@ This document outlines the step-by-step tasks for implementing the scheduling en
 
 **Architecture Status**: ✅ **EXCELLENT** – Core services + orchestration loop (processCycle + worker pool) implemented, token usage now persisted
 **Implementation Status**: 🟢 **CORE LOOP OPERATIONAL** – Concurrency, state transitions, performance + token metrics in place
-**Next Critical Task**: **3.2.4 Add context-aware prompt optimization** (improves AI plan/schedule quality before adding fallbacks/resilience)
+**Next Critical Task**: **3.2.5 Prompt testing utilities** (to lock in optimization changes)
 
 ### 🚀 Immediate Next Steps (Priority Order):
 
-1. **HIGH**: 3.2.4 Context-aware prompt optimization
-2. **HIGH**: 3.2.5 Prompt testing utilities (to lock in optimization changes)
-3. **HIGH**: 3.3.4 Semantic validation for AI responses
-4. **HIGH**: 3.3.5 Robust malformed response handling
-5. **HIGH**: 4.1.3 HTTP retry logic for transient endpoint failures
-6. **MEDIUM**: 4.2.4 Execution progress tracking
-7. **MEDIUM**: 4.2.5 Execution abort capabilities
-8. **MEDIUM**: 5.1.3 Enhanced error recovery (structured retry/backoff framework)
-9. **LOW**: 3.4.x fallback strategies (after semantic validation & retries)
+1. **HIGH**: 3.2.5 Prompt testing utilities
+2. **HIGH**: 3.3.4 Semantic validation for AI responses
+3. **HIGH**: 3.3.5 Robust malformed response handling
+4. **HIGH**: 4.1.3 HTTP retry logic for transient endpoint failures
+5. **MEDIUM**: 4.2.4 Execution progress tracking
+6. **MEDIUM**: 4.2.5 Execution abort capabilities
+7. **MEDIUM**: 5.1.3 Enhanced error recovery (structured retry/backoff framework)
+8. **LOW**: 3.4.x fallback strategies (after semantic validation & retries)
 
 ### 📊 Progress Summary:
 - ✅ **Phase 1**: Package setup and core types (100%)
 - ✅ **Phase 2**: Core components via API layer (100%)
-- ✅ **Phase 3**: AI Agent integration (now 80% – remaining: 3.2.4, 3.2.5, 3.3.4, 3.3.5, 3.4.x)
+- ✅ **Phase 3**: AI Agent integration (now 80% – remaining: 3.2.5, 3.3.4, 3.3.5, 3.4.x)
 - ✅ **Phase 4**: Endpoint execution (60% – retries, circuit breaker, logging, progress/abort pending)
 - 🟡 **Phase 5**: Engine integration (50% – loop & pipeline done: 5.1.1, 5.1.2; need 5.1.3–5.1.5 + CLI/events)
 - 🔶 **Phase 6**: Testing (35% – unit coverage good for engine core; lacks integration/perf suites)
@@ -122,7 +121,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **3.2.1**: Create system instruction templates
 - [x] **3.2.2**: Implement planning phase prompt builder
 - [x] **3.2.3**: Implement scheduling phase prompt builder
-- [ ] **3.2.4**: Add context-aware prompt optimization *(NEXT)*
+- [x] **3.2.4**: Add context-aware prompt optimization *(implemented: configurable trimming of messages & usage history via promptOptimization config)*
 - [ ] **3.2.5**: Create prompt testing utilities
 
 ### 3.3 Response Processing
@@ -289,12 +288,10 @@ Each task below should follow this workflow, with tests committed alongside impl
 - Token usage persistence added (API route + engine calls after plan & schedule) — eliminates in-memory only limitation for reporting.
 - Performance metrics captured per cycle (avg, last, total time) — ready for future dashboard.
 - Execution status transitions (RUNNING / FAILED) instrumented.
+- Context-aware prompt optimization added (limits historical messages & endpoint usage slices; configurable via aiAgent.promptOptimization).
 
-## 🎯 Rationale for Next Task (3.2.4)
-Improving prompt quality (context-aware optimization) will:
-- Reduce unnecessary endpoint calls (cost + latency)
-- Provide better scheduling reasoning input for downstream semantic validation (3.3.4)
-- Stabilize AI token usage patterns before implementing retries & fallbacks, ensuring cleaner baseline metrics.
+## 🎯 Rationale for Next Task (3.2.5)
+Add prompt testing utilities to quantify optimization impact (token delta, reasoning retention) and guard against regressions before adding semantic validation.
 
 ## 🛠 Proposed 3.2.4 Implementation Outline
 1. Add PromptOptimizer service (interface + default implementation)

@@ -53,9 +53,7 @@ export class SchedulingEngine {
    * @param config Engine configuration
    */
   constructor(config: EngineConfig) {
-    this.config = this.applyDefaultConfig(config);
-
-    // Initialize services - no database config needed for API-based service
+    this.config = config;
     this.aiAgent = new DefaultAIAgentService(this.config.aiAgent);
     this.executor = new DefaultEndpointExecutorService(this.config.execution);
     this.database = new ApiDatabaseService();
@@ -300,62 +298,5 @@ export class SchedulingEngine {
    */
   getState(): EngineState {
     return { ...this.state };
-  }
-
-  /**
-   * Apply default configuration values
-   *
-   * @param config User-provided configuration
-   * @returns Configuration with defaults applied
-   */
-  private applyDefaultConfig(config: EngineConfig): EngineConfig {
-    // Create default config
-    const defaultConfig: Partial<EngineConfig> = {
-      aiAgent: {
-        model: "gpt-4o",
-        temperature: 0.2,
-        maxRetries: 2,
-      },
-      execution: {
-        maxConcurrency: 5,
-        defaultTimeoutMs: 30000,
-        maxEndpointRetries: 3,
-        defaultConcurrencyLimit: 3,
-        responseContentLengthLimit: 10000,
-        validateResponseSchemas: true,
-      },
-      metrics: {
-        enabled: true,
-        samplingRate: 1.0,
-        trackTokenUsage: true,
-      },
-      scheduler: {
-        maxBatchSize: 20,
-        processingIntervalMs: 60000, // 1 minute
-        autoUnlockStaleJobs: true,
-        staleLockThresholdMs: 300000, // 5 minutes
-      },
-    };
-
-    // Merge with user config
-    return {
-      ...config,
-      aiAgent: {
-        ...defaultConfig.aiAgent,
-        ...config.aiAgent,
-      },
-      execution: {
-        ...defaultConfig.execution,
-        ...config.execution,
-      },
-      metrics: {
-        ...defaultConfig.metrics,
-        ...config.metrics,
-      },
-      scheduler: {
-        ...defaultConfig.scheduler,
-        ...config.scheduler,
-      },
-    };
   }
 }

@@ -50,6 +50,7 @@ describe("schedulingEngine", () => {
                 model: "gpt-4o",
                 temperature: 0.2,
                 maxRetries: 2,
+                promptOptimization: { enabled: true, maxMessages: 10, minRecentMessages: 3, maxEndpointUsageEntries: 5 },
             },
             execution: {
                 maxConcurrency: 5,
@@ -58,6 +59,7 @@ describe("schedulingEngine", () => {
                 defaultConcurrencyLimit: 3,
                 responseContentLengthLimit: 10000,
                 validateResponseSchemas: true,
+                allowCancellation: false,
             },
             metrics: {
                 enabled: true,
@@ -69,8 +71,9 @@ describe("schedulingEngine", () => {
                 processingIntervalMs: 60000,
                 autoUnlockStaleJobs: true,
                 staleLockThresholdMs: 300000,
+                jobProcessingConcurrency: 1,
             },
-        };
+        } as any;
 
         // Create engine instance
         engine = new SchedulingEngine(mockConfig);
@@ -99,9 +102,11 @@ describe("schedulingEngine", () => {
 
         it("should merge user config with defaults", () => {
             const partialConfig = {
-                aiAgent: { model: "gpt-3.5-turbo" },
-                scheduler: { maxBatchSize: 10 },
-            } as Partial<EngineConfig>;
+                aiAgent: { model: "gpt-3.5-turbo", temperature: 0.2, maxRetries: 2, promptOptimization: { enabled: true, maxMessages: 10, minRecentMessages: 3, maxEndpointUsageEntries: 5 } },
+                scheduler: { maxBatchSize: 10, processingIntervalMs: 60000, autoUnlockStaleJobs: true, staleLockThresholdMs: 300000, jobProcessingConcurrency: 1 },
+                execution: mockConfig.execution,
+                metrics: mockConfig.metrics,
+            } as any;
 
             const engineWithPartialConfig = new SchedulingEngine(partialConfig as EngineConfig);
             const state = engineWithPartialConfig.getState();
@@ -329,10 +334,13 @@ describe("schedulingEngine", () => {
             const customConfig = {
                 ...mockConfig,
                 scheduler: {
-                    ...mockConfig.scheduler,
                     maxBatchSize: 5,
+                    processingIntervalMs: 60000,
+                    autoUnlockStaleJobs: true,
+                    staleLockThresholdMs: 300000,
+                    jobProcessingConcurrency: 1,
                 },
-            };
+            } as any;
 
             const customEngine = new SchedulingEngine(customConfig);
             const customMockDatabase = (customEngine as any).database;
@@ -550,7 +558,7 @@ describe("schedulingEngine", () => {
             const concurrentConfig = {
                 ...mockConfig,
                 scheduler: { ...mockConfig.scheduler, jobProcessingConcurrency: 3 },
-            };
+            } as any;
             const concurrentEngine = new SchedulingEngine(concurrentConfig as any);
             const db = (concurrentEngine as any).database;
             const ai = (concurrentEngine as any).aiAgent;
