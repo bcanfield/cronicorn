@@ -3,17 +3,17 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 
 import type { AppRouteHandler } from "@/api/lib/types";
 
-import db from "@/api/db";
-import { endpoints, jobs } from "@/api/db/schema";
-import { endpointUsage } from "@/api/db/schema/endpoint-usage";
+import db from "@/api/db/index.js";
+import { endpoints, jobs } from "@/api/db/schema.js";
+import { endpointUsage } from "@/api/db/schema/endpoint-usage.js";
 
 import type {
   GetStatsRoute,
   GetTimeSeriesRoute,
   ListRoute,
-} from "./endpoint-usage.routes";
+} from "./endpoint-usage.routes.js";
 
-import { getUsageStats, getUsageTimeSeries } from "./endpoint-usage.utils";
+import { getUsageStats, getUsageTimeSeries } from "./endpoint-usage.utils.js";
 
 /**
  * List usage records with pagination and filtering

@@ -5,15 +5,15 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ZodIssueCode } from "zod";
 
-import db from "@/api/db";
-import resetDb from "@/api/db/reset";
-import { jobs as jobsTable } from "@/api/db/schema";
-import { users } from "@/api/db/schema/auth";
-import env from "@/api/env";
-import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
-import createApp from "@/api/lib/create-app";
+import db from "@/api/db/index.js";
+import resetDb from "@/api/db/reset.js";
+import { jobs as jobsTable } from "@/api/db/schema.js";
+import { users } from "@/api/db/schema/auth.js";
+import env from "@/api/env.js";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants.js";
+import createApp from "@/api/lib/create-app.js";
 
-import router from "./jobs.index";
+import router from "./jobs.index.js";
 
 if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");

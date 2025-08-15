@@ -4,19 +4,19 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
 import type { AppRouteHandler } from "@/api/lib/types";
 
-import db from "@/api/db";
-import { endpoints, jobs } from "@/api/db/schema";
-import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
-import { recordEndpointUsage } from "@/api/routes/endpoint-usage/endpoint-usage.utils";
+import db from "@/api/db/index.js";
+import { endpoints, jobs } from "@/api/db/schema.js";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants.js";
+import { recordEndpointUsage } from "@/api/routes/endpoint-usage/endpoint-usage.utils.js";
 
-import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RunRoute } from "./endpoints.routes";
+import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RunRoute } from "./endpoints.routes.js";
 
 import {
   formatEndpointResponseMessage,
   insertSystemMessage,
   truncateResponseData,
   validateRequestSize,
-} from "./endpoints.utils";
+} from "./endpoints.utils.js";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // List endpoints for authenticated user's jobs

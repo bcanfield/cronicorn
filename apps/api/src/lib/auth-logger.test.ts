@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as authLogger from "./auth-logger";
+import * as authLogger from "./auth-logger.js";
 
 // Mock the pino logger from the module
 vi.mock("./auth-logger", async () => {

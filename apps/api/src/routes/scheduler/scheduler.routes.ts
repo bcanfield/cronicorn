@@ -3,8 +3,8 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { IdUUIDParamsSchema } from "stoker/openapi/schemas";
 
-import { executionPlanSchema, selectEndpointResultsSchema, selectEndpointsSchema, selectEndpointUsageSchema, selectJobsSchema, selectMessagesSchema } from "@/api/db/schema";
-import { notFoundSchema } from "@/api/lib/constants";
+import { executionPlanSchema, selectEndpointResultsSchema, selectEndpointsSchema, selectEndpointUsageSchema, selectJobsSchema, selectMessagesSchema } from "@/api/db/schema.js";
+import { notFoundSchema } from "@/api/lib/constants.js";
 
 const tags = ["Scheduler"];
 

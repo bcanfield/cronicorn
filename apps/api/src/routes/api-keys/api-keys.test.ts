@@ -3,14 +3,14 @@
 import { testClient } from "hono/testing";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import db from "@/api/db";
-import resetDb from "@/api/db/reset";
-import { users } from "@/api/db/schema/auth";
-import env from "@/api/env";
-import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
-import createApp from "@/api/lib/create-app";
+import db from "@/api/db/index.js";
+import resetDb from "@/api/db/reset.js";
+import { users } from "@/api/db/schema/auth.js";
+import env from "@/api/env.js";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants.js";
+import createApp from "@/api/lib/create-app.js";
 
-import router from "./api-keys.index";
+import router from "./api-keys.index.js";
 
 if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");

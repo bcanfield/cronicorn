@@ -10,8 +10,8 @@ import {
   timeSeriesSchema,
   usageStatsFilterSchema,
   usageStatsSchema,
-} from "@/api/db/schema/endpoint-usage";
-import { notFoundSchema } from "@/api/lib/constants";
+} from "@/api/db/schema/endpoint-usage.js";
+import { notFoundSchema } from "@/api/lib/constants.js";
 
 const tags = ["Endpoint Usage"];
 

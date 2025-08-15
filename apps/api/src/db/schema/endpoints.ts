@@ -5,8 +5,8 @@ import { boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core"
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { pageSchema, pageSizeSchema, sortDirectionSchema } from "./common";
-import { jobs } from "./jobs";
+import { pageSchema, pageSizeSchema, sortDirectionSchema } from "./common.js";
+import { jobs } from "./jobs.js";
 
 export const endpoints = pgTable("Endpoint", {
   id: text("id")

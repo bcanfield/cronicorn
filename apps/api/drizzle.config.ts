@@ -1,6 +1,6 @@
 import { defineConfig } from "drizzle-kit";
 
-import env from "@/api/env";
+import env from "@/api/env.js";
 
 export default defineConfig({
   schema: env.NODE_ENV === "production" ? "./src/db/schema.js" : "./src/db/schema.ts",

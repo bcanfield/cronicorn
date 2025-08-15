@@ -3,8 +3,8 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdUUIDParamsSchema } from "stoker/openapi/schemas";
 
-import { createApiKeysSchema, insertApiKeysSchema, listApiKeysSchema, patchApiKeysSchema, selectApiKeysSchema } from "@/api/db/schema";
-import { notFoundSchema } from "@/api/lib/constants";
+import { createApiKeysSchema, insertApiKeysSchema, listApiKeysSchema, patchApiKeysSchema, selectApiKeysSchema } from "@/api/db/schema.js";
+import { notFoundSchema } from "@/api/lib/constants.js";
 
 const tags = ["API Keys"];
 

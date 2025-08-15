@@ -6,8 +6,9 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 
 import type { AppBindings, ExtendedAuthUser } from "../lib/types";
 
-import db from "../db";
-import { apiKeys } from "../db/schema";
+import db from "../db/index.js";
+import { apiKeys } from "../db/schema.js";
+import { verifyApiKeySecret } from "../lib/api-key-utils.js";
 
 // Header name for API key authentication
 const API_KEY_HEADER = "X-API-Key";
@@ -78,8 +79,6 @@ export function apiKeyAuth() {
       // If secretSalt exists, use the new hashing mechanism
       if (foundApiKey.secretSalt) {
         // Import here to avoid circular dependencies
-        const { verifyApiKeySecret } = await import("../lib/api-key-utils");
-
         const isValidSecret = verifyApiKeySecret(
           apiSecret,
           foundApiKey.secret,

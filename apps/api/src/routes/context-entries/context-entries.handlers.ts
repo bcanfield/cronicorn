@@ -4,11 +4,11 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
 import type { AppRouteHandler } from "@/api/lib/types";
 
-import db from "@/api/db";
-import { contextEntries, jobs } from "@/api/db/schema";
-import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
+import db from "@/api/db/index.js";
+import { contextEntries, jobs } from "@/api/db/schema.js";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants.js";
 
-import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./context-entries.routes";
+import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./context-entries.routes.js";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // List context entries for authenticated user's jobs

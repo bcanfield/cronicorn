@@ -385,11 +385,11 @@ Failures: ${results.summary.failureCount}
 
 Endpoint Results:
 ${results.results.map((r) => {
-      const status = r.success ? "SUCCESS" : "FAILURE";
-      const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
-      const error = r.error ? `\n  Error: ${r.error}` : "";
+  const status = r.success ? "SUCCESS" : "FAILURE";
+  const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
+  const error = r.error ? `\n  Error: ${r.error}` : "";
 
-      return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
-    }).join("\n\n")}`;
+  return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}`;
+}).join("\n\n")}`;
   }
 }

@@ -4,8 +4,8 @@
 
 import { and, between, eq, sql } from "drizzle-orm";
 
-import db from "@/api/db";
-import { endpointUsage } from "@/api/db/schema/endpoint-usage";
+import db from "@/api/db/index.js";
+import { endpointUsage } from "@/api/db/schema/endpoint-usage.js";
 
 /**
  * Record usage data for an endpoint execution

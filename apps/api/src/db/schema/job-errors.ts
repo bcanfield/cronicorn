@@ -6,7 +6,7 @@ import { sql } from "drizzle-orm";
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
-import { jobs } from "./jobs";
+import { jobs } from "./jobs.js";
 
 /**
  * Stores error records for job executions

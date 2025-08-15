@@ -4,8 +4,8 @@ import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers";
 import { createErrorSchema, IdUUIDParamsSchema } from "stoker/openapi/schemas";
 
 // import { listJobsQuerySchema } from "@/api/db/query-schemas";
-import { insertJobsSchema, listJobsSchema, patchJobsSchema, selectJobsSchema } from "@/api/db/schema";
-import { notFoundSchema } from "@/api/lib/constants";
+import { insertJobsSchema, listJobsSchema, patchJobsSchema, selectJobsSchema } from "@/api/db/schema.js";
+import { notFoundSchema } from "@/api/lib/constants.js";
 
 const tags = ["Jobs"];
 

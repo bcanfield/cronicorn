@@ -4,7 +4,7 @@ import { boolean, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { users } from "./auth";
+import { users } from "./auth.js";
 
 /**
  * Job status enum indicating the current state of a job

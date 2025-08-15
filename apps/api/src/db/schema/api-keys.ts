@@ -9,7 +9,7 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { users } from "./auth";
+import { users } from "./auth.js";
 
 export const apiKeys = pgTable("api_key", {
   id: text("id")

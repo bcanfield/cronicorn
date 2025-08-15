@@ -1,11 +1,11 @@
 // No need to import HTTP status codes since we're not testing endpoints
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-import db from "@/api/db";
-import resetDb from "@/api/db/reset";
-import { apiKeys } from "@/api/db/schema";
-import { users } from "@/api/db/schema/auth";
-import env from "@/api/env";
+import db from "@/api/db/index.js";
+import resetDb from "@/api/db/reset.js";
+import { apiKeys } from "@/api/db/schema.js";
+import { users } from "@/api/db/schema/auth.js";
+import env from "@/api/env.js";
 import {
   API_KEY_CONSTANTS,
   generateApiKeyAndSecret,
@@ -13,8 +13,8 @@ import {
   validateApiKey,
   validateApiSecret,
   verifyApiKeySecret,
-} from "@/api/lib/api-key-utils";
-import { apiKeyAuth } from "@/api/middlewares/api-key-auth";
+} from "@/api/lib/api-key-utils.js";
+import { apiKeyAuth } from "@/api/middlewares/api-key-auth.js";
 
 // Ensure we're in test environment
 if (env.NODE_ENV !== "test") {

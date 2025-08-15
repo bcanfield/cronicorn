@@ -5,8 +5,8 @@ import { apiReference } from "@scalar/hono-api-reference";
 import type { AppBindings, AppOpenAPI } from "./types";
 
 import packageJSON from "../../package.json" with { type: "json" };
-import env from "../env";
-import { BASE_PATH } from "./constants";
+import env from "../env.js";
+import { BASE_PATH } from "./constants.js";
 
 export default function configureOpenAPI(app: AppOpenAPI) {
   const servers = [

@@ -2,14 +2,14 @@ import { eq } from "drizzle-orm";
 import { testClient } from "hono/testing";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import db from "@/api/db";
-import resetDb from "@/api/db/reset";
-import { endpointResults, endpoints, jobErrors, jobExecutions, jobs as jobsTable, messages } from "@/api/db/schema";
-import { users } from "@/api/db/schema/auth";
-import env from "@/api/env";
-import createApp from "@/api/lib/create-app";
+import db from "@/api/db/index.js";
+import resetDb from "@/api/db/reset.js";
+import { endpointResults, endpoints, jobErrors, jobExecutions, jobs as jobsTable, messages } from "@/api/db/schema.js";
+import { users } from "@/api/db/schema/auth.js";
+import env from "@/api/env.js";
+import createApp from "@/api/lib/create-app.js";
 
-import router from "./scheduler.index";
+import router from "./scheduler.index.js";
 
 if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");

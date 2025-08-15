@@ -4,7 +4,7 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
 import type { AppRouteHandler } from "@/api/lib/types";
 
-import db from "@/api/db";
+import db from "@/api/db/index.js";
 import {
   endpointResults,
   endpointUsage,
@@ -12,8 +12,8 @@ import {
   jobExecutions,
   jobs,
   messages,
-} from "@/api/db/schema";
-import env from "@/api/env";
+} from "@/api/db/schema.js";
+import env from "@/api/env.js";
 
 import type {
   GetEngineMetricsRoute,
@@ -26,7 +26,7 @@ import type {
   RecordJobErrorRoute,
   UnlockJobRoute,
   UpdateJobScheduleRoute,
-} from "./scheduler.routes";
+} from "./scheduler.routes.js";
 
 /**
  * Get jobs that need processing

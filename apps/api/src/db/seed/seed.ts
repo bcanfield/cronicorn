@@ -5,10 +5,11 @@ import path, { join } from "node:path";
 import { exit } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import db from "@/api/db/index";
-import { DEV_USER } from "@/api/lib/dev-user";
+import db from "@/api/db/index.js";
+import { generateApiKeyAndSecret, hashApiKeySecret } from "@/api/lib/api-key-utils.js";
+import { DEV_USER } from "@/api/lib/dev-user.js";
 
-import * as schema from "../schema";
+import * as schema from "../schema.js";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename);
@@ -110,9 +111,6 @@ async function seedJobs(userId: string): Promise<string[]> {
 }
 
 async function seedApiKeys(userId: string) {
-  // Import the API key utility functions
-  const { generateApiKeyAndSecret, hashApiKeySecret } = await import("@/api/lib/api-key-utils");
-
   // Delete existing API keys for this user
   await db.delete(schema.apiKeys).where(eq(schema.apiKeys.userId, userId));
 

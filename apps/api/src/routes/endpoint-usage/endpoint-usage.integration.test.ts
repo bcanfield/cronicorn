@@ -3,16 +3,16 @@
 import { testClient } from "hono/testing";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import db from "@/api/db";
-import resetDb from "@/api/db/reset";
-import { endpoints, users } from "@/api/db/schema";
-import { endpointUsage } from "@/api/db/schema/endpoint-usage";
-import { jobs } from "@/api/db/schema/jobs";
-import env from "@/api/env";
-import createApp from "@/api/lib/create-app";
-import { DEV_USER } from "@/api/lib/dev-user";
+import db from "@/api/db/index.js";
+import resetDb from "@/api/db/reset.js";
+import { endpoints, users } from "@/api/db/schema.js";
+import { endpointUsage } from "@/api/db/schema/endpoint-usage.js";
+import { jobs } from "@/api/db/schema/jobs.js";
+import env from "@/api/env.js";
+import createApp from "@/api/lib/create-app.js";
+import { DEV_USER } from "@/api/lib/dev-user.js";
 
-import router from "./endpoint-usage.index";
+import router from "./endpoint-usage.index.js";
 
 if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");

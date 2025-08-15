@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "license": "MIT",
   "packageManager": "pnpm@10.7.0",
+"engines": {
+  "node": ">=24.0.0",
+  "pnpm": ">=10.0.0"
+},
   "scripts": {
     "dev": "turbo run dev",
     "clean": "pnpm run -r --parallel clean && rm -rf node_modules",

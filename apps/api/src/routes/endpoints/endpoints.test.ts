@@ -4,17 +4,17 @@ import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import db from "@/api/db";
-import resetDb from "@/api/db/reset";
-import { users } from "@/api/db/schema";
-import { endpoints as endpointsTable } from "@/api/db/schema/endpoints";
-import { jobs } from "@/api/db/schema/jobs";
-import env from "@/api/env";
-import { ZOD_ERROR_CODES } from "@/api/lib/constants";
-import createApp from "@/api/lib/create-app";
-import { DEV_USER } from "@/api/lib/dev-user";
+import db from "@/api/db/index.js";
+import resetDb from "@/api/db/reset.js";
+import { users } from "@/api/db/schema.js";
+import { endpoints as endpointsTable } from "@/api/db/schema/endpoints.js";
+import { jobs } from "@/api/db/schema/jobs.js";
+import env from "@/api/env.js";
+import { ZOD_ERROR_CODES } from "@/api/lib/constants.js";
+import createApp from "@/api/lib/create-app.js";
+import { DEV_USER } from "@/api/lib/dev-user.js";
 
-import router from "./endpoints.index";
+import router from "./endpoints.index.js";
 
 if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");

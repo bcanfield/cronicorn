@@ -5,7 +5,7 @@ import { integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { jobs } from "./jobs";
+import { jobs } from "./jobs.js";
 
 /**
  * Job execution status enum indicating the current state of a job execution

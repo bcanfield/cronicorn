@@ -1,6 +1,6 @@
 import pino from "pino";
 
-import env from "@/api/env";
+import env from "@/api/env.js";
 
 // Create a configurable logger for auth debugging
 export const authLogger = pino({

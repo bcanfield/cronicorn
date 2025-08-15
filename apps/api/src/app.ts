@@ -1,13 +1,13 @@
 import { cors } from "hono/cors";
 
-import configureOpenAPI from "@/api/lib/configure-open-api";
-import createApp from "@/api/lib/create-app";
-import apiKeys from "@/api/routes/api-keys/api-keys.index";
-import endpointUsage from "@/api/routes/endpoint-usage/endpoint-usage.index";
-import endpoints from "@/api/routes/endpoints/endpoints.index";
-import jobs from "@/api/routes/jobs/jobs.index";
-import messages from "@/api/routes/messages/messages.index";
-import scheduler from "@/api/routes/scheduler/scheduler.index";
+import configureOpenAPI from "@/api/lib/configure-open-api.js";
+import createApp from "@/api/lib/create-app.js";
+import apiKeys from "@/api/routes/api-keys/api-keys.index.js";
+import endpointUsage from "@/api/routes/endpoint-usage/endpoint-usage.index.js";
+import endpoints from "@/api/routes/endpoints/endpoints.index.js";
+import jobs from "@/api/routes/jobs/jobs.index.js";
+import messages from "@/api/routes/messages/messages.index.js";
+import scheduler from "@/api/routes/scheduler/scheduler.index.js";
 
 const app = createApp();
 

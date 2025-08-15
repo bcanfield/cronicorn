@@ -1,10 +1,10 @@
 import { reset } from "drizzle-seed";
 
-import db from "@/api/db";
-import seed from "@/api/db/seed/seed";
-import { DEV_USER } from "@/api/lib/dev-user";
+import db from "@/api/db/index.js";
+import seed from "@/api/db/seed/seed.js";
+import { DEV_USER } from "@/api/lib/dev-user.js";
 
-import * as schema from "./schema";
+import * as schema from "./schema.js";
 
 async function resetDb(seedData = false) {
   // eslint-disable-next-line no-console

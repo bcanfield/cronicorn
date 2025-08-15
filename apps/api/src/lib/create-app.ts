@@ -5,16 +5,16 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 
-import env from "@/api/env";
-import { logAuthDebug, logAuthError, logAuthInfo, logAuthWarn } from "@/api/lib/auth-logger";
-import { DEV_USER } from "@/api/lib/dev-user";
-import { apiKeyAuth } from "@/api/middlewares/api-key-auth";
-import { pinoLogger } from "@/api/middlewares/pino-logger";
+import env from "@/api/env.js";
+import { logAuthDebug, logAuthError, logAuthInfo, logAuthWarn } from "@/api/lib/auth-logger.js";
+import { DEV_USER } from "@/api/lib/dev-user.js";
+import { apiKeyAuth } from "@/api/middlewares/api-key-auth.js";
+import { pinoLogger } from "@/api/middlewares/pino-logger.js";
 
 import type { AppBindings, AppOpenAPI } from "./types";
 
-import { BASE_PATH } from "./constants";
-import createAuthConfig from "./create-auth-config";
+import { BASE_PATH } from "./constants.js";
+import createAuthConfig from "./create-auth-config.js";
 
 export function createRouter() {
   return new OpenAPIHono<AppBindings>({

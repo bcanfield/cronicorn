@@ -1,7 +1,7 @@
-import { createRouter } from "@/api/lib/create-app";
+import { createRouter } from "@/api/lib/create-app.js";
 
-import * as handlers from "./endpoint-usage.handlers";
-import * as routes from "./endpoint-usage.routes";
+import * as handlers from "./endpoint-usage.handlers.js";
+import * as routes from "./endpoint-usage.routes.js";
 
 const router = createRouter()
   .openapi(routes.list, handlers.list)

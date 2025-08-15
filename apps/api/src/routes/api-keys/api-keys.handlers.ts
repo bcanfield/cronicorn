@@ -5,15 +5,15 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
 import type { AppRouteHandler } from "@/api/lib/types";
 
-import db from "@/api/db";
-import { apiKeys } from "@/api/db/schema";
+import db from "@/api/db/index.js";
+import { apiKeys } from "@/api/db/schema.js";
 import {
   generateApiKeyAndSecret,
   hashApiKeySecret,
-} from "@/api/lib/api-key-utils";
-import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
+} from "@/api/lib/api-key-utils.js";
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants.js";
 
-import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RevokeRoute } from "./api-keys.routes";
+import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute, RevokeRoute } from "./api-keys.routes.js";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   // Restrict to authenticated user's API keys

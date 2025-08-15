@@ -5,8 +5,8 @@ import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { endpoints } from "./endpoints";
-import { jobs } from "./jobs";
+import { endpoints } from "./endpoints.js";
+import { jobs } from "./jobs.js";
 
 /**
  * Stores detailed results from endpoint executions including response content

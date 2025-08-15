@@ -4,19 +4,19 @@ import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import type { insertMessagesSchema } from "@/api/db/schema/messages";
+import type { insertMessagesSchema } from "@/api/db/schema/messages.js";
 
-import db from "@/api/db";
-import resetDb from "@/api/db/reset";
-import { users } from "@/api/db/schema";
-import { jobs } from "@/api/db/schema/jobs";
-import { messages as messagesTable } from "@/api/db/schema/messages";
-import env from "@/api/env";
-import { ZOD_ERROR_CODES } from "@/api/lib/constants";
-import createApp from "@/api/lib/create-app";
-import { DEV_USER } from "@/api/lib/dev-user";
+import db from "@/api/db/index.js";
+import resetDb from "@/api/db/reset.js";
+import { users } from "@/api/db/schema.js";
+import { jobs } from "@/api/db/schema/jobs.js";
+import { messages as messagesTable } from "@/api/db/schema/messages.js";
+import env from "@/api/env.js";
+import { ZOD_ERROR_CODES } from "@/api/lib/constants.js";
+import createApp from "@/api/lib/create-app.js";
+import { DEV_USER } from "@/api/lib/dev-user.js";
 
-import router from "./messages.index";
+import router from "./messages.index.js";
 
 if (env.NODE_ENV !== "test") {
   throw new Error("NODE_ENV must be 'test'");

@@ -3,8 +3,8 @@ import type { AuthConfig } from "@hono/auth-js";
 import GitHub from "@auth/core/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 
-import db from "../db";
-import env from "../env";
+import db from "../db/index.js";
+import env from "../env.js";
 
 export default function createAuthConfig(): AuthConfig {
   return {
