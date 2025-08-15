@@ -5,7 +5,7 @@ import PQueue from "p-queue";
  * Endpoint executor service
  */
 import type { ExecutionConfig } from "../../config.js";
-import type { EndpointExecutionResult, JobContext } from "../../types.js";
+import type { EndpointExecutionResult, EndpointResponseContent, JobContext } from "../../types.js";
 import type { AIAgentPlanResponse } from "../ai-agent/index.js";
 
 /**
@@ -301,7 +301,7 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
       const endTime = Date.now();
 
       // Try to parse response content
-      let responseContent: any;
+      let responseContentRaw: unknown = null;
       let responseText: string = "";
       let truncated = false;
 
@@ -318,17 +318,27 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
 
         // Try to parse as JSON
         try {
-          responseContent = JSON.parse(responseText);
+          const parsed = JSON.parse(responseText);
+          responseContentRaw = parsed;
         }
-        catch (e) {
-          // Not JSON, use as text
-          responseContent = responseText;
+        catch {
+          // Not JSON, keep as string
+          responseContentRaw = responseText;
         }
       }
-      catch (e) {
+      catch {
         // Cannot read response
-        responseContent = null;
+        responseContentRaw = null;
       }
+
+      const responseContent: EndpointResponseContent
+        = typeof responseContentRaw === "string"
+          ? responseContentRaw
+          : Array.isArray(responseContentRaw)
+            ? responseContentRaw
+            : responseContentRaw && typeof responseContentRaw === "object"
+              ? { ...responseContentRaw }
+              : null;
 
       // Create result
       return {

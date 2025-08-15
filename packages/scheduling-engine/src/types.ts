@@ -83,6 +83,15 @@ export type EngineState = {
     aiInputTokens?: number;
     aiOutputTokens?: number;
     aiTotalTokens?: number;
+    // malformed response metrics (3.3.5.c)
+    malformedResponsesPlan?: number;
+    malformedResponsesSchedule?: number;
+    repairAttemptsPlan?: number;
+    repairAttemptsSchedule?: number;
+    repairSuccessesPlan?: number;
+    repairSuccessesSchedule?: number;
+    repairFailuresPlan?: number;
+    repairFailuresSchedule?: number;
   };
 };
 
@@ -106,11 +115,13 @@ export type ProcessingResult = {
 /**
  * Individual endpoint execution result
  */
+export type EndpointResponseContent = string | Record<string, unknown> | unknown[] | null;
 export type EndpointExecutionResult = {
   endpointId: string;
   success: boolean;
   statusCode: number;
-  responseContent?: any;
+  // Replaced unsafe any with explicit union of possible response content representations.
+  responseContent?: EndpointResponseContent;
   error?: string;
   executionTimeMs: number;
   timestamp: string;

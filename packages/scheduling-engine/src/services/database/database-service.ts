@@ -8,6 +8,17 @@ import type { AIAgentPlanResponse, AIAgentScheduleResponse } from "../ai-agent/i
 
 import apiClient from "../../api-client.js";
 
+// Helper for posting to scheduler endpoints lacking typed client surface
+async function postScheduler(path: string, body: unknown): Promise<Response> {
+  // eslint-disable-next-line node/no-process-env
+  const base = process.env.CRONICORN_API_URL || "http://localhost:9999";
+  return fetch(`${base}/scheduler/${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
 /**
  * Interface for database operations
  */
@@ -109,10 +120,14 @@ export type DatabaseService = {
    * is added to the existing cumulative totals in the database. Omitted fields are
    * treated as zero and ignored.
    *
-   * @param params Object containing the jobId and optional delta fields to increment
+   * @param params Object with token usage delta fields
+   * @param params.jobId Job identifier
+   * @param params.inputTokensDelta Optional input token delta
+   * @param params.outputTokensDelta Optional output token delta
+   * @param params.reasoningTokensDelta Optional reasoning token delta
+   * @param params.cachedInputTokensDelta Optional cached input token delta
    * @returns Whether the token usage was successfully updated
    */
-  // Update job token usage (delta increments for cumulative counters)
   updateJobTokenUsage: (params: { jobId: string; inputTokensDelta?: number; outputTokensDelta?: number; reasoningTokensDelta?: number; cachedInputTokensDelta?: number }) => Promise<boolean>;
 
   /**
@@ -242,13 +257,23 @@ export class ApiDatabaseService implements DatabaseService {
         maxRequestSizeBytes: endpoint.maxRequestSizeBytes || undefined,
         maxResponseSizeBytes: endpoint.maxResponseSizeBytes || undefined,
       })),
-      messages: data.messages.map(msg => ({
-        id: msg.id,
-        role: msg.role as "system" | "user" | "assistant" | "tool",
-        content: typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
-        timestamp: msg.createdAt,
-        source: msg.source || undefined,
-      })),
+      messages: data.messages.map((msg) => {
+        const allowedRoles = ["system", "user", "assistant", "tool"] as const;
+        type AllowedRole = typeof allowedRoles[number];
+        function isAllowedRole(value: unknown): value is AllowedRole {
+          if (typeof value !== "string")
+            return false;
+          return value === "system" || value === "user" || value === "assistant" || value === "tool";
+        }
+        const role: AllowedRole = isAllowedRole(msg.role) ? msg.role : "user";
+        return {
+          id: msg.id,
+          role,
+          content: typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
+          timestamp: msg.createdAt,
+          source: msg.source || undefined,
+        };
+      }),
       endpointUsage: data.endpointUsage.map(usage => ({
         ...usage,
         requestSizeBytes: usage.requestSizeBytes || undefined,
@@ -393,9 +418,7 @@ export class ApiDatabaseService implements DatabaseService {
    * @returns Whether the execution status was successfully updated
    */
   async updateExecutionStatus(jobId: string, status: "RUNNING" | "FAILED", errorMessage?: string, errorCode?: string): Promise<boolean> {
-    const response = await (apiClient.api.scheduler as any)["jobs/execution-status"].$post({
-      json: { jobId, status, errorMessage, errorCode },
-    });
+    const response = await postScheduler("jobs/execution-status", { jobId, status, errorMessage, errorCode });
 
     if (!response.ok) {
       throw new Error(`Failed to update execution status: ${response.status}`);
@@ -412,12 +435,16 @@ export class ApiDatabaseService implements DatabaseService {
    * is added to the existing cumulative totals in the database. Omitted fields are
    * treated as zero and ignored.
    *
-   * @param params Object containing the jobId and optional delta fields to increment
+   * @param params Object with token usage delta fields
+   * @param params.jobId Job identifier
+   * @param params.inputTokensDelta Optional input token delta
+   * @param params.outputTokensDelta Optional output token delta
+   * @param params.reasoningTokensDelta Optional reasoning token delta
+   * @param params.cachedInputTokensDelta Optional cached input token delta
    * @returns Whether the token usage was successfully updated
    */
-  // Update job token usage (delta increments for cumulative counters)
   async updateJobTokenUsage(params: { jobId: string; inputTokensDelta?: number; outputTokensDelta?: number; reasoningTokensDelta?: number; cachedInputTokensDelta?: number }): Promise<boolean> {
-    const response = await (apiClient.api.scheduler as any)["jobs/token-usage"].$post({ json: params });
+    const response = await postScheduler("jobs/token-usage", params);
     if (!response.ok) {
       throw new Error(`Failed to update job token usage: ${response.status}`);
     }

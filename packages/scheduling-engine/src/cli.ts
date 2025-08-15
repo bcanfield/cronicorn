@@ -47,7 +47,7 @@ const env = {
 /**
  * Load configuration from environment variables
  */
-function loadConfig(): any {
+function loadConfig(): EngineConfig {
   const partial: EngineConfigInput = {
     aiAgent: {
       model: env.getOrDefault("CRONICORN_AI_MODEL", "gpt-4o"),

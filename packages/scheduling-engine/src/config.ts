@@ -4,6 +4,8 @@
  */
 import { z } from "zod";
 
+import { aiAgentMetricsEventSchema } from "./services/ai-agent/types.js";
+
 /** Prompt optimization nested config */
 export const PromptOptimizationConfigSchema = z.object({
   enabled: z.boolean().default(true).describe("Enable context trimming & relevance limiting"),
@@ -23,6 +25,12 @@ export const AIAgentConfigSchema = z.object({
   validateSemantics: z.boolean().default(true).describe("Enable semantic validation of AI responses"),
   semanticStrict: z.boolean().default(true).describe("Treat semantic issues as errors (true) or warnings (false)"),
   repairMalformedResponses: z.boolean().default(true).describe("Attempt automated repair when AI response is malformed or schema-invalid"),
+  metricsHook: z
+    .function()
+    .args(aiAgentMetricsEventSchema)
+    .returns(z.void())
+    .optional()
+    .describe("Internal hook for metrics instrumentation (internal use)"),
 });
 
 /** Endpoint execution config */
@@ -54,7 +62,7 @@ export const SchedulerConfigSchema = z.object({
 });
 
 /** Logger placeholder */
-export const LoggerSchema = z.any().optional().describe("Injected logger (must implement .info/.error) ");
+export const LoggerSchema = z.any().optional().describe("Injected logger (must implement .info/.error) "); // TODO: narrow logger interface
 
 /** Root engine config (input may be partial) */
 export const EngineConfigInputSchema = z.object({

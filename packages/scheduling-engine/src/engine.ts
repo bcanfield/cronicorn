@@ -4,18 +4,11 @@
  * Simplified engine that uses API layer for all data operations
  */
 import type { EngineConfig } from "./config.js";
-import type {
-  AIAgentService,
-  DatabaseService,
-  EndpointExecutorService,
-} from "./services/index.js";
+import type { AIAgentMetricsEvent } from "./services/ai-agent/types.js";
+import type { AIAgentService, DatabaseService, EndpointExecutorService } from "./services/index.js";
 import type { EngineState, ExecutionResults, ProcessingResult } from "./types.js";
 
-import {
-  ApiDatabaseService,
-  DefaultAIAgentService,
-  DefaultEndpointExecutorService,
-} from "./services/index.js";
+import { ApiDatabaseService, DefaultAIAgentService, DefaultEndpointExecutorService } from "./services/index.js";
 
 /**
  * Main scheduling engine class
@@ -52,11 +45,53 @@ export class SchedulingEngine {
    *
    * @param config Engine configuration
    */
-  constructor(config: EngineConfig) {
+  constructor(config: EngineConfig, deps?: { aiAgent?: AIAgentService; executor?: EndpointExecutorService; database?: DatabaseService }) {
     this.config = config;
-    this.aiAgent = new DefaultAIAgentService(this.config.aiAgent);
-    this.executor = new DefaultEndpointExecutorService(this.config.execution);
-    this.database = new ApiDatabaseService();
+    const metricsHook = (evt: AIAgentMetricsEvent) => {
+      switch (evt.type) {
+        case "malformed": {
+          if (evt.phase === "plan") {
+            this.state.stats.malformedResponsesPlan = (this.state.stats.malformedResponsesPlan ?? 0) + 1;
+          }
+          else {
+            this.state.stats.malformedResponsesSchedule = (this.state.stats.malformedResponsesSchedule ?? 0) + 1;
+          }
+          break;
+        }
+        case "repairAttempt": {
+          if (evt.phase === "plan") {
+            this.state.stats.repairAttemptsPlan = (this.state.stats.repairAttemptsPlan ?? 0) + 1;
+          }
+          else {
+            this.state.stats.repairAttemptsSchedule = (this.state.stats.repairAttemptsSchedule ?? 0) + 1;
+          }
+          break;
+        }
+        case "repairSuccess": {
+          if (evt.phase === "plan") {
+            this.state.stats.repairSuccessesPlan = (this.state.stats.repairSuccessesPlan ?? 0) + 1;
+          }
+          else {
+            this.state.stats.repairSuccessesSchedule = (this.state.stats.repairSuccessesSchedule ?? 0) + 1;
+          }
+          break;
+        }
+        case "repairFailure": {
+          if (evt.phase === "plan") {
+            this.state.stats.repairFailuresPlan = (this.state.stats.repairFailuresPlan ?? 0) + 1;
+          }
+          else {
+            this.state.stats.repairFailuresSchedule = (this.state.stats.repairFailuresSchedule ?? 0) + 1;
+          }
+          break;
+        }
+      }
+    };
+    // attach metrics hook without using any casts
+    this.config.aiAgent.metricsHook = metricsHook;
+    this.aiAgent = deps?.aiAgent || new DefaultAIAgentService(this.config.aiAgent);
+    this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution);
+    this.database = deps?.database || new ApiDatabaseService();
   }
 
   /**
@@ -209,7 +244,10 @@ export class SchedulingEngine {
         executionContext: {
           ...jobContext.executionContext,
           currentTime: new Date().toISOString(),
-          systemEnvironment: (jobContext.executionContext?.systemEnvironment || "production") as "production" | "development" | "test",
+          systemEnvironment: (() => {
+            const env = jobContext.executionContext?.systemEnvironment;
+            return env === "production" || env === "development" || env === "test" ? env : "production";
+          })(),
         },
       };
 

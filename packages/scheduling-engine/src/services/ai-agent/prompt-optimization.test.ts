@@ -23,7 +23,7 @@ function buildContext(opts: Partial<{ messages: number; systemEvery: number; usa
     endpoints: [],
     messages,
     endpointUsage,
-  } as JobContext;
+  };
 }
 
 describe("prompt-optimization utilities", () => {

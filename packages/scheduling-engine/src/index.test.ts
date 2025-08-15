@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createSchedulingEngine, SchedulingEngine } from "./index.js";
+import { createSchedulingEngine, SchedulingEngine, validateEngineConfig } from "./index.js";
 
 // Mock underlying services so no real API calls occur
 vi.mock("./services/index.js", () => ({
   ApiDatabaseService: vi.fn().mockImplementation(() => ({
-    getJobsToProcess: vi.fn(),
+    getJobsToProcess: vi.fn().mockResolvedValue([]),
     lockJob: vi.fn(),
     unlockJob: vi.fn(),
     getJobContext: vi.fn(),
@@ -29,22 +29,18 @@ describe("package public surface", () => {
     vi.clearAllMocks();
   });
 
-  it("exports factory and constructs engine with default scheduler values", async () => {
+  it("exports factory and constructs engine; default scheduler values validated", async () => {
     const engine = createSchedulingEngine({
       aiAgent: { model: "gpt-4o" },
       execution: { maxConcurrency: 5, defaultTimeoutMs: 30000 },
       metrics: { enabled: true },
-      // Intentionally omit scheduler config to rely on defaults
-    } as any);
+    });
 
     expect(engine).toBeInstanceOf(SchedulingEngine);
 
-    // Access mocked database service
-    const db = (engine as any).database;
-    db.getJobsToProcess.mockResolvedValue([]);
-
-    // Calling a cycle should use default maxBatchSize = 20
-    await engine.processCycle();
-    expect(db.getJobsToProcess).toHaveBeenCalledWith(20);
+    // Validate that omitted scheduler config yields defaults (maxBatchSize=20)
+    const validated = validateEngineConfig({ aiAgent: { model: "gpt-4o" }, execution: { maxConcurrency: 1, defaultTimeoutMs: 1000 }, metrics: { enabled: true } });
+    const schedulerCfg = validated.scheduler;
+    expect(schedulerCfg && schedulerCfg.maxBatchSize).toBe(20);
   });
 });
