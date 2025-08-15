@@ -1,3 +1,8 @@
+/**
+ * Lightweight heuristic classifiers mapping raw error messages to
+ * MalformedResponseCategory values for metrics & repair branching.
+ */
+
 import type { MalformedResponseCategory } from "./types.js";
 
 export function classifyPlanError(message: string): MalformedResponseCategory {

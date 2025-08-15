@@ -1,3 +1,7 @@
+/**
+ * Zod schemas defining the AI agent contract for plan & schedule outputs.
+ */
+
 import { z } from "zod";
 
 export const executionPlanSchema = z.object({

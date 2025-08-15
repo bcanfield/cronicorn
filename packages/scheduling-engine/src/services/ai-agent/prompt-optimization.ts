@@ -1,6 +1,11 @@
 import type { PromptOptimizationConfig } from "../../config.js";
 import type { JobContext } from "../../types.js";
 
+/**
+ * Prompt optimization utilities: trims context (messages & endpoint usage)
+ * according to config and produces analysis reports for regression guards.
+ */
+
 /** Optimized context result */
 export type OptimizedContextResult = {
   before: JobContext;

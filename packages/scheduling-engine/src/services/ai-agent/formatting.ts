@@ -1,3 +1,8 @@
+/**
+ * Prompt & context format helpers shared by plan and schedule cores.
+ * Pure string assembly; safe to unit test independently.
+ */
+
 import type { ExecutionResults, JobContext } from "../../types.js";
 
 export function createPlanningSystemPrompt(): string {

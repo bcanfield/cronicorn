@@ -1,5 +1,10 @@
 import type { AIAgentPlanResponse, AIAgentScheduleResponse } from "./types.js";
 
+/**
+ * Semantic validators for plan & schedule responses.
+ * Return arrays of human-readable issue strings (no throwing inside).
+ */
+
 export function validatePlanSemantics(plan: AIAgentPlanResponse): string[] {
   const issues: string[] = [];
   if (plan.executionStrategy === "parallel" && plan.concurrencyLimit && plan.concurrencyLimit < 2) {
