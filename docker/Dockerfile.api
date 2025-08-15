@@ -1,6 +1,6 @@
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
-FROM base as deps
+FROM base AS deps
 WORKDIR /app
 RUN corepack enable
 COPY . .
@@ -12,7 +12,7 @@ RUN corepack enable
 RUN pnpm --filter @tasks-app/api... build
 
 
-FROM oven/bun:1.2-alpine
+FROM base AS runner
 WORKDIR /app/apps/api/dist
 
 ENV NODE_ENV=production
