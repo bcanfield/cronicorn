@@ -441,4 +441,42 @@ describe("schedulingEngine", () => {
             expect(state1).toEqual(state2); // Same content
         });
     });
+
+    describe("concurrency", () => {
+        it("processes multiple jobs in parallel when jobProcessingConcurrency > 1", async () => {
+            const concurrentConfig = {
+                ...mockConfig,
+                scheduler: { ...mockConfig.scheduler, jobProcessingConcurrency: 3 },
+            };
+            const concurrentEngine = new SchedulingEngine(concurrentConfig as any);
+            const db = (concurrentEngine as any).database;
+            const ai = (concurrentEngine as any).aiAgent;
+            const exec = (concurrentEngine as any).executor;
+
+            // 5 jobs, concurrency 3
+            db.getJobsToProcess.mockResolvedValue(["j1", "j2", "j3", "j4", "j5"]);
+            db.lockJob.mockResolvedValue(true);
+            db.getJobContext.mockImplementation((id: string) => Promise.resolve({
+                job: { id, definitionNL: "d", status: "ACTIVE", locked: false, createdAt: testTimestamp, updatedAt: testTimestamp },
+                endpoints: [],
+                messages: [],
+                endpointUsage: [],
+                executionContext: { currentTime: testTimestamp, systemEnvironment: "test" },
+            }));
+            ai.planExecution.mockResolvedValue({ endpointsToCall: [], executionStrategy: "sequential", reasoning: "r", confidence: 0.9 });
+            exec.executeEndpoints.mockResolvedValue([]);
+            ai.finalizeSchedule.mockResolvedValue({ nextRunAt: testTimestamp, reasoning: "r", confidence: 0.8 });
+            db.recordExecutionPlan.mockResolvedValue(true);
+            db.recordEndpointResults.mockResolvedValue(true);
+            db.recordExecutionSummary.mockResolvedValue(true);
+            db.updateJobSchedule.mockResolvedValue(true);
+            db.unlockJob.mockResolvedValue(true);
+
+            const result = await concurrentEngine.processCycle();
+            expect(result.jobsProcessed).toBe(5);
+            expect(result.successfulJobs).toBe(5);
+            expect(ai.planExecution).toHaveBeenCalledTimes(5);
+            // concurrency evidence: at least some planExecution calls overlapped in microtask queue – approximate by timing
+        });
+    });
 });

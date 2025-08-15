@@ -82,6 +82,9 @@ export type SchedulerConfig = {
 
   /** Time in milliseconds after which a job lock is considered stale */
   staleLockThresholdMs?: number;
+
+  /** Maximum number of jobs processed concurrently within a cycle */
+  jobProcessingConcurrency?: number;
 };
 
 /**

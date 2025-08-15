@@ -119,7 +119,7 @@ export class SchedulingEngine {
 
     const result: ProcessingResult = {
       startTime,
-      endTime: new Date(), // Will be updated at the end
+      endTime: new Date(), // updated later
       jobsProcessed: 0,
       successfulJobs: 0,
       failedJobs: 0,
@@ -127,103 +127,33 @@ export class SchedulingEngine {
     };
 
     try {
-      // Get jobs that need processing
       const maxBatchSize = this.config.scheduler?.maxBatchSize ?? 20;
       const jobIds = await this.database.getJobsToProcess(maxBatchSize);
-
       result.jobsProcessed = jobIds.length;
-
-      // Process each job
-      for (const jobId of jobIds) {
-        try {
-          // Lock the job
-          const locked = await this.database.lockJob(
-            jobId,
-            new Date(Date.now() + (this.config.scheduler?.staleLockThresholdMs ?? 300000)),
-          );
-
-          if (!locked) {
-            // Skip if lock not acquired
-            continue;
-          }
-
-          // Get job context
-          const jobContext = await this.database.getJobContext(jobId);
-
-          if (!jobContext) {
-            await this.database.unlockJob(jobId);
-            continue;
-          }
-
-          // Add execution time for context
-          const contextWithTime = {
-            ...jobContext,
-            executionContext: {
-              ...jobContext.executionContext,
-              currentTime: new Date().toISOString(),
-              systemEnvironment: (jobContext.executionContext?.systemEnvironment || "production") as "production" | "development" | "test",
-            },
-          };
-
-          // Plan phase - Ask AI agent for execution plan
-          this.state.stats.aiAgentCalls++;
-          const executionPlan = await this.aiAgent.planExecution(contextWithTime);
-
-          // Record the plan
-          await this.database.recordExecutionPlan(jobId, executionPlan);
-
-          // Execute endpoints according to plan
-          const endpointResults = await this.executor.executeEndpoints(contextWithTime, executionPlan);
-
-          // Record individual endpoint results
-          await this.database.recordEndpointResults(jobId, endpointResults);
-
-          // Create execution summary
-          const executionSummary: ExecutionResults = {
-            results: endpointResults,
-            summary: {
-              startTime: new Date().toISOString(),
-              endTime: new Date().toISOString(),
-              totalDurationMs: endpointResults.reduce((total, r) => total + r.executionTimeMs, 0),
-              successCount: endpointResults.filter(r => r.success).length,
-              failureCount: endpointResults.filter(r => !r.success).length,
-            },
-          };
-
-          // Record execution summary
-          await this.database.recordExecutionSummary(jobId, executionSummary.summary);
-
-          // Update endpoint call stats
-          this.state.stats.totalEndpointCalls += endpointResults.length;
-
-          // Schedule phase - Get next run time from AI agent
-          this.state.stats.aiAgentCalls++;
-          const scheduleResponse = await this.aiAgent.finalizeSchedule(contextWithTime, executionSummary);
-
-          // Update job schedule
-          await this.database.updateJobSchedule(jobId, scheduleResponse);
-
-          // Release the lock
-          await this.database.unlockJob(jobId);
-
-          // Update success count
-          result.successfulJobs++;
-        }
-        catch (jobError) {
-          result.failedJobs++;
-          const errorMessage = jobError instanceof Error ? jobError.message : String(jobError);
-          result.errors.push({
-            message: errorMessage,
-            jobId,
-          });
-
-          // Record error and unlock job
-          await this.database.recordJobError(jobId, errorMessage);
-          await this.database.unlockJob(jobId);
-        }
+      if (jobIds.length === 0) {
+        const logger = this.config.logger || console;
+        logger.info("Processing cycle completed: 0/0 jobs successful");
+        result.endTime = new Date();
+        result.duration = result.endTime.getTime() - result.startTime.getTime();
+        return result;
       }
 
-      // Log completion
+      const concurrency = Math.max(1, this.config.scheduler?.jobProcessingConcurrency ?? 1);
+
+      // Simple worker pool
+      let index = 0;
+      const processNext = async (): Promise<void> => {
+        const current = index++;
+        if (current >= jobIds.length)
+          return;
+        const jobId = jobIds[current];
+        await this.processSingleJob(jobId, result).catch(() => { /* errors recorded inside */ });
+        return processNext();
+      };
+
+      const workers = Array.from({ length: Math.min(concurrency, jobIds.length) }, () => processNext());
+      await Promise.all(workers);
+
       const logger = this.config.logger || console;
       logger.info(`Processing cycle completed: ${result.successfulJobs}/${result.jobsProcessed} jobs successful`);
     }
@@ -237,12 +167,71 @@ export class SchedulingEngine {
     result.endTime = new Date();
     result.duration = result.endTime.getTime() - result.startTime.getTime();
 
-    // Update engine stats
     this.state.stats.totalJobsProcessed += result.jobsProcessed;
     this.state.stats.successfulJobs += result.successfulJobs;
     this.state.stats.failedJobs += result.failedJobs;
 
     return result;
+  }
+
+  private async processSingleJob(jobId: string, aggregate: ProcessingResult): Promise<void> {
+    try {
+      const locked = await this.database.lockJob(jobId, new Date(Date.now() + (this.config.scheduler?.staleLockThresholdMs ?? 300000)));
+      if (!locked)
+        return; // skip silently
+
+      const jobContext = await this.database.getJobContext(jobId);
+      if (!jobContext) {
+        await this.database.unlockJob(jobId);
+        return;
+      }
+
+      const contextWithTime = {
+        ...jobContext,
+        executionContext: {
+          ...jobContext.executionContext,
+          currentTime: new Date().toISOString(),
+          systemEnvironment: (jobContext.executionContext?.systemEnvironment || "production") as "production" | "development" | "test",
+        },
+      };
+
+      this.state.stats.aiAgentCalls++;
+      const executionPlan = await this.aiAgent.planExecution(contextWithTime);
+      await this.database.recordExecutionPlan(jobId, executionPlan);
+
+      const endpointResults = await this.executor.executeEndpoints(contextWithTime, executionPlan);
+      await this.database.recordEndpointResults(jobId, endpointResults);
+
+      const executionSummary: ExecutionResults = {
+        results: endpointResults,
+        summary: {
+          startTime: new Date().toISOString(),
+          endTime: new Date().toISOString(),
+          totalDurationMs: endpointResults.reduce((t, r) => t + r.executionTimeMs, 0),
+          successCount: endpointResults.filter(r => r.success).length,
+          failureCount: endpointResults.filter(r => !r.success).length,
+        },
+      };
+      await this.database.recordExecutionSummary(jobId, executionSummary.summary);
+      this.state.stats.totalEndpointCalls += endpointResults.length;
+
+      this.state.stats.aiAgentCalls++;
+      const scheduleResponse = await this.aiAgent.finalizeSchedule(contextWithTime, executionSummary);
+      await this.database.updateJobSchedule(jobId, scheduleResponse);
+
+      await this.database.unlockJob(jobId);
+      aggregate.successfulJobs++;
+    }
+    catch (jobError) {
+      aggregate.failedJobs++;
+      const errorMessage = jobError instanceof Error ? jobError.message : String(jobError);
+      aggregate.errors.push({ message: errorMessage, jobId });
+      try {
+        await this.database.recordJobError(jobId, errorMessage);
+        await this.database.unlockJob(jobId);
+      }
+      catch { /* swallow */ }
+    }
   }
 
   /**
