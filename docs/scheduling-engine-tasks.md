@@ -122,7 +122,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **3.2.2**: Implement planning phase prompt builder
 - [x] **3.2.3**: Implement scheduling phase prompt builder
 - [x] **3.2.4**: Add context-aware prompt optimization *(implemented: configurable trimming of messages & usage history via promptOptimization config)*
-- [ ] **3.2.5**: Create prompt testing utilities
+- [x] **3.2.5**: Create prompt testing utilities *(added shared optimizeJobContext + analyzePromptOptimization with token estimate + dedicated tests)*
 
 ### 3.3 Response Processing
 
@@ -289,22 +289,13 @@ Each task below should follow this workflow, with tests committed alongside impl
 - Performance metrics captured per cycle (avg, last, total time) — ready for future dashboard.
 - Execution status transitions (RUNNING / FAILED) instrumented.
 - Context-aware prompt optimization added (limits historical messages & endpoint usage slices; configurable via aiAgent.promptOptimization).
+- Prompt testing utilities implemented (shared module + tests verifying trimming, floors, token reduction, preservation guarantees).
 
 ## 🎯 Rationale for Next Task (3.2.5)
 Add prompt testing utilities to quantify optimization impact (token delta, reasoning retention) and guard against regressions before adding semantic validation.
 
-## 🛠 Proposed 3.2.4 Implementation Outline
-1. Add PromptOptimizer service (interface + default implementation)
-2. Inject into AI agent or engine pre-plan phase to enrich context (dynamic relevance filtering, message trimming, endpoint ranking hints)
-3. Config flag: metrics.promptOptimizationEnabled
-4. Tests:
-   - Ensures optimizer invoked when enabled
-   - Verifies context reduction logic
-   - Asserts deterministic optimization boundaries (max messages, endpoint relevance scoring)
-5. Metrics: track promptsBefore/After sizes
-
-Confirm proceeding with 3.2.4 or choose an alternative (e.g., 4.1.3 retries) before implementation.
-
+## 🎯 Rationale for Next Task (3.3.4)
+Add semantic validation for AI responses to ensure structural + semantic correctness ahead of malformed response handling and fallback strategies.
 
 ## Success Criteria
 

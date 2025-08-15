@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { ExecutionResults, JobContext } from "../../types.js";
 
 import { type AIAgentConfig, AIAgentConfigSchema } from "../../config.js";
+import { optimizeJobContext } from "./prompt-optimization.js";
 
 /**
  * Token usage information
@@ -394,24 +395,6 @@ ${results.results.map((r) => {
    * @returns Optimized job context
    */
   private optimizeContext(jobContext: JobContext): JobContext {
-    const cfg = this.config.promptOptimization;
-    if (!cfg || cfg.enabled === false)
-      return jobContext;
-
-    const maxMessages = cfg.maxMessages ?? 10;
-    const minRecent = cfg.minRecentMessages ?? 3;
-    const usageLimit = cfg.maxEndpointUsageEntries ?? 5;
-
-    const messages = jobContext.messages;
-
-    // Keep system messages + last N recent messages ensuring at least minRecent
-    const systemMessages = messages.filter(m => m.role === "system");
-    const recent = messages.filter(m => m.role !== "system").slice(-Math.max(minRecent, maxMessages));
-    const optimizedMessages = [...systemMessages, ...recent].slice(-maxMessages);
-
-    // Optimize endpoint usage data
-    const optimizedUsage = jobContext.endpointUsage.slice(-usageLimit);
-
-    return { ...jobContext, messages: optimizedMessages, endpointUsage: optimizedUsage };
+    return optimizeJobContext(jobContext, this.config.promptOptimization);
   }
 }
