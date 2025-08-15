@@ -58,7 +58,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **1.1.2**: Configure `package.json` with dependencies
 - [x] **1.1.3**: Set up TypeScript configuration (`tsconfig.json`)
 - [x] **1.1.4**: Configure build scripts and entry points
-- [ ] **1.1.5**: Add README.md with workspace overview
+- [x] **1.1.5**: Add README.md with workspace overview
 
 ### 1.2 Core Types & Interfaces
 
