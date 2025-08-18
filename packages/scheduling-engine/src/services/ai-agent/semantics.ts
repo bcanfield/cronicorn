@@ -13,8 +13,10 @@ export function validatePlanSemantics(plan: AIAgentPlanResponse): string[] {
   for (const ep of plan.endpointsToCall) {
     if (ep.dependsOn) {
       for (const dep of ep.dependsOn) {
-        if (!ids.has(dep)) issues.push(`Endpoint ${ep.endpointId} depends on unknown endpoint ${dep}`);
-        if (dep === ep.endpointId) issues.push(`Endpoint ${ep.endpointId} has self-dependency`);
+        if (!ids.has(dep))
+          issues.push(`Endpoint ${ep.endpointId} depends on unknown endpoint ${dep}`);
+        if (dep === ep.endpointId)
+          issues.push(`Endpoint ${ep.endpointId} has self-dependency`);
       }
     }
   }
@@ -30,7 +32,8 @@ export function validateScheduleSemantics(schedule: AIAgentScheduleResponse): st
   const issues: string[] = [];
   if (Number.isNaN(Date.parse(schedule.nextRunAt))) {
     issues.push("nextRunAt is not a valid date");
-  } else if (Date.parse(schedule.nextRunAt) <= Date.now()) {
+  }
+  else if (Date.parse(schedule.nextRunAt) <= Date.now()) {
     issues.push("nextRunAt is not in the future");
   }
   if (schedule.confidence < 0.0 || schedule.confidence > 1.0) {
@@ -54,7 +57,7 @@ export function salvagePlan(plan: AIAgentPlanResponse): { plan: AIAgentPlanRespo
     changed = true;
   }
   const ids = new Set(plan.endpointsToCall.map(e => e.endpointId));
-  const newEndpoints = plan.endpointsToCall.map(ep => {
+  const newEndpoints = plan.endpointsToCall.map((ep) => {
     let epChanged = false;
     const dependsOn = ep.dependsOn ? ep.dependsOn.filter(d => ids.has(d) && d !== ep.endpointId) : ep.dependsOn;
     if (ep.dependsOn && JSON.stringify(dependsOn) !== JSON.stringify(ep.dependsOn)) {

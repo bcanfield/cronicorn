@@ -99,9 +99,9 @@ async function tryRepairPlan(originalError: unknown, ctx: PlanCoreParams): Promi
           if (ctx.config.semanticStrict)
             throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
           const { plan: salvaged, notes } = salvagePlan(plan);
-            plan = notes.length
-              ? { ...salvaged, reasoning: `${salvaged.reasoning}\n\n[SemanticSalvage] ${notes.join(" | ")}` }
-              : { ...plan, reasoning: `${plan.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+          plan = notes.length
+            ? { ...salvaged, reasoning: `${salvaged.reasoning}\n\n[SemanticSalvage] ${notes.join(" | ")}` }
+            : { ...plan, reasoning: `${plan.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
         }
       }
       return { ...plan, usage: result.usage };
