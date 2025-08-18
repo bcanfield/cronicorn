@@ -74,7 +74,7 @@ export function formatExecutionResults(results: ExecutionResults): string {
   // Recompute failures excluding aborted endpoints for consistency with engine summary logic
   const failureCountExcludingAborted = results.results.filter(r => !r.success && !r.aborted).length;
   const abortedCount = results.results.filter(r => r.aborted).length;
-  const escalation = results.summary.escalationLevel || (failureCountExcludingAborted === 0 ? 'none' : failureCountExcludingAborted >= Math.ceil(results.results.length * 0.5) ? 'critical' : 'warn');
+  const escalation = results.summary.escalationLevel || (failureCountExcludingAborted === 0 ? "none" : failureCountExcludingAborted >= Math.ceil(results.results.length * 0.5) ? "critical" : "warn");
   return `Execution Summary:
 Start Time: ${results.summary.startTime}
 End Time: ${results.summary.endTime}

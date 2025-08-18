@@ -112,6 +112,7 @@ export type ProcessingResult = {
     message: string;
     jobId?: string;
     endpointId?: string;
+    code?: JobErrorCode;
   }>;
 };
 
@@ -146,7 +147,9 @@ export type ExecutionResults = {
     successCount: number;
     failureCount: number; // excludes aborted
     abortedCount?: number; // number of aborted endpoints
-    escalationLevel?: 'none' | 'warn' | 'critical'; // enhanced error handling (5.1.3)
+    escalationLevel?: "none" | "warn" | "critical"; // enhanced error handling (5.1.3)
+    recoveryAction?: RecoveryAction; // action decided for this job execution
+    disabledEndpoints?: string[]; // endpoints skipped due to DISABLE_ENDPOINT action
   };
 };
 
@@ -166,3 +169,6 @@ export type AbortCapability = {
   signal: AbortSignal;
   abort: (reason?: string) => void;
 };
+
+export type JobErrorCode = "plan_error" | "execution_error" | "schedule_error" | "unknown_error";
+export type RecoveryAction = "NONE" | "BACKOFF_ONLY" | "REDUCE_CONCURRENCY" | "DISABLE_ENDPOINT";

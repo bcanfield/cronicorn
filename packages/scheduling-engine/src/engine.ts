@@ -31,6 +31,9 @@ export class SchedulingEngine {
     },
   };
 
+  private jobEscalationLevels = new Map<string, "none" | "warn" | "critical">();
+  private disabledEndpointMap = new Map<string, Set<string>>();
+
   // Service instances
   private aiAgent: AIAgentService;
   private executor: EndpointExecutorService;
@@ -426,12 +429,40 @@ export class SchedulingEngine {
       }
       await this.database.recordExecutionPlan(jobId, executionPlan);
 
-      const endpointResults = await this.executor.executeEndpoints(contextWithTime, executionPlan);
+      const disabledSet = this.disabledEndpointMap.get(jobId);
+      const filteredPlan = disabledSet && disabledSet.size > 0 && executionPlan.executionStrategy !== "mixed"
+        ? { ...executionPlan, endpointsToCall: executionPlan.endpointsToCall.filter(ep => !disabledSet.has(ep.endpointId)) }
+        : executionPlan; // for mixed we rely on future enhancement (task 170 simplified)
+
+      const endpointResults = await this.executor.executeEndpoints(contextWithTime, filteredPlan);
       // emit per-endpoint terminal statuses
       for (const r of endpointResults) {
         this.config.events?.onEndpointProgress?.({ jobId, endpointId: r.endpointId, status: r.success ? "success" : "failed", attempt: r.attempts || 1, error: r.error });
       }
       await this.database.recordEndpointResults(jobId, endpointResults);
+
+      const failedNonAborted = endpointResults.filter(r => !r.success && !r.aborted);
+      const failures = failedNonAborted.length;
+      const attempted = endpointResults.length || 1;
+      const ratio = failures / attempted;
+      const warnRatio = this.config.execution.escalation?.warnFailureRatio ?? 0.25;
+      const criticalRatio = this.config.execution.escalation?.criticalFailureRatio ?? 0.5;
+      const escalationLevel: "none" | "warn" | "critical" = ratio >= criticalRatio ? "critical" : ratio >= warnRatio ? "warn" : "none";
+      let recoveryAction: "NONE" | "BACKOFF_ONLY" | "REDUCE_CONCURRENCY" | "DISABLE_ENDPOINT" = "NONE";
+      if (escalationLevel === "warn")
+        recoveryAction = "BACKOFF_ONLY";
+      else if (escalationLevel === "critical")
+        recoveryAction = "DISABLE_ENDPOINT";
+
+      let disabledEndpoints: string[] | undefined;
+      if (recoveryAction === "DISABLE_ENDPOINT") {
+        const existing = this.disabledEndpointMap.get(jobId) ?? new Set<string>();
+        for (const f of failedNonAborted) existing.add(f.endpointId);
+        if (existing.size > 0) {
+          this.disabledEndpointMap.set(jobId, existing);
+          disabledEndpoints = Array.from(existing);
+        }
+      }
 
       const executionSummary: ExecutionResults = {
         results: endpointResults,
@@ -440,19 +471,23 @@ export class SchedulingEngine {
           endTime: new Date().toISOString(),
           totalDurationMs: endpointResults.reduce((t, r) => t + r.executionTimeMs, 0),
           successCount: endpointResults.filter(r => r.success).length,
-          failureCount: endpointResults.filter(r => !r.success && !r.aborted).length,
+          failureCount: failures,
           abortedCount: endpointResults.filter(r => r.aborted).length,
-          escalationLevel: (() => {
-            const failures = endpointResults.filter(r => !r.success && !r.aborted).length;
-            if (failures === 0) return 'none';
-            if (failures >= Math.ceil(endpointResults.length * 0.5)) return 'critical';
-            return 'warn';
-          })(),
+          escalationLevel,
+          recoveryAction,
+          disabledEndpoints,
         },
       };
-      if (executionSummary.summary.escalationLevel === 'warn' || executionSummary.summary.escalationLevel === 'critical') {
-        this.config.events?.onEscalation?.({ jobId, level: executionSummary.summary.escalationLevel, failureCount: executionSummary.summary.failureCount, abortedCount: executionSummary.summary.abortedCount });
+
+      const prevLevel = this.jobEscalationLevels.get(jobId) || "none";
+      if ((escalationLevel === "warn" || escalationLevel === "critical") && escalationLevel !== prevLevel) {
+        this.jobEscalationLevels.set(jobId, escalationLevel);
+        this.config.events?.onEscalation?.({ jobId, level: escalationLevel, failureCount: failures, abortedCount: executionSummary.summary.abortedCount, recoveryAction });
       }
+      else if (escalationLevel === "none" && prevLevel !== "none") {
+        this.jobEscalationLevels.set(jobId, "none");
+      }
+
       await this.database.recordExecutionSummary(jobId, executionSummary.summary);
       this.state.stats.totalEndpointCalls += endpointResults.length;
 
@@ -482,7 +517,14 @@ export class SchedulingEngine {
     catch (jobError) {
       aggregate.failedJobs++;
       const errorMessage = jobError instanceof Error ? jobError.message : String(jobError);
-      aggregate.errors.push({ message: errorMessage, jobId });
+      let code: "plan_error" | "schedule_error" | "execution_error" | "unknown_error" = "unknown_error";
+      if (/planExecution/i.test(errorMessage) || /Semantic validation failed/i.test(errorMessage))
+        code = "plan_error";
+      else if (/finalizeSchedule/i.test(errorMessage) || /schedule/i.test(errorMessage))
+        code = "schedule_error";
+      else if (/endpoint/i.test(errorMessage))
+        code = "execution_error";
+      aggregate.errors.push({ message: errorMessage, jobId, code });
       try {
         await this.database.recordJobError(jobId, errorMessage);
         try {

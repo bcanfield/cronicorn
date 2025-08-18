@@ -45,6 +45,9 @@ export async function executeEndpointWithRetry(params: {
     let lastResponseContent: EndpointResponseContent = null;
     const maxAttempts = (config.maxEndpointRetries ?? 0) + 1;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        // derive warn/critical attempt thresholds from config escalation ratios relative to maxAttempts
+        const warnThresholdAttempt = Math.max(2, Math.ceil(maxAttempts * (executor.config.escalation?.warnFailureRatio ?? 0.25)));
+        const criticalThresholdAttempt = Math.max(warnThresholdAttempt + 1, Math.ceil(maxAttempts * (executor.config.escalation?.criticalFailureRatio ?? 0.5)));
         const attemptStart = Date.now();
         let aborted = false;
         const sampled = Math.random() < (config.logSamplingRate ?? 1);
@@ -82,17 +85,17 @@ export async function executeEndpointWithRetry(params: {
                 aborted = true;
             }, timeoutMs);
             if (externalAbort) {
-              if (externalAbort.aborted) {
-                controller.abort();
-                aborted = true;
-              }
-              else {
-                const onAbort = () => {
-                  controller.abort();
-                  aborted = true;
-                };
-                externalAbort.addEventListener("abort", onAbort, { once: true });
-              }
+                if (externalAbort.aborted) {
+                    controller.abort();
+                    aborted = true;
+                }
+                else {
+                    const onAbort = () => {
+                        controller.abort();
+                        aborted = true;
+                    };
+                    externalAbort.addEventListener("abort", onAbort, { once: true });
+                }
             }
             const response = await executor.fetch(url, { method: endpointConfig.method, headers, body, signal: controller.signal });
             clearTimeout(timeoutId);
@@ -135,11 +138,11 @@ export async function executeEndpointWithRetry(params: {
                 };
             }
             const classification = classifyEndpointFailure({ statusCode: response.status });
-            const decision = retryPolicy.evaluate({ attempt, maxAttempts, category: classification.category, transient: classification.transient, statusCode: response.status });
+            const decision = retryPolicy.evaluate({ attempt, maxAttempts, category: classification.category, transient: classification.transient, statusCode: response.status, warnThresholdAttempt, criticalThresholdAttempt });
             if (decision === "retry") {
                 events?.onRetryAttempt?.({ jobId, endpointId: plannedEndpoint.endpointId, attempt });
                 events?.onEndpointProgress?.({ jobId, endpointId: plannedEndpoint.endpointId, status: "in_progress", attempt });
-                const delay = retryPolicy.nextDelay ? retryPolicy.nextDelay({ attempt, maxAttempts, category: classification.category, transient: classification.transient, statusCode: response.status }) : 0;
+                const delay = retryPolicy.nextDelay ? retryPolicy.nextDelay({ attempt, maxAttempts, category: classification.category, transient: classification.transient, statusCode: response.status, warnThresholdAttempt, criticalThresholdAttempt }) : 0;
                 if (delay > 0)
                     await new Promise(r => setTimeout(r, delay));
                 if (sampled) {
@@ -159,11 +162,11 @@ export async function executeEndpointWithRetry(params: {
             const msg = err instanceof Error ? err.message : String(err);
             lastError = msg;
             const classification = classifyEndpointFailure({ error: err, statusCode: lastStatus, aborted });
-            const decision = retryPolicy.evaluate({ attempt, maxAttempts, category: classification.category, transient: classification.transient, statusCode: lastStatus, errorMessage: msg });
+            const decision = retryPolicy.evaluate({ attempt, maxAttempts, category: classification.category, transient: classification.transient, statusCode: lastStatus, errorMessage: msg, warnThresholdAttempt, criticalThresholdAttempt });
             if (decision === "retry") {
                 events?.onRetryAttempt?.({ jobId, endpointId: plannedEndpoint.endpointId, attempt });
                 events?.onEndpointProgress?.({ jobId, endpointId: plannedEndpoint.endpointId, status: "in_progress", attempt });
-                const delay = retryPolicy.nextDelay ? retryPolicy.nextDelay({ attempt, maxAttempts, category: classification.category, transient: classification.transient, statusCode: lastStatus, errorMessage: msg }) : 0;
+                const delay = retryPolicy.nextDelay ? retryPolicy.nextDelay({ attempt, maxAttempts, category: classification.category, transient: classification.transient, statusCode: lastStatus, errorMessage: msg, warnThresholdAttempt, criticalThresholdAttempt }) : 0;
                 if (delay > 0)
                     await new Promise(r => setTimeout(r, delay));
                 if (sampled) {

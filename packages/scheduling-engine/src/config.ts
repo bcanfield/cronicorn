@@ -68,6 +68,10 @@ export const ExecutionConfigSchema = z.object({
     halfOpenSuccessesToClose: z.number().int().positive().default(1).describe("Successes required to close from half-open"),
     halfOpenFailuresToReopen: z.number().int().positive().default(1).describe("Failures in half-open to re-open immediately"),
   }).default({}),
+  escalation: z.object({
+    warnFailureRatio: z.number().min(0).max(1).default(0.25).describe("Failure ratio (failures/attempted) to trigger warn escalation"),
+    criticalFailureRatio: z.number().min(0).max(1).default(0.5).describe("Failure ratio to trigger critical escalation"),
+  }).default({}),
 });
 
 /** Metrics config */
@@ -103,7 +107,7 @@ export const EventsConfigSchema = z.object({
   onAbort: z.function().args(z.object({ jobId: z.string().optional(), reason: z.string().optional() })).returns(z.void()).optional(),
   onCircuitStateChange: z.function().args(z.object({ endpointId: z.string(), from: z.enum(["closed", "open", "half_open"]).optional(), to: z.enum(["closed", "open", "half_open"]), failures: z.number().int().nonnegative().optional() })).returns(z.void()).optional(),
   onEndpointProgress: z.function().args(z.object({ jobId: z.string().optional(), endpointId: z.string(), status: z.enum(["pending", "in_progress", "success", "failed"]), attempt: z.number().int().min(0), error: z.string().optional() })).returns(z.void()).optional(),
-  onEscalation: z.function().args(z.object({ jobId: z.string(), level: z.enum(['warn','critical']), failureCount: z.number().int().nonnegative(), abortedCount: z.number().int().nonnegative().optional() })).returns(z.void()).optional(),
+  onEscalation: z.function().args(z.object({ jobId: z.string(), level: z.enum(["warn", "critical"]), failureCount: z.number().int().nonnegative(), abortedCount: z.number().int().nonnegative().optional(), recoveryAction: z.enum(["NONE", "BACKOFF_ONLY", "REDUCE_CONCURRENCY", "DISABLE_ENDPOINT"]).optional() })).returns(z.void()).optional(),
 }).partial();
 
 /** Root engine config (input may be partial) */
