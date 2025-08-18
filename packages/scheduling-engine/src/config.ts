@@ -4,7 +4,7 @@
  */
 import { z } from "zod";
 
-import { aiAgentMetricsEventSchema } from "./services/ai-agent/types.js";
+import { aiAgentMetricsEventSchema, malformedResponseCategorySchema } from "./services/ai-agent/types.js";
 
 /** Prompt optimization nested config */
 export const PromptOptimizationConfigSchema = z.object({
@@ -32,6 +32,20 @@ export const AIAgentConfigSchema = z.object({
     .returns(z.void())
     .optional()
     .describe("Internal hook for metrics instrumentation (internal use)"),
+  malformedPersistenceHook: z
+    .function()
+    .args(
+      z.object({
+        phase: z.union([z.literal("plan"), z.literal("schedule")]),
+        jobId: z.string(),
+        category: malformedResponseCategorySchema,
+        attempts: z.number().int().min(0),
+        repaired: z.boolean(),
+      }),
+    )
+    .returns(z.void())
+    .optional()
+    .describe("Hook to persist malformed response metadata (classification + attempts + repaired flag)"),
 });
 
 /** Endpoint execution config */

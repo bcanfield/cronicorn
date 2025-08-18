@@ -88,6 +88,18 @@ export class SchedulingEngine {
     this.config.aiAgent.metricsHook = (evt: AIAgentMetricsEvent) => {
       metricsHook(evt);
       userHook?.(evt);
+      // persistence hook trigger for malformed / repair success or failure (metadata capture)
+      const persist = this.config.aiAgent.malformedPersistenceHook;
+      if (persist) {
+        if (evt.type === "malformed") {
+          const attempts = evt.phase === "plan" ? (this.state.stats.repairAttemptsPlan ?? 0) : (this.state.stats.repairAttemptsSchedule ?? 0);
+          persist({ phase: evt.phase, jobId: "unknown", category: evt.category, attempts, repaired: false });
+        }
+        else if (evt.type === "repairSuccess") {
+          const attempts = evt.phase === "plan" ? (this.state.stats.repairAttemptsPlan ?? 0) : (this.state.stats.repairAttemptsSchedule ?? 0);
+          persist({ phase: evt.phase, jobId: "unknown", category: "schema_parse_error", attempts, repaired: true });
+        }
+      }
     };
     this.aiAgent = deps?.aiAgent || new DefaultAIAgentService(this.config.aiAgent);
     this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution);

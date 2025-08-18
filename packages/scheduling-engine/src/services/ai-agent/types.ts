@@ -107,3 +107,12 @@ export type AIAgentService = {
     executionResults: ExecutionResults
   ) => Promise<AIAgentScheduleResponse>;
 };
+
+/** Metadata for malformed response persistence hooks */
+export type MalformedResponseMetadata = {
+  phase: "plan" | "schedule";
+  jobId: string;
+  category: MalformedResponseCategory;
+  attempts: number; // number of repair attempts performed
+  repaired: boolean; // whether a repair eventually succeeded
+};
