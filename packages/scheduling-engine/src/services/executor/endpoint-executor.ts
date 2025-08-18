@@ -243,6 +243,9 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
     const startTimeOverall = Date.now();
     const timestamp = new Date().toISOString();
 
+    // Abort signal (global) placeholder: future wiring will supply a validated AbortSignal via executor context
+    const globalAbortSignal: AbortSignal | undefined = undefined; // placeholder (no assertions allowed by lint)
+
     const onRetryAttempt = this.events?.onRetryAttempt;
     const onRetryExhausted = this.events?.onRetryExhausted;
 
@@ -297,8 +300,9 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
           controller.abort();
           aborted = true;
         }, timeoutMs);
+        const activeSignal = globalAbortSignal || controller.signal;
 
-        const response = await this.fetch(url, { method: endpointConfig.method, headers, body, signal: controller.signal });
+        const response = await this.fetch(url, { method: endpointConfig.method, headers, body, signal: activeSignal });
         clearTimeout(timeoutId);
         lastStatus = response.status;
         const text = await response.text().catch(() => "");
