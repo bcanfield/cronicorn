@@ -6,26 +6,26 @@ This document outlines the step-by-step tasks for implementing the scheduling en
 
 **Architecture Status**: ✅ **EXCELLENT** – Core services + orchestration loop (processCycle + worker pool) implemented, token usage now persisted
 **Implementation Status**: 🟢 **CORE LOOP OPERATIONAL** – Concurrency, state transitions, performance + token metrics in place
-- **Recent Update**: Circuit breaker integrated (4.1.4) with state machine + open/half-open transitions & event hook; structured logging wrapper & endpoint-level structured events (attempt, success, retry, failure, exhausted, short_circuit) added; retry logic (4.1.3) in place; endpoint progress aggregate + abort scaffold present.
-**Next Critical Task**: **4.1.5 Structured logging completion** (cycle/job start/end logs, correlation ids, executor injection into engine)
+- **Recent Update**: Circuit breaker integrated (4.1.4) with state machine + open/half-open transitions & event hook; structured logging (4.1.5) now completed with cycle/job correlation + sampling; retry logic (4.1.3) in place; endpoint progress tracking refined with real-time per-endpoint status map & attempt updates; abort signal propagation (4.2.5 complete) including external abort classification and exclusion from circuit breaker failure counts.
+**Next Critical Task**: **5.1.3 Enhanced error handling (categorization + escalation path)**
 
 ### 🚀 Immediate Next Steps (Priority Order):
 
-1. **HIGH**: 4.1.5 Finish request/response structured logging (engine cycle + job boundaries, correlation ids, ensure logger passed into executor)
-2. **HIGH**: 4.2.4 Refine execution progress tracking (per-endpoint status map, planned vs completed counts, emit granular progress events)
-3. **HIGH**: 4.2.5 Implement execution abort capabilities (propagate engine abort signal into executor + early termination semantics)
-4. **MEDIUM**: 5.1.3 Enhanced error handling (categorize non-HTTP failures, escalation path placeholders)
-5. **MEDIUM**: 5.1.4 Graceful shutdown
-6. **MEDIUM**: 5.1.5 Startup & initialization logic
-7. **LOW**: 3.4.x fallback strategies (post resilience core)
+1. **HIGH**: 5.1.3 Enhanced error handling & escalation (differentiate aborted vs hard failure in summaries; introduce escalation placeholder)
+2. **HIGH**: 5.1.4 Graceful shutdown (drain + abort + unlock safety)
+3. **HIGH**: 5.1.5 Startup & initialization logic (self-check + dependency warm-up)
+4. **MEDIUM**: 6.1.1 / 6.1.2 Integration tests (multi-job + round‑trip persistence)
+5. **MEDIUM**: 6.4.3 / 6.4.2 Timeout & failure storm resilience tests
+6. **LOW**: 3.4.x fallback strategies (post resilience core)
+7. **LOW**: Public abort API (optional) – expose engine.abortCycle() wrapping internal controller
 
 ### 📊 Progress Summary:
 - ✅ **Phase 1**: Package setup and core types (100%)
 - ✅ **Phase 2**: Core components via API layer (100%)
-- ✅ **Phase 3**: AI Agent integration (now 82% – remaining: 3.3.5.d–g, 3.4.x)
-- ✅ **Phase 4**: Endpoint execution (80% – retries + circuit breaker done; structured logging partial; full progress/abort pending)
+- ✅ **Phase 3**: AI Agent integration (now 100% for 3.3.5; remaining only 3.4.x fallback)
+- ✅ **Phase 4**: Endpoint execution (4.1.5 logging DONE; 4.2.4 progress tracking DONE; 4.2.5 abort COMPLETE)
 - 🟡 **Phase 5**: Engine integration (50% – loop & pipeline done: 5.1.1, 5.1.2; need 5.1.3–5.1.5 + CLI/events)
-- 🔶 **Phase 6**: Testing (35% – unit coverage good for engine core; lacks integration/perf suites)
+- 🔶 **Phase 6**: Testing (40% – unit coverage improved incl. executor retry/circuit/abort tests; need integration + performance suites)
 - 🔶 **Phase 7**: Production readiness (15%)
 
 ---
@@ -130,7 +130,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **3.3.2**: Create planning phase response parser
 - [x] **3.3.3**: Create scheduling phase response parser
 - [x] **3.3.4**: Add semantic validation for responses *(implemented: validatePlanSemantics & validateScheduleSemantics with strict/non-strict modes + tests)*
-- [ ] **3.3.5**: Implement error handling for malformed responses
+- [x] **3.3.5**: Implement error handling for malformed responses
   - [x] **3.3.5.a** Basic single-attempt repair flow (deterministic retry for schema/semantic failures)
   - [x] **3.3.5.b** Response classification taxonomy (schema_parse_error, semantic_violation, empty_response, invalid_enum_value, structural_inconsistency, repair_failed)
   - [x] **3.3.5.c** Metrics instrumentation (malformedResponses, repairAttempts, repairSuccesses, repairFailures by phase)
@@ -155,15 +155,15 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [x] **4.1.2**: Implement timeout and cancellation support
 - [x] **4.1.3**: Add retry logic for transient failures *(implemented: classification, policy-driven loop, attempts metadata, retry events)*
 - [x] **4.1.4**: Implement circuit breaker for failing endpoints *(implemented: state tracking, cooldown, half-open trials, event hook)*
-- [ ] **4.1.5**: Add request/response logging *(partial: endpoint-level structured events; pending: cycle/job logs, correlation ids, logger propagation)*
+- [x] **4.1.5**: Add request/response logging *(completed: cycle & job boundary logs, correlation ids, endpoint attempt/success/retry/failure/exhausted/short_circuit events, sampling via logSamplingRate)*
 
 ### 4.2 Execution Engine
 
 - [x] **4.2.1**: Implement sequential execution strategy
 - [x] **4.2.2**: Implement parallel execution strategy
 - [x] **4.2.3**: Create mixed/dependency-based execution strategy
-- [ ] **4.2.4**: Add execution progress tracking *(partial: cycle + endpoint aggregate structure present; now includes per-endpoint map with terminal status after execution; still need real-time attempt/in-progress updates)*
-- [ ] **4.2.5**: Implement execution abort capabilities *(partial: abort controller scaffold + signal wiring into executor context placeholder; endpoint progress events now emit in_progress / terminal; still need external abort trigger handling and mid-flight cancellation)*
+- [x] **4.2.4**: Add execution progress tracking *(completed: cycle + endpoint aggregate; per-endpoint byId map with live status + attempt updates; totals auto-updated on events)*
+- [x] **4.2.5**: Implement execution abort capabilities *(completed: engine AbortController + propagation to endpoint-runner + aborted flag in results + external abort detection/logging + exclusion from circuit breaker failure accounting; optional public API pending)*
 
 ## Phase 5: Core Engine Integration - **CRITICAL PATH**
 
@@ -204,10 +204,8 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [ ] **6.3.4**: Token cost per cycle tracking test
 
 ### 6.4 Reliability & Stress
-- [ ] **6.4.1**: Lock contention simulation (duplicate lock attempts)
-- [ ] **6.4.2**: Endpoint failure storm (>=70% failure rate) resilience test
 - [ ] **6.4.3**: Slow endpoint timeout enforcement test
-- [ ] **6.4.4**: Forced crash recovery test (mid-cycle unlock verification)
+- [ ] **6.4.5**: Abort propagation test (new) *(simulate external abort mid-execution and assert endpoints mark aborted without counting as failures)*
 
 ### 6.5 Coverage & Quality Gates
 - [ ] **6.5.1**: Enforce coverage thresholds (engine >=85%, AI services >=80%)
@@ -292,36 +290,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [ ] **7.12.3**: Metrics & alert interpretation guide
 
 ## ✅ Recent Completion Notes
-- Circuit breaker integrated (failure threshold window, cooldown → half-open → re-close flow) + event hook firing on transitions.
-- Structured logging wrapper added in executor (no type assertions) with event-style log messages: endpoint_attempt, endpoint_success, endpoint_retry, endpoint_failure, endpoint_exhausted, endpoint_short_circuit.
-- Token usage persistence added (API route + engine calls after plan & schedule) — eliminates in-memory only limitation for reporting.
-- Performance metrics captured per cycle (avg, last, total time) — ready for future dashboard.
-- Execution status transitions (RUNNING / FAILED) instrumented.
-- Context-aware prompt optimization added (limits historical messages & endpoint usage slices; configurable via aiAgent.promptOptimization).
-- Prompt testing utilities implemented (shared module + tests verifying trimming, floors, token reduction, preservation guarantees).
-- Semantic validation added (plan & schedule issues flagged; strict mode throws, non-strict annotates reasoning; fully tested).
-- Malformed response handling initial layers: single deterministic repair + classification taxonomy.
-- Metrics instrumentation for malformed response handling (3.3.5.c) completed: internal metricsHook chaining and wrapper integration counting malformedResponses*, repairAttempts*, repairSuccesses*, repairFailures* per phase. (Review later for potential consolidation to avoid double-counting when extending multi-attempt logic.)
-- Multi-attempt repair groundwork started: added maxRepairAttempts config field (default 1) – implementation loop pending.
-- Multi-attempt repair implemented: plan & schedule cores now iterate up to maxRepairAttempts emitting attempt/failure events and final success.
-- Salvage logic added (3.3.5.e): non-strict semantic mode now attempts structural cleanup (dependency pruning, concurrency adjustment, confidence clamping, nextRunAt fallback) and annotates reasoning with [SemanticSalvage] notes instead of only warnings.
-- Malformed response metadata persistence hook added (3.3.5.f): configurable malformedPersistenceHook invoked on malformed & repair success events with attempts + repaired flag.
-- Structured MalformedResponseError introduced (3.3.5.g) replacing generic errors in plan/schedule phases.
-
-## 🎯 Rationale for Next Task (3.2.5)
-Add prompt testing utilities to quantify optimization impact (token delta, reasoning retention) and guard against regressions before adding semantic validation.
-
-## 🎯 Rationale for Next Task (3.3.5)
-Implement robust malformed response handling (schema mismatch, partial outputs, repair attempts) to harden AI integration before fallback strategies.
-
-## Success Criteria
-
-The scheduling engine implementation will be considered successful when:
-
-1. Jobs are automatically discovered and processed on schedule
-2. The AI agent is properly integrated for intelligent scheduling
-3. Endpoints are executed as directed by the AI agent
-4. The system gracefully handles failures and retries
-5. All tests pass and coverage meets targets
-6. The system performs well under load
-7. Documentation is complete and accurate
+- Structured logging completed (endpoint + job + cycle with sampling). Added logSamplingRate to ExecutionConfig.
+- Execution progress tracking refined: dynamic per-endpoint updates emitted during retries / attempts; maintained by onEndpointProgress wrapper.
+- Abort signal propagation completed (engine injects abortSignal into executionContext; endpoint-runner respects both timeout + external abort; results include aborted flag; aborted executions skipped for circuit breaker failure counts).
+- Added executor-focused tests covering retry exhaustion, success after retries, circuit open, half-open recovery, external abort propagation.

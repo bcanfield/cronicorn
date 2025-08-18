@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import type { EngineConfig } from "./config.js";
+import type { EngineConfig, EventsConfig } from "./config.js";
 import type { AIAgentMetricsEvent, AIAgentPlanResponse, AIAgentScheduleResponse } from "./services/ai-agent/types.js";
 import type { AIAgentService, DatabaseService, EndpointExecutorService } from "./services/index.js";
 import type { EngineState, ExecutionResults, JobContext, ProcessingResult } from "./types.js";
@@ -35,6 +35,7 @@ export class SchedulingEngine {
   private aiAgent: AIAgentService;
   private executor: EndpointExecutorService;
   private database: DatabaseService;
+  // private events?: EventsConfig; // removed unused
 
   private processingInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -131,7 +132,22 @@ export class SchedulingEngine {
       }
     };
     this.aiAgent = deps?.aiAgent || new DefaultAIAgentService(this.config.aiAgent);
-    this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution, this.config.events, this.config.logger);
+    // wrap events to enrich progress tracking
+    const userEvents = this.config.events;
+    const wrappedEvents: EventsConfig | undefined = userEvents ? { ...userEvents } : {};
+    if (wrappedEvents) {
+      const originalEndpointProgress = wrappedEvents.onEndpointProgress;
+      wrappedEvents.onEndpointProgress = (e) => {
+        const prog = this.state.progress;
+        if (prog && this.state.progress) {
+          const totalJobs = this.state.progress.total;
+          const completedJobs = this.state.progress.completed;
+          userEvents?.onExecutionProgress?.({ jobId: e.jobId, total: totalJobs, completed: completedJobs });
+        }
+        originalEndpointProgress?.(e);
+      };
+    }
+    this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution, wrappedEvents, this.config.logger);
     this.database = deps?.database || new ApiDatabaseService();
   }
 
@@ -258,6 +274,7 @@ export class SchedulingEngine {
       await Promise.all(workers);
 
       this.log.info?.(`Processing cycle completed: ${result.successfulJobs}/${result.jobsProcessed} jobs successful`);
+      this.log.info?.("cycle_summary", { cycleId, jobsProcessed: result.jobsProcessed, successful: result.successfulJobs, failed: result.failedJobs });
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -370,11 +387,24 @@ export class SchedulingEngine {
             const env = jobContext.executionContext?.systemEnvironment;
             return env === "production" || env === "development" || env === "test" ? env : "production";
           })(),
+          abortSignal: this.config.execution.allowCancellation ? this.state.abortController?.signal : undefined,
         },
       };
 
       this.state.stats.aiAgentCalls++;
       const executionPlan = await this.runPlanWithWrapper(contextWithTime);
+      // initialize endpoint progress entries
+      if (this.state.progress?.endpoints) {
+        this.state.progress.endpoints.total += executionPlan.endpointsToCall.length;
+        if (!this.state.progress.endpoints.byId)
+          this.state.progress.endpoints.byId = {};
+        const nowIso = new Date().toISOString();
+        for (const ep of executionPlan.endpointsToCall) {
+          if (!this.state.progress.endpoints.byId[ep.endpointId]) {
+            this.state.progress.endpoints.byId[ep.endpointId] = { status: "pending", attempts: 0, lastUpdated: nowIso };
+          }
+        }
+      }
       // mark endpoints pending (existing code adds byId)
       this.config.events?.onExecutionProgress?.({ jobId, total: this.state.progress?.total || 0, completed: this.state.progress?.completed || 0 });
       // accumulate & persist token usage
@@ -410,7 +440,7 @@ export class SchedulingEngine {
           endTime: new Date().toISOString(),
           totalDurationMs: endpointResults.reduce((t, r) => t + r.executionTimeMs, 0),
           successCount: endpointResults.filter(r => r.success).length,
-          failureCount: endpointResults.filter(r => !r.success).length,
+          failureCount: endpointResults.filter(r => !r.success && !r.aborted).length,
         },
       };
       await this.database.recordExecutionSummary(jobId, executionSummary.summary);
