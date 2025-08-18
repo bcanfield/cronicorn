@@ -7,7 +7,7 @@ import type { AIAgentMetricsEvent, AIAgentScheduleResponse } from "./types.js";
 import { classifyScheduleError } from "./classification.js";
 import { createSchedulingSystemPrompt, formatContextForScheduling } from "./formatting.js";
 import { schedulingResponseSchema } from "./schemas.js";
-import { validateScheduleSemantics } from "./semantics.js";
+import { salvageSchedule, validateScheduleSemantics } from "./semantics.js";
 
 /**
  * Core scheduling logic: derives nextRunAt from context + execution results,
@@ -40,7 +40,10 @@ export async function scheduleExecutionCore({ jobContext, executionResults, conf
       if (issues.length) {
         if (config.semanticStrict)
           throw new Error(`Semantic validation failed: ${issues.join("; ")}`);
-        schedule = { ...schedule, reasoning: `${schedule.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+        const { schedule: salvaged, notes } = salvageSchedule(schedule);
+        schedule = notes.length
+          ? { ...salvaged, reasoning: `${salvaged.reasoning}\n\n[SemanticSalvage] ${notes.join(" | ")}` }
+          : { ...schedule, reasoning: `${schedule.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
       }
     }
     return { ...schedule, usage: result.usage };
@@ -91,7 +94,10 @@ async function tryRepairSchedule(originalError: unknown, ctx: ScheduleCoreParams
         if (issues.length) {
           if (ctx.config.semanticStrict)
             throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
-          schedule = { ...schedule, reasoning: `${schedule.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+          const { schedule: salvaged, notes } = salvageSchedule(schedule);
+          schedule = notes.length
+            ? { ...salvaged, reasoning: `${salvaged.reasoning}\n\n[SemanticSalvage] ${notes.join(" | ")}` }
+            : { ...schedule, reasoning: `${schedule.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
         }
       }
       return { ...schedule, usage: result.usage };

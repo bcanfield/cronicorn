@@ -8,7 +8,7 @@ import { classifyPlanError } from "./classification.js";
 import { createPlanningSystemPrompt, formatContextForPlanning } from "./formatting.js";
 import { optimizeJobContext } from "./prompt-optimization.js";
 import { executionPlanSchema } from "./schemas.js";
-import { validatePlanSemantics } from "./semantics.js";
+import { salvagePlan, validatePlanSemantics } from "./semantics.js";
 
 /**
  * Core planning logic: builds execution plan via LLM, performs semantic validation
@@ -41,7 +41,12 @@ export async function planExecutionCore({ jobContext, config, model, emit }: Pla
       if (issues.length) {
         if (config.semanticStrict)
           throw new Error(`Semantic validation failed: ${issues.join("; ")}`);
-        plan = { ...plan, reasoning: `${plan.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+        // attempt salvage (non-strict)
+        const { plan: salvaged, notes } = salvagePlan(plan);
+        if (notes.length)
+          plan = { ...salvaged, reasoning: `${salvaged.reasoning}\n\n[SemanticSalvage] ${notes.join(" | ")}` };
+        else
+          plan = { ...plan, reasoning: `${plan.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
       }
     }
     return { ...plan, usage: result.usage };
@@ -93,7 +98,10 @@ async function tryRepairPlan(originalError: unknown, ctx: PlanCoreParams): Promi
         if (issues.length) {
           if (ctx.config.semanticStrict)
             throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
-          plan = { ...plan, reasoning: `${plan.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+          const { plan: salvaged, notes } = salvagePlan(plan);
+            plan = notes.length
+              ? { ...salvaged, reasoning: `${salvaged.reasoning}\n\n[SemanticSalvage] ${notes.join(" | ")}` }
+              : { ...plan, reasoning: `${plan.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
         }
       }
       return { ...plan, usage: result.usage };

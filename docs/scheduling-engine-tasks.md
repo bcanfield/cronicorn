@@ -137,7 +137,7 @@ Each task below should follow this workflow, with tests committed alongside impl
   - [x] **3.3.5.b** Response classification taxonomy (schema_parse_error, semantic_violation, empty_response, invalid_enum_value, structural_inconsistency, repair_failed)
   - [x] **3.3.5.c** Metrics instrumentation (malformedResponses, repairAttempts, repairSuccesses, repairFailures by phase)
   - [x] **3.3.5.d** Configurable multi-attempt repair (maxRepairAttempts)
-  - [ ] **3.3.5.e** Salvage partial structures (drop invalid endpoints / dependencies) when non-strict
+  - [x] **3.3.5.e** Salvage partial structures (drop invalid endpoints / dependencies) when non-strict
   - [ ] **3.3.5.f** Persist malformed response metadata (classification + attempts) for later analytics
   - [ ] **3.3.5.g** Structured error surface (MalformedResponseError type) & propagation
 
@@ -304,6 +304,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - Metrics instrumentation for malformed response handling (3.3.5.c) completed: internal metricsHook chaining and wrapper integration counting malformedResponses*, repairAttempts*, repairSuccesses*, repairFailures* per phase. (Review later for potential consolidation to avoid double-counting when extending multi-attempt logic.)
 - Multi-attempt repair groundwork started: added maxRepairAttempts config field (default 1) – implementation loop pending.
 - Multi-attempt repair implemented: plan & schedule cores now iterate up to maxRepairAttempts emitting attempt/failure events and final success.
+- Salvage logic added (3.3.5.e): non-strict semantic mode now attempts structural cleanup (dependency pruning, concurrency adjustment, confidence clamping, nextRunAt fallback) and annotates reasoning with [SemanticSalvage] notes instead of only warnings.
 
 ## 🎯 Rationale for Next Task (3.2.5)
 Add prompt testing utilities to quantify optimization impact (token delta, reasoning retention) and guard against regressions before adding semantic validation.
