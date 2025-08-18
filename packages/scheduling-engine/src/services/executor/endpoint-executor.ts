@@ -1,7 +1,7 @@
 import NodeFetch from "node-fetch";
 import PQueue from "p-queue";
 
-import type { ExecutionConfig } from "../../config.js";
+import type { EventsConfig, ExecutionConfig } from "../../config.js";
 import type { EndpointExecutionResult, EndpointResponseContent, JobContext } from "../../types.js";
 import type { AIAgentPlanResponse } from "../ai-agent/index.js";
 
@@ -32,16 +32,19 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
   private config: ExecutionConfig;
   private fetch: typeof NodeFetch;
   private retryPolicy: RetryPolicy;
+  private events?: EventsConfig;
 
   /**
    * Create a new executor service
    *
    * @param config Execution configuration
+   * @param events Events configuration
    */
-  constructor(config: ExecutionConfig) {
+  constructor(config: ExecutionConfig, events?: EventsConfig) {
     this.config = config;
     this.fetch = NodeFetch;
     this.retryPolicy = new DefaultRetryPolicy();
+    this.events = events;
   }
 
   /**
@@ -240,9 +243,8 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
     const startTimeOverall = Date.now();
     const timestamp = new Date().toISOString();
 
-    // Placeholder retry event callbacks (wired from config in future task)
-    let onRetryAttempt: ((d: { jobId: string; endpointId: string; attempt: number }) => void) | undefined;
-    let onRetryExhausted: ((d: { jobId: string; endpointId: string; attempts: number }) => void) | undefined;
+    const onRetryAttempt = this.events?.onRetryAttempt;
+    const onRetryExhausted = this.events?.onRetryExhausted;
 
     // locate endpoint config
     const endpointConfig = jobContext.endpoints.find(e => e.id === endpoint.endpointId);

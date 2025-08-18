@@ -129,7 +129,7 @@ export class SchedulingEngine {
       }
     };
     this.aiAgent = deps?.aiAgent || new DefaultAIAgentService(this.config.aiAgent);
-    this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution);
+    this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution, this.config.events);
     this.database = deps?.database || new ApiDatabaseService();
   }
 
@@ -367,6 +367,10 @@ export class SchedulingEngine {
 
       this.state.stats.aiAgentCalls++;
       const executionPlan = await this.runPlanWithWrapper(contextWithTime);
+      // initialize endpoint progress totals when plan known
+      if (this.state.progress?.endpoints) {
+        this.state.progress.endpoints.total += executionPlan.endpointsToCall.length;
+      }
       // accumulate & persist token usage
       if (executionPlan.usage && this.config.metrics?.trackTokenUsage) {
         const { inputTokens = 0, outputTokens = 0, totalTokens = 0, reasoningTokens, cachedInputTokens } = executionPlan.usage;
@@ -387,6 +391,9 @@ export class SchedulingEngine {
       await this.database.recordExecutionPlan(jobId, executionPlan);
 
       const endpointResults = await this.executor.executeEndpoints(contextWithTime, executionPlan);
+      if (this.state.progress?.endpoints) {
+        this.state.progress.endpoints.completed += endpointResults.length;
+      }
       await this.database.recordEndpointResults(jobId, endpointResults);
 
       const executionSummary: ExecutionResults = {
