@@ -6,26 +6,24 @@ This document outlines the step-by-step tasks for implementing the scheduling en
 
 **Architecture Status**: ✅ **EXCELLENT** – Core services + orchestration loop (processCycle + worker pool) implemented, token usage now persisted
 **Implementation Status**: 🟢 **CORE LOOP OPERATIONAL** – Concurrency, state transitions, performance + token metrics in place
-- **Recent Update**: Malformed response metrics instrumentation (3.3.5.c) completed (counters + classification integration)
-**Next Critical Task**: **4.1.3 HTTP retry logic for transient endpoint failures** (extends single-attempt flow)
+- **Recent Update**: Circuit breaker integrated (4.1.4) with state machine + open/half-open transitions & event hook; structured logging wrapper & endpoint-level structured events (attempt, success, retry, failure, exhausted, short_circuit) added; retry logic (4.1.3) in place; endpoint progress aggregate + abort scaffold present.
+**Next Critical Task**: **4.1.5 Structured logging completion** (cycle/job start/end logs, correlation ids, executor injection into engine)
 
 ### 🚀 Immediate Next Steps (Priority Order):
 
-1. **HIGH**: 4.1.3 HTTP retry logic for transient endpoint failures
-2. **HIGH**: 4.1.4 Implement circuit breaker for failing endpoints
-3. **HIGH**: 4.1.5 Add request/response logging
-4. **HIGH**: 4.2.4 Execution progress tracking
-5. **HIGH**: 4.2.5 Execution abort capabilities
-6. **MEDIUM**: 5.1.3 Enhanced error handling (categorize, retry policies, escalation)
-7. **MEDIUM**: 5.1.4 Graceful shutdown
-8. **MEDIUM**: 5.1.5 Startup & initialization logic
-9. **LOW**: 3.4.x fallback strategies (after semantic validation & retries)
+1. **HIGH**: 4.1.5 Finish request/response structured logging (engine cycle + job boundaries, correlation ids, ensure logger passed into executor)
+2. **HIGH**: 4.2.4 Refine execution progress tracking (per-endpoint status map, planned vs completed counts, emit granular progress events)
+3. **HIGH**: 4.2.5 Implement execution abort capabilities (propagate engine abort signal into executor + early termination semantics)
+4. **MEDIUM**: 5.1.3 Enhanced error handling (categorize non-HTTP failures, escalation path placeholders)
+5. **MEDIUM**: 5.1.4 Graceful shutdown
+6. **MEDIUM**: 5.1.5 Startup & initialization logic
+7. **LOW**: 3.4.x fallback strategies (post resilience core)
 
 ### 📊 Progress Summary:
 - ✅ **Phase 1**: Package setup and core types (100%)
 - ✅ **Phase 2**: Core components via API layer (100%)
 - ✅ **Phase 3**: AI Agent integration (now 82% – remaining: 3.3.5.d–g, 3.4.x)
-- ✅ **Phase 4**: Endpoint execution (60% – retries, circuit breaker, logging, progress/abort pending)
+- ✅ **Phase 4**: Endpoint execution (80% – retries + circuit breaker done; structured logging partial; full progress/abort pending)
 - 🟡 **Phase 5**: Engine integration (50% – loop & pipeline done: 5.1.1, 5.1.2; need 5.1.3–5.1.5 + CLI/events)
 - 🔶 **Phase 6**: Testing (35% – unit coverage good for engine core; lacks integration/perf suites)
 - 🔶 **Phase 7**: Production readiness (15%)
@@ -155,17 +153,17 @@ Each task below should follow this workflow, with tests committed alongside impl
 
 - [x] **4.1.1**: Create base HTTP client for endpoint execution
 - [x] **4.1.2**: Implement timeout and cancellation support
-- [ ] **4.1.3**: Add retry logic for transient failures
-- [ ] **4.1.4**: Implement circuit breaker for failing endpoints
-- [ ] **4.1.5**: Add request/response logging
+- [x] **4.1.3**: Add retry logic for transient failures *(implemented: classification, policy-driven loop, attempts metadata, retry events)*
+- [x] **4.1.4**: Implement circuit breaker for failing endpoints *(implemented: state tracking, cooldown, half-open trials, event hook)*
+- [ ] **4.1.5**: Add request/response logging *(partial: endpoint-level structured events; pending: cycle/job logs, correlation ids, logger propagation)*
 
 ### 4.2 Execution Engine
 
 - [x] **4.2.1**: Implement sequential execution strategy
 - [x] **4.2.2**: Implement parallel execution strategy
 - [x] **4.2.3**: Create mixed/dependency-based execution strategy
-- [ ] **4.2.4**: Add execution progress tracking
-- [ ] **4.2.5**: Implement execution abort capabilities
+- [ ] **4.2.4**: Add execution progress tracking *(partial: cycle + endpoint aggregate structure present; now includes per-endpoint map with terminal status after execution; still need real-time attempt/in-progress updates)*
+- [ ] **4.2.5**: Implement execution abort capabilities *(partial: abort controller scaffold + signal wiring into executor context placeholder; endpoint progress events now emit in_progress / terminal; still need external abort trigger handling and mid-flight cancellation)*
 
 ## Phase 5: Core Engine Integration - **CRITICAL PATH**
 
@@ -294,6 +292,8 @@ Each task below should follow this workflow, with tests committed alongside impl
 - [ ] **7.12.3**: Metrics & alert interpretation guide
 
 ## ✅ Recent Completion Notes
+- Circuit breaker integrated (failure threshold window, cooldown → half-open → re-close flow) + event hook firing on transitions.
+- Structured logging wrapper added in executor (no type assertions) with event-style log messages: endpoint_attempt, endpoint_success, endpoint_retry, endpoint_failure, endpoint_exhausted, endpoint_short_circuit.
 - Token usage persistence added (API route + engine calls after plan & schedule) — eliminates in-memory only limitation for reporting.
 - Performance metrics captured per cycle (avg, last, total time) — ready for future dashboard.
 - Execution status transitions (RUNNING / FAILED) instrumented.

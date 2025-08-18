@@ -3,12 +3,12 @@ import { generateObject, type LanguageModel } from "ai";
 import type { AIAgentConfig } from "../../config.js";
 import type { ExecutionResults, JobContext } from "../../types.js";
 import type { AIAgentMetricsEvent, AIAgentScheduleResponse } from "./types.js";
-import { MalformedResponseError } from "./errors.js";
-import { salvageSchedule, validateScheduleSemantics } from "./semantics.js";
 
 import { classifyScheduleError } from "./classification.js";
+import { MalformedResponseError } from "./errors.js";
 import { createSchedulingSystemPrompt, formatContextForScheduling } from "./formatting.js";
 import { schedulingResponseSchema } from "./schemas.js";
+import { salvageSchedule, validateScheduleSemantics } from "./semantics.js";
 
 /**
  * Core scheduling logic: derives nextRunAt from context + execution results,

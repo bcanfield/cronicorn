@@ -23,14 +23,16 @@ export class EndpointCircuitBreaker {
 
   getState(endpointId: string): CircuitBreakerSnapshot {
     const existing = this.map.get(endpointId);
-    if (existing) return existing;
+    if (existing)
+      return existing;
     const snapshot: CircuitBreakerSnapshot = { state: "closed", failures: 0, halfOpenTrialCalls: 0, halfOpenSuccesses: 0 };
     this.map.set(endpointId, snapshot);
     return snapshot;
   }
 
   shouldAllow(endpointId: string): boolean {
-    if (!this.config.enabled) return true;
+    if (!this.config.enabled)
+      return true;
     const snap = this.getState(endpointId);
     if (snap.state === "open") {
       // check cooldown
@@ -43,14 +45,16 @@ export class EndpointCircuitBreaker {
       return false;
     }
     if (snap.state === "half_open") {
-      if (snap.halfOpenTrialCalls >= this.config.halfOpenMaxCalls) return false; // limit concurrent trials
+      if (snap.halfOpenTrialCalls >= this.config.halfOpenMaxCalls)
+        return false; // limit concurrent trials
       return true;
     }
     return true; // closed
   }
 
   recordSuccess(endpointId: string): CircuitState {
-    if (!this.config.enabled) return "closed";
+    if (!this.config.enabled)
+      return "closed";
     const snap = this.getState(endpointId);
     if (snap.state === "half_open") {
       snap.halfOpenTrialCalls++;
@@ -68,7 +72,8 @@ export class EndpointCircuitBreaker {
   }
 
   recordFailure(endpointId: string): CircuitState {
-    if (!this.config.enabled) return "closed";
+    if (!this.config.enabled)
+      return "closed";
     const snap = this.getState(endpointId);
     const now = this.now();
     if (snap.state === "half_open") {
@@ -89,7 +94,8 @@ export class EndpointCircuitBreaker {
   }
 
   private maybeResetWindow(snap: CircuitBreakerSnapshot): void {
-    if (!snap.lastFailureAt) return;
+    if (!snap.lastFailureAt)
+      return;
     if (this.now() - snap.lastFailureAt > this.config.windowMs) {
       snap.failures = 0;
       snap.lastFailureAt = undefined;

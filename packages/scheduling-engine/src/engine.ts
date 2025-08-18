@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import type { EngineConfig } from "./config.js";
 import type { AIAgentMetricsEvent, AIAgentPlanResponse, AIAgentScheduleResponse } from "./services/ai-agent/types.js";
 import type { AIAgentService, DatabaseService, EndpointExecutorService } from "./services/index.js";
@@ -129,7 +131,7 @@ export class SchedulingEngine {
       }
     };
     this.aiAgent = deps?.aiAgent || new DefaultAIAgentService(this.config.aiAgent);
-    this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution, this.config.events);
+    this.executor = deps?.executor || new DefaultEndpointExecutorService(this.config.execution, this.config.events, this.config.logger);
     this.database = deps?.database || new ApiDatabaseService();
   }
 
@@ -190,7 +192,9 @@ export class SchedulingEngine {
    * @returns Processing results
    */
   async processCycle(): Promise<ProcessingResult> {
+    const cycleId = randomUUID();
     const startTime = new Date();
+    this.log.info?.("cycle_start", { cycleId, startTime: startTime.toISOString() });
     this.state.lastProcessingTime = startTime;
     // progress scaffold
     const abortController = new AbortController();
@@ -214,6 +218,7 @@ export class SchedulingEngine {
     try {
       const maxBatchSize = this.config.scheduler?.maxBatchSize ?? 20;
       const jobIds = await this.database.getJobsToProcess(maxBatchSize);
+      this.log.info?.("cycle_jobs_fetched", { cycleId, count: jobIds.length });
       result.jobsProcessed = jobIds.length;
       this.state.progress.total = jobIds.length;
       this.state.progress.endpoints = { total: 0, completed: 0 };
@@ -234,7 +239,9 @@ export class SchedulingEngine {
         if (current >= jobIds.length)
           return;
         const jobId = jobIds[current];
+        this.log.info?.("job_start", { cycleId, jobId });
         await this.processSingleJob(jobId, result).catch(() => { /* errors recorded inside */ });
+        this.log.info?.("job_end", { cycleId, jobId });
         // job-level progress
         this.state.progress!.completed++;
         // endpoint-level aggregate progress (increment after each job by its endpoint count)
@@ -254,8 +261,7 @@ export class SchedulingEngine {
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      this.log.error?.("Error in processing cycle:", errorMessage);
-      result.errors.push({ message: errorMessage });
+      this.log.error?.("cycle_error", { cycleId, error: errorMessage });
     }
 
     result.endTime = new Date();
@@ -272,6 +278,8 @@ export class SchedulingEngine {
     this.state.stats.avgCycleDurationMs = Math.round(
       (this.state.stats.totalProcessingTimeMs || 0) / (this.state.stats.totalCyclesProcessed || 1),
     );
+
+    this.log.info?.("cycle_metrics", { cycleId, durationMs: result.duration, avgCycleDurationMs: this.state.stats.avgCycleDurationMs });
 
     this.state.progress = undefined;
     this.state.abortController = undefined;
@@ -367,10 +375,8 @@ export class SchedulingEngine {
 
       this.state.stats.aiAgentCalls++;
       const executionPlan = await this.runPlanWithWrapper(contextWithTime);
-      // initialize endpoint progress totals when plan known
-      if (this.state.progress?.endpoints) {
-        this.state.progress.endpoints.total += executionPlan.endpointsToCall.length;
-      }
+      // mark endpoints pending (existing code adds byId)
+      this.config.events?.onExecutionProgress?.({ jobId, total: this.state.progress?.total || 0, completed: this.state.progress?.completed || 0 });
       // accumulate & persist token usage
       if (executionPlan.usage && this.config.metrics?.trackTokenUsage) {
         const { inputTokens = 0, outputTokens = 0, totalTokens = 0, reasoningTokens, cachedInputTokens } = executionPlan.usage;
@@ -391,8 +397,9 @@ export class SchedulingEngine {
       await this.database.recordExecutionPlan(jobId, executionPlan);
 
       const endpointResults = await this.executor.executeEndpoints(contextWithTime, executionPlan);
-      if (this.state.progress?.endpoints) {
-        this.state.progress.endpoints.completed += endpointResults.length;
+      // emit per-endpoint terminal statuses
+      for (const r of endpointResults) {
+        this.config.events?.onEndpointProgress?.({ jobId, endpointId: r.endpointId, status: r.success ? "success" : "failed", attempt: r.attempts || 1, error: r.error });
       }
       await this.database.recordEndpointResults(jobId, endpointResults);
 

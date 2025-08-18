@@ -32,6 +32,15 @@ function buildConfig(partial: Partial<EngineConfig> = {}): EngineConfig {
       allowCancellation: false,
       responseContentLengthLimit: 10000,
       validateResponseSchemas: true,
+      circuitBreaker: {
+        enabled: true,
+        failureThreshold: 5,
+        windowMs: 60000,
+        cooldownMs: 30000,
+        halfOpenMaxCalls: 1,
+        halfOpenSuccessesToClose: 1,
+        halfOpenFailuresToReopen: 1,
+      },
     },
     metrics: { enabled: true, samplingRate: 1, trackTokenUsage: true },
     scheduler: {

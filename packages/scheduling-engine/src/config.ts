@@ -100,7 +100,8 @@ export const EventsConfigSchema = z.object({
   onRetryExhausted: z.function().args(z.object({ jobId: z.string(), endpointId: z.string(), attempts: z.number().int().min(1) })).returns(z.void()).optional(),
   onExecutionProgress: z.function().args(z.object({ jobId: z.string().optional(), completed: z.number().int().nonnegative(), total: z.number().int().nonnegative() })).returns(z.void()).optional(),
   onAbort: z.function().args(z.object({ jobId: z.string().optional(), reason: z.string().optional() })).returns(z.void()).optional(),
-  onCircuitStateChange: z.function().args(z.object({ endpointId: z.string(), from: z.enum(["closed","open","half_open"]).optional(), to: z.enum(["closed","open","half_open"]), failures: z.number().int().nonnegative().optional() })).returns(z.void()).optional(),
+  onCircuitStateChange: z.function().args(z.object({ endpointId: z.string(), from: z.enum(["closed", "open", "half_open"]).optional(), to: z.enum(["closed", "open", "half_open"]), failures: z.number().int().nonnegative().optional() })).returns(z.void()).optional(),
+  onEndpointProgress: z.function().args(z.object({ jobId: z.string().optional(), endpointId: z.string(), status: z.enum(["pending", "in_progress", "success", "failed"]), attempt: z.number().int().min(0), error: z.string().optional() })).returns(z.void()).optional(),
 }).partial();
 
 /** Root engine config (input may be partial) */

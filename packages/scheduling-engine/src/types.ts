@@ -155,6 +155,7 @@ export type ExecutionProgress = {
   endpoints?: {
     total: number;
     completed: number;
+    byId?: Record<string, { status: "pending" | "in_progress" | "success" | "failed"; attempts: number; lastUpdated: string; error?: string }>;
   };
 };
 
