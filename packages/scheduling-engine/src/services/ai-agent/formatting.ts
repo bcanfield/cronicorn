@@ -86,10 +86,10 @@ Escalation: ${escalation}
 
 Endpoint Results:
 ${results.results.map((r) => {
-    const status = r.success ? "SUCCESS" : (r.aborted ? "ABORTED" : "FAILURE");
-    const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
-    const error = r.error ? `\n  Error: ${r.error}` : "";
-    const abortedFlag = r.aborted ? "\n  Note: Aborted mid-execution" : "";
-    return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}${abortedFlag}`;
-  }).join("\n\n")}`;
+  const status = r.success ? "SUCCESS" : (r.aborted ? "ABORTED" : "FAILURE");
+  const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
+  const error = r.error ? `\n  Error: ${r.error}` : "";
+  const abortedFlag = r.aborted ? "\n  Note: Aborted mid-execution" : "";
+  return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}${abortedFlag}`;
+}).join("\n\n")}`;
 }

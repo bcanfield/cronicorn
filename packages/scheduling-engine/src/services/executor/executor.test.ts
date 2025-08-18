@@ -57,6 +57,8 @@ function makeExecutor(overrides: Partial<ExecutionConfig> = {}, events?: EventsC
         allowCancellation: false,
         responseContentLengthLimit: 10000,
         validateResponseSchemas: true,
+        logSamplingRate: 1,
+        escalation: { warnFailureRatio: 0.25, criticalFailureRatio: 0.5 },
         circuitBreaker,
         executionPhaseTimeoutMs: overrides.executionPhaseTimeoutMs,
     };

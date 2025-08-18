@@ -26,9 +26,10 @@ function makeExecutor(cfg?: Partial<ExecutionConfig>) {
         allowCancellation: true,
         responseContentLengthLimit: 10000,
         validateResponseSchemas: true,
+        logSamplingRate: 0,
+        escalation: { warnFailureRatio: 0.25, criticalFailureRatio: 0.5 },
         circuitBreaker: { enabled: true, failureThreshold: 2, windowMs: 60000, cooldownMs: 50, halfOpenMaxCalls: 1, halfOpenSuccessesToClose: 1, halfOpenFailuresToReopen: 1 },
         executionPhaseTimeoutMs: undefined,
-        logSamplingRate: 0,
         ...cfg,
     };
     return new DefaultEndpointExecutorService(base);
