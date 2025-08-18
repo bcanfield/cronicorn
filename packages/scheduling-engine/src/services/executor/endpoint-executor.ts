@@ -5,6 +5,7 @@ import type { EventsConfig, ExecutionConfig } from "../../config.js";
 import type { EndpointExecutionResult, EndpointResponseContent, JobContext } from "../../types.js";
 import type { AIAgentPlanResponse } from "../ai-agent/index.js";
 
+import { EndpointCircuitBreaker } from "./circuit-breaker.js";
 import { classifyEndpointFailure } from "./errors.js";
 import { DefaultRetryPolicy, type RetryPolicy } from "./retry-policy.js";
 
@@ -33,6 +34,7 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
   private fetch: typeof NodeFetch;
   private retryPolicy: RetryPolicy;
   private events?: EventsConfig;
+  private circuitBreaker: EndpointCircuitBreaker;
 
   /**
    * Create a new executor service
@@ -45,6 +47,7 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
     this.fetch = NodeFetch;
     this.retryPolicy = new DefaultRetryPolicy();
     this.events = events;
+    this.circuitBreaker = new EndpointCircuitBreaker(this.config);
   }
 
   /**
@@ -262,6 +265,18 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
       };
     }
 
+    // circuit breaker short-circuit
+    if (!this.circuitBreaker.shouldAllow(endpoint.endpointId)) {
+      return {
+        endpointId: endpoint.endpointId,
+        success: false,
+        statusCode: 0,
+        executionTimeMs: Date.now() - startTimeOverall,
+        timestamp,
+        error: "circuit_open",
+      };
+    }
+
     let lastError: string | undefined;
     let lastStatus: number | undefined;
     let truncated = false;
@@ -289,7 +304,8 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
               params.append(k, String(v));
           });
           const qs = params.toString();
-          if (qs) url += url.includes("?") ? `&${qs}` : `?${qs}`;
+          if (qs)
+            url += url.includes("?") ? `&${qs}` : `?${qs}`;
         }
         else if (endpoint.parameters) {
           body = JSON.stringify(endpoint.parameters);
@@ -323,6 +339,9 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
 
         const success = response.ok;
         if (success) {
+          const prevState = this.circuitBreaker.getState(endpoint.endpointId).state;
+          const newState = this.circuitBreaker.recordSuccess(endpoint.endpointId);
+          if (newState !== prevState) this.events?.onCircuitStateChange?.({ endpointId: endpoint.endpointId, from: prevState, to: newState });
           return {
             endpointId: endpoint.endpointId,
             success: true,
@@ -339,22 +358,28 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
         const decision = this.retryPolicy.evaluate({
           attempt,
           maxAttempts: maxAttempts + 1,
-            category: classification.category,
-            transient: classification.transient,
-            statusCode: response.status,
+          category: classification.category,
+          transient: classification.transient,
+          statusCode: response.status,
         });
         if (decision === "retry") {
           onRetryAttempt?.({ jobId: jobContext.job.id, endpointId: endpoint.endpointId, attempt });
-          const delay = this.retryPolicy.nextDelay ? this.retryPolicy.nextDelay({
-            attempt,
-            maxAttempts: maxAttempts + 1,
-            category: classification.category,
-            transient: classification.transient,
-            statusCode: response.status,
-          }) : 0;
-          if (delay > 0) await new Promise(r => setTimeout(r, delay));
+          const delay = this.retryPolicy.nextDelay
+            ? this.retryPolicy.nextDelay({
+              attempt,
+              maxAttempts: maxAttempts + 1,
+              category: classification.category,
+              transient: classification.transient,
+              statusCode: response.status,
+            })
+            : 0;
+          if (delay > 0)
+            await new Promise(r => setTimeout(r, delay));
           continue;
         }
+        const prevState = this.circuitBreaker.getState(endpoint.endpointId).state;
+        const newState = this.circuitBreaker.recordFailure(endpoint.endpointId);
+        if (newState !== prevState) this.events?.onCircuitStateChange?.({ endpointId: endpoint.endpointId, from: prevState, to: newState, failures: this.circuitBreaker.getState(endpoint.endpointId).failures });
         return {
           endpointId: endpoint.endpointId,
           success: false,
@@ -381,17 +406,23 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
         });
         if (decision === "retry") {
           onRetryAttempt?.({ jobId: jobContext.job.id, endpointId: endpoint.endpointId, attempt });
-          const delay = this.retryPolicy.nextDelay ? this.retryPolicy.nextDelay({
-            attempt,
-            maxAttempts: maxAttempts + 1,
-            category: classification.category,
-            transient: classification.transient,
-            statusCode: lastStatus,
-            errorMessage: msg,
-          }) : 0;
-          if (delay > 0) await new Promise(r => setTimeout(r, delay));
+          const delay = this.retryPolicy.nextDelay
+            ? this.retryPolicy.nextDelay({
+              attempt,
+              maxAttempts: maxAttempts + 1,
+              category: classification.category,
+              transient: classification.transient,
+              statusCode: lastStatus,
+              errorMessage: msg,
+            })
+            : 0;
+          if (delay > 0)
+            await new Promise(r => setTimeout(r, delay));
           continue;
         }
+        const prevState = this.circuitBreaker.getState(endpoint.endpointId).state;
+        const newState = this.circuitBreaker.recordFailure(endpoint.endpointId);
+        if (newState !== prevState) this.events?.onCircuitStateChange?.({ endpointId: endpoint.endpointId, from: prevState, to: newState, failures: this.circuitBreaker.getState(endpoint.endpointId).failures });
         return {
           endpointId: endpoint.endpointId,
           success: false,

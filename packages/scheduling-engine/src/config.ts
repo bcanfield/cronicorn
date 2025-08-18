@@ -58,6 +58,15 @@ export const ExecutionConfigSchema = z.object({
   responseContentLengthLimit: z.number().int().positive().default(10000).describe("Max stored response characters before truncation"),
   validateResponseSchemas: z.boolean().default(true).describe("Validate responses against endpoint schema where available"),
   executionPhaseTimeoutMs: z.number().int().positive().optional().describe("Optional global timeout for entire execution phase"),
+  circuitBreaker: z.object({
+    enabled: z.boolean().default(true),
+    failureThreshold: z.number().int().positive().default(5).describe("Failures within window to open circuit"),
+    windowMs: z.number().int().positive().default(60000).describe("Rolling window for counting failures"),
+    cooldownMs: z.number().int().positive().default(30000).describe("Time to remain open before half-open trial"),
+    halfOpenMaxCalls: z.number().int().positive().default(1).describe("Trial calls allowed in half-open state"),
+    halfOpenSuccessesToClose: z.number().int().positive().default(1).describe("Successes required to close from half-open"),
+    halfOpenFailuresToReopen: z.number().int().positive().default(1).describe("Failures in half-open to re-open immediately"),
+  }).default({}),
 });
 
 /** Metrics config */
@@ -77,7 +86,22 @@ export const SchedulerConfigSchema = z.object({
 });
 
 /** Logger placeholder */
-export const LoggerSchema = z.any().optional().describe("Injected logger (must implement .info/.error) "); // TODO: narrow logger interface
+export const LoggerSchema = z.object({
+  info: z.function().args(z.any()).returns(z.void()).optional(),
+  debug: z.function().args(z.any()).returns(z.void()).optional(),
+  warn: z.function().args(z.any()).returns(z.void()).optional(),
+  error: z.function().args(z.any()).returns(z.void()).optional(),
+  child: z.function().args(z.any()).returns(z.any()).optional(),
+}).passthrough().optional().describe("Injected logger (supports info/debug/warn/error/child)");
+
+/** Events hook schema */
+export const EventsConfigSchema = z.object({
+  onRetryAttempt: z.function().args(z.object({ jobId: z.string(), endpointId: z.string(), attempt: z.number().int().min(1) })).returns(z.void()).optional(),
+  onRetryExhausted: z.function().args(z.object({ jobId: z.string(), endpointId: z.string(), attempts: z.number().int().min(1) })).returns(z.void()).optional(),
+  onExecutionProgress: z.function().args(z.object({ jobId: z.string().optional(), completed: z.number().int().nonnegative(), total: z.number().int().nonnegative() })).returns(z.void()).optional(),
+  onAbort: z.function().args(z.object({ jobId: z.string().optional(), reason: z.string().optional() })).returns(z.void()).optional(),
+  onCircuitStateChange: z.function().args(z.object({ endpointId: z.string(), from: z.enum(["closed","open","half_open"]).optional(), to: z.enum(["closed","open","half_open"]), failures: z.number().int().nonnegative().optional() })).returns(z.void()).optional(),
+}).partial();
 
 /** Root engine config (input may be partial) */
 export const EngineConfigInputSchema = z.object({
@@ -86,6 +110,7 @@ export const EngineConfigInputSchema = z.object({
   metrics: MetricsConfigSchema.partial().optional(),
   scheduler: SchedulerConfigSchema.partial().optional(),
   logger: LoggerSchema,
+  events: EventsConfigSchema.optional(),
 });
 
 /** Fully resolved engine config */
@@ -95,6 +120,7 @@ export const EngineConfigSchema = z.object({
   metrics: MetricsConfigSchema,
   scheduler: SchedulerConfigSchema.optional(),
   logger: LoggerSchema,
+  events: EventsConfigSchema.optional(),
 });
 
 export type PromptOptimizationConfig = z.infer<typeof PromptOptimizationConfigSchema>;
@@ -104,6 +130,7 @@ export type MetricsConfig = z.infer<typeof MetricsConfigSchema>;
 export type SchedulerConfig = z.infer<typeof SchedulerConfigSchema>;
 export type EngineConfig = z.infer<typeof EngineConfigSchema>;
 export type EngineConfigInput = z.infer<typeof EngineConfigInputSchema>;
+export type EventsConfig = z.infer<typeof EventsConfigSchema>;
 
 /**
  * Build + validate a full EngineConfig from partial input
@@ -120,5 +147,6 @@ export function validateEngineConfig(input: EngineConfigInput): EngineConfig {
     metrics,
     scheduler,
     logger: parsed.logger,
+    events: parsed.events,
   });
 }
