@@ -152,6 +152,10 @@ export type ExecutionProgress = {
   completed: number;
   startedAt: string;
   updatedAt: string;
+  endpoints?: {
+    total: number;
+    completed: number;
+  };
 };
 
 export type AbortCapability = {

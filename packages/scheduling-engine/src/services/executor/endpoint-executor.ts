@@ -240,6 +240,10 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
     const startTimeOverall = Date.now();
     const timestamp = new Date().toISOString();
 
+    // Placeholder retry event callbacks (wired from config in future task)
+    let onRetryAttempt: ((d: { jobId: string; endpointId: string; attempt: number }) => void) | undefined;
+    let onRetryExhausted: ((d: { jobId: string; endpointId: string; attempts: number }) => void) | undefined;
+
     // locate endpoint config
     const endpointConfig = jobContext.endpoints.find(e => e.id === endpoint.endpointId);
     if (!endpointConfig) {
@@ -334,6 +338,7 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
             statusCode: response.status,
         });
         if (decision === "retry") {
+          onRetryAttempt?.({ jobId: jobContext.job.id, endpointId: endpoint.endpointId, attempt });
           const delay = this.retryPolicy.nextDelay ? this.retryPolicy.nextDelay({
             attempt,
             maxAttempts: maxAttempts + 1,
@@ -369,6 +374,7 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
           errorMessage: msg,
         });
         if (decision === "retry") {
+          onRetryAttempt?.({ jobId: jobContext.job.id, endpointId: endpoint.endpointId, attempt });
           const delay = this.retryPolicy.nextDelay ? this.retryPolicy.nextDelay({
             attempt,
             maxAttempts: maxAttempts + 1,
@@ -393,6 +399,7 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
     }
 
     // exhausted loop fallback
+    onRetryExhausted?.({ jobId: jobContext.job.id, endpointId: endpoint.endpointId, attempts: maxAttempts + 1 });
     return {
       endpointId: endpoint.endpointId,
       success: false,

@@ -41,8 +41,35 @@ export class SchedulingEngine {
    *
    * @param config Engine configuration
    */
+  private log: { info?: (...a: unknown[]) => void; error?: (...a: unknown[]) => void } = {};
   constructor(config: EngineConfig, deps?: { aiAgent?: AIAgentService; executor?: EndpointExecutorService; database?: DatabaseService }) {
     this.config = config;
+
+    // Safe logger extraction (no assertions / any)
+    const rawLogger = config.logger;
+    if (rawLogger && typeof rawLogger === "object") {
+      if (typeof rawLogger.info === "function") {
+        this.log.info = (msg: unknown, meta?: unknown) => {
+          try {
+            rawLogger.info?.(msg, meta);
+          }
+          catch {
+            /* swallow */
+          }
+        };
+      }
+      if (typeof rawLogger.error === "function") {
+        this.log.error = (msg: unknown, meta?: unknown) => {
+          try {
+            rawLogger.error?.(msg, meta);
+          }
+          catch {
+            /* swallow */
+          }
+        };
+      }
+    }
+
     const metricsHook = (evt: AIAgentMetricsEvent) => {
       switch (evt.type) {
         case "malformed": {
@@ -173,7 +200,8 @@ export class SchedulingEngine {
         abortController.abort();
       },
     };
-    this.state.progress = { total: 0, completed: 0, startedAt: startTime.toISOString(), updatedAt: startTime.toISOString() };
+    this.state.progress = { total: 0, completed: 0, startedAt: startTime.toISOString(), updatedAt: startTime.toISOString(), endpoints: { total: 0, completed: 0 } };
+    const events = this.config.events || {};
     const result: ProcessingResult = {
       startTime,
       endTime: new Date(), // updated later
@@ -188,9 +216,10 @@ export class SchedulingEngine {
       const jobIds = await this.database.getJobsToProcess(maxBatchSize);
       result.jobsProcessed = jobIds.length;
       this.state.progress.total = jobIds.length;
+      this.state.progress.endpoints = { total: 0, completed: 0 };
+      events.onExecutionProgress?.({ total: this.state.progress.total, completed: this.state.progress.completed });
       if (jobIds.length === 0) {
-        const logger = this.config.logger || console;
-        logger.info("Processing cycle completed: 0/0 jobs successful");
+        this.log.info?.("Processing cycle completed: 0/0 jobs successful");
         result.endTime = new Date();
         result.duration = result.endTime.getTime() - result.startTime.getTime();
         return result;
@@ -206,21 +235,26 @@ export class SchedulingEngine {
           return;
         const jobId = jobIds[current];
         await this.processSingleJob(jobId, result).catch(() => { /* errors recorded inside */ });
+        // job-level progress
         this.state.progress!.completed++;
+        // endpoint-level aggregate progress (increment after each job by its endpoint count)
+        if (this.state.progress!.endpoints) {
+          this.state.progress!.endpoints.total += 0; // placeholder (could accumulate planned endpoints)
+          this.state.progress!.endpoints.completed += 0; // placeholder until deeper integration
+        }
         this.state.progress!.updatedAt = new Date().toISOString();
+        events.onExecutionProgress?.({ total: this.state.progress!.total, completed: this.state.progress!.completed });
         return processNext();
       };
 
       const workers = Array.from({ length: Math.min(concurrency, jobIds.length) }, () => processNext());
       await Promise.all(workers);
 
-      const logger = this.config.logger || console;
-      logger.info(`Processing cycle completed: ${result.successfulJobs}/${result.jobsProcessed} jobs successful`);
+      this.log.info?.(`Processing cycle completed: ${result.successfulJobs}/${result.jobsProcessed} jobs successful`);
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      const logger = this.config.logger || console;
-      logger.error("Error in processing cycle:", errorMessage);
+      this.log.error?.("Error in processing cycle:", errorMessage);
       result.errors.push({ message: errorMessage });
     }
 
@@ -241,6 +275,7 @@ export class SchedulingEngine {
 
     this.state.progress = undefined;
     this.state.abortController = undefined;
+    events.onExecutionProgress?.({ total: result.jobsProcessed, completed: result.successfulJobs + result.failedJobs });
     return result;
   }
 
