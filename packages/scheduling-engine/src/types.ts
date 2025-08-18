@@ -57,6 +57,7 @@ export type JobContext = {
       maxEndpointConcurrency: number;
       maxExecutionTimeMs: number;
     };
+    abortSignal?: AbortSignal; // propagated cancellation signal
   };
 };
 
@@ -122,7 +123,6 @@ export type EndpointExecutionResult = {
   endpointId: string;
   success: boolean;
   statusCode: number;
-  // Replaced unsafe any with explicit union of possible response content representations.
   responseContent?: EndpointResponseContent;
   error?: string;
   executionTimeMs: number;
@@ -131,6 +131,7 @@ export type EndpointExecutionResult = {
   responseSizeBytes?: number;
   truncated?: boolean;
   attempts?: number; // retry attempts used (1 = first attempt)
+  aborted?: boolean; // indicates execution aborted via signal
 };
 
 /**
@@ -143,7 +144,9 @@ export type ExecutionResults = {
     endTime: string;
     totalDurationMs: number;
     successCount: number;
-    failureCount: number;
+    failureCount: number; // excludes aborted
+    abortedCount?: number; // number of aborted endpoints
+    escalationLevel?: 'none' | 'warn' | 'critical'; // enhanced error handling (5.1.3)
   };
 };
 

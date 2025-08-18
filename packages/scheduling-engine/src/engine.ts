@@ -441,6 +441,13 @@ export class SchedulingEngine {
           totalDurationMs: endpointResults.reduce((t, r) => t + r.executionTimeMs, 0),
           successCount: endpointResults.filter(r => r.success).length,
           failureCount: endpointResults.filter(r => !r.success && !r.aborted).length,
+          abortedCount: endpointResults.filter(r => r.aborted).length,
+          escalationLevel: (() => {
+            const failures = endpointResults.filter(r => !r.success && !r.aborted).length;
+            if (failures === 0) return 'none';
+            if (failures >= Math.ceil(endpointResults.length * 0.5)) return 'critical';
+            return 'warn';
+          })(),
         },
       };
       await this.database.recordExecutionSummary(jobId, executionSummary.summary);

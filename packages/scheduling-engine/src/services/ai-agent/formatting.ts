@@ -73,19 +73,23 @@ export function formatEndpointUsage(usage: JobContext["endpointUsage"], limit: n
 export function formatExecutionResults(results: ExecutionResults): string {
   // Recompute failures excluding aborted endpoints for consistency with engine summary logic
   const failureCountExcludingAborted = results.results.filter(r => !r.success && !r.aborted).length;
+  const abortedCount = results.results.filter(r => r.aborted).length;
+  const escalation = results.summary.escalationLevel || (failureCountExcludingAborted === 0 ? 'none' : failureCountExcludingAborted >= Math.ceil(results.results.length * 0.5) ? 'critical' : 'warn');
   return `Execution Summary:
 Start Time: ${results.summary.startTime}
 End Time: ${results.summary.endTime}
 Total Duration: ${results.summary.totalDurationMs}ms
 Success: ${results.summary.successCount}
 Failures: ${failureCountExcludingAborted}
+Aborted: ${abortedCount}
+Escalation: ${escalation}
 
 Endpoint Results:
 ${results.results.map((r) => {
-  const status = r.success ? "SUCCESS" : (r.aborted ? "ABORTED" : "FAILURE");
-  const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
-  const error = r.error ? `\n  Error: ${r.error}` : "";
-  const abortedFlag = r.aborted ? "\n  Note: Aborted mid-execution" : "";
-  return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}${abortedFlag}`;
-}).join("\n\n")}`;
+    const status = r.success ? "SUCCESS" : (r.aborted ? "ABORTED" : "FAILURE");
+    const response = r.responseContent ? `\n  Response: ${JSON.stringify(r.responseContent).substring(0, 200)}${r.truncated ? "... (truncated)" : ""}` : "";
+    const error = r.error ? `\n  Error: ${r.error}` : "";
+    const abortedFlag = r.aborted ? "\n  Note: Aborted mid-execution" : "";
+    return `- ${r.endpointId} (${r.timestamp})\n  Status: ${status} (${r.statusCode})\n  Duration: ${r.executionTimeMs}ms${response}${error}${abortedFlag}`;
+  }).join("\n\n")}`;
 }
