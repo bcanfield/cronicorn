@@ -5,6 +5,7 @@ import type { ExecutionConfig } from "../../config.js";
 import type { EndpointExecutionResult, EndpointResponseContent, JobContext } from "../../types.js";
 import type { AIAgentPlanResponse } from "../ai-agent/index.js";
 
+import { classifyEndpointFailure } from "./errors.js";
 import { DefaultRetryPolicy, type RetryPolicy } from "./retry-policy.js";
 
 /**
@@ -234,139 +235,174 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
     jobContext: JobContext,
     endpoint: AIAgentPlanResponse["endpointsToCall"][0],
   ): Promise<EndpointExecutionResult> {
-    void this.retryPolicy; // placeholder usage until retry logic added
-    // basic single-attempt for now (retry loop scaffolded for future implementation)
-    const startTime = Date.now();
+    // retry-enabled execution
+    const maxAttempts = this.config.maxEndpointRetries ?? 0;
+    const startTimeOverall = Date.now();
     const timestamp = new Date().toISOString();
 
-    try {
-      // Find endpoint configuration
-      const endpointConfig = jobContext.endpoints.find(e => e.id === endpoint.endpointId);
-
-      if (!endpointConfig) {
-        throw new Error(`Endpoint ${endpoint.endpointId} not found in job context`);
-      }
-
-      // Build URL with parameters if GET request
-      let url = endpointConfig.url;
-      let body: string | null = null;
-
-      // Prepare headers
-      const headers: Record<string, string> = {
-        ...(jobContext.job.defaultHeaders || {}),
-        ...(endpointConfig.defaultHeaders || {}),
-        ...(endpoint.headers || {}),
-      };
-
-      // Set content type if not provided
-      if (endpointConfig.method !== "GET" && !headers["Content-Type"]) {
-        headers["Content-Type"] = "application/json";
-      }
-
-      // Handle URL parameters for GET requests
-      if (endpointConfig.method === "GET" && endpoint.parameters) {
-        const params = new URLSearchParams();
-
-        Object.entries(endpoint.parameters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            params.append(key, String(value));
-          }
-        });
-
-        const queryString = params.toString();
-        if (queryString) {
-          url += url.includes("?") ? `&${queryString}` : `?${queryString}`;
-        }
-      }
-      // Handle request body for non-GET requests
-      else if (endpoint.parameters) {
-        body = JSON.stringify(endpoint.parameters);
-      }
-
-      // Set timeout
-      const timeoutMs = endpointConfig.timeoutMs || this.config.defaultTimeoutMs || 10000;
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-      // Execute the request
-      const response = await this.fetch(url, {
-        method: endpointConfig.method,
-        headers,
-        body,
-        signal: controller.signal,
-      });
-
-      // Clear timeout
-      clearTimeout(timeoutId);
-
-      // Determine if request was successful
-      const success = response.ok;
-      const endTime = Date.now();
-
-      // Try to parse response content
-      let responseContentRaw: unknown = null;
-      let responseText: string = "";
-      let truncated = false;
-
-      try {
-        responseText = await response.text();
-
-        // Only truncate if over limit
-        const contentLengthLimit = this.config.responseContentLengthLimit || 10000;
-
-        if (responseText.length > contentLengthLimit) {
-          responseText = responseText.substring(0, contentLengthLimit);
-          truncated = true;
-        }
-
-        // Try to parse as JSON
-        try {
-          const parsed = JSON.parse(responseText);
-          responseContentRaw = parsed;
-        }
-        catch {
-          // Not JSON, keep as string
-          responseContentRaw = responseText;
-        }
-      }
-      catch {
-        // Cannot read response
-        responseContentRaw = null;
-      }
-
-      const responseContent: EndpointResponseContent
-        = typeof responseContentRaw === "string"
-          ? responseContentRaw
-          : Array.isArray(responseContentRaw)
-            ? responseContentRaw
-            : responseContentRaw && typeof responseContentRaw === "object"
-              ? { ...responseContentRaw }
-              : null;
-
-      // Create result
-      return {
-        endpointId: endpoint.endpointId,
-        success,
-        statusCode: response.status,
-        executionTimeMs: endTime - startTime,
-        timestamp,
-        responseContent,
-        truncated,
-      };
-    }
-    catch (error) {
-      // Handle errors (timeout, network issues, etc.)
-      const endTime = Date.now();
-      const errorMessage = error instanceof Error ? error.message : String(error);
-
+    // locate endpoint config
+    const endpointConfig = jobContext.endpoints.find(e => e.id === endpoint.endpointId);
+    if (!endpointConfig) {
       return {
         endpointId: endpoint.endpointId,
         success: false,
         statusCode: 0,
-        executionTimeMs: endTime - startTime,
+        executionTimeMs: Date.now() - startTimeOverall,
         timestamp,
-        error: errorMessage,
+        error: `Endpoint ${endpoint.endpointId} not found in job context`,
       };
     }
+
+    let lastError: string | undefined;
+    let lastStatus: number | undefined;
+    let truncated = false;
+    let lastResponseContent: EndpointResponseContent = null;
+
+    for (let attempt = 1; attempt <= Math.max(1, maxAttempts + 1); attempt++) {
+      const attemptStart = Date.now();
+      let aborted = false;
+      try {
+        // Build URL + body per attempt (parameters stable for now)
+        let url = endpointConfig.url;
+        let body: string | null = null;
+        const headers: Record<string, string> = {
+          ...(jobContext.job.defaultHeaders || {}),
+          ...(endpointConfig.defaultHeaders || {}),
+          ...(endpoint.headers || {}),
+        };
+        if (endpointConfig.method !== "GET" && !headers["Content-Type"]) {
+          headers["Content-Type"] = "application/json";
+        }
+        if (endpointConfig.method === "GET" && endpoint.parameters) {
+          const params = new URLSearchParams();
+          Object.entries(endpoint.parameters).forEach(([k, v]) => {
+            if (v !== undefined && v !== null)
+              params.append(k, String(v));
+          });
+          const qs = params.toString();
+          if (qs) url += url.includes("?") ? `&${qs}` : `?${qs}`;
+        }
+        else if (endpoint.parameters) {
+          body = JSON.stringify(endpoint.parameters);
+        }
+        const timeoutMs = endpointConfig.timeoutMs || this.config.defaultTimeoutMs || 10000;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+          aborted = true;
+        }, timeoutMs);
+
+        const response = await this.fetch(url, { method: endpointConfig.method, headers, body, signal: controller.signal });
+        clearTimeout(timeoutId);
+        lastStatus = response.status;
+        const text = await response.text().catch(() => "");
+        let responseText = text;
+        const contentLengthLimit = this.config.responseContentLengthLimit || 10000;
+        if (responseText.length > contentLengthLimit) {
+          responseText = responseText.substring(0, contentLengthLimit);
+          truncated = true;
+        }
+        let parsed: unknown = responseText;
+        try {
+          parsed = JSON.parse(responseText);
+        }
+        catch {
+          /* not json */
+        }
+        lastResponseContent = typeof parsed === "string" || Array.isArray(parsed) ? parsed : parsed && typeof parsed === "object" ? { ...parsed } : null;
+
+        const success = response.ok;
+        if (success) {
+          return {
+            endpointId: endpoint.endpointId,
+            success: true,
+            statusCode: response.status,
+            executionTimeMs: Date.now() - attemptStart,
+            timestamp,
+            responseContent: lastResponseContent,
+            truncated,
+            attempts: attempt,
+          };
+        }
+        // classify non-OK status for retry decision
+        const classification = classifyEndpointFailure({ statusCode: response.status });
+        const decision = this.retryPolicy.evaluate({
+          attempt,
+          maxAttempts: maxAttempts + 1,
+            category: classification.category,
+            transient: classification.transient,
+            statusCode: response.status,
+        });
+        if (decision === "retry") {
+          const delay = this.retryPolicy.nextDelay ? this.retryPolicy.nextDelay({
+            attempt,
+            maxAttempts: maxAttempts + 1,
+            category: classification.category,
+            transient: classification.transient,
+            statusCode: response.status,
+          }) : 0;
+          if (delay > 0) await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        return {
+          endpointId: endpoint.endpointId,
+          success: false,
+          statusCode: response.status,
+          executionTimeMs: Date.now() - attemptStart,
+          timestamp,
+          responseContent: lastResponseContent,
+          truncated,
+          error: `HTTP ${response.status}`,
+          attempts: attempt,
+        };
+      }
+      catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        lastError = msg;
+        const classification = classifyEndpointFailure({ error: err, statusCode: lastStatus, aborted });
+        const decision = this.retryPolicy.evaluate({
+          attempt,
+          maxAttempts: maxAttempts + 1,
+          category: classification.category,
+          transient: classification.transient,
+          statusCode: lastStatus,
+          errorMessage: msg,
+        });
+        if (decision === "retry") {
+          const delay = this.retryPolicy.nextDelay ? this.retryPolicy.nextDelay({
+            attempt,
+            maxAttempts: maxAttempts + 1,
+            category: classification.category,
+            transient: classification.transient,
+            statusCode: lastStatus,
+            errorMessage: msg,
+          }) : 0;
+          if (delay > 0) await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        return {
+          endpointId: endpoint.endpointId,
+          success: false,
+          statusCode: lastStatus || 0,
+          executionTimeMs: Date.now() - startTimeOverall,
+          timestamp,
+          error: msg,
+          attempts: attempt,
+        };
+      }
+    }
+
+    // exhausted loop fallback
+    return {
+      endpointId: endpoint.endpointId,
+      success: false,
+      statusCode: lastStatus || 0,
+      executionTimeMs: Date.now() - startTimeOverall,
+      timestamp,
+      error: lastError || "Unknown error",
+      responseContent: lastResponseContent,
+      truncated,
+      attempts: maxAttempts + 1,
+    };
   }
 }

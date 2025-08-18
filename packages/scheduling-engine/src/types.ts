@@ -130,6 +130,7 @@ export type EndpointExecutionResult = {
   requestSizeBytes?: number;
   responseSizeBytes?: number;
   truncated?: boolean;
+  attempts?: number; // retry attempts used (1 = first attempt)
 };
 
 /**
