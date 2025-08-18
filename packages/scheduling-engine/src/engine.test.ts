@@ -22,6 +22,7 @@ function buildConfig(partial: Partial<EngineConfig> = {}): EngineConfig {
       validateSemantics: true,
       semanticStrict: true,
       repairMalformedResponses: true,
+      maxRepairAttempts: 1,
     },
     execution: {
       maxConcurrency: 5,
