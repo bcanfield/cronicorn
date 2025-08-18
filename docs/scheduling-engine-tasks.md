@@ -7,18 +7,18 @@ This document outlines the step-by-step tasks for implementing the scheduling en
 **Architecture Status**: ✅ **EXCELLENT** – Core services + orchestration loop (processCycle + worker pool) implemented, token usage now persisted
 **Implementation Status**: 🟢 **CORE LOOP OPERATIONAL** – Concurrency, state transitions, performance + token metrics in place
 - **Recent Update**: Malformed response metrics instrumentation (3.3.5.c) completed (counters + classification integration)
-**Next Critical Task**: **3.3.5.d Multi-attempt repair configuration** (extends single-attempt flow)
+**Next Critical Task**: **4.1.3 HTTP retry logic for transient endpoint failures** (extends single-attempt flow)
 
 ### 🚀 Immediate Next Steps (Priority Order):
 
-1. **HIGH**: 3.3.5.d Configurable multi-attempt repair (maxRepairAttempts)
-2. **HIGH**: 3.3.5.e Salvage partial structures (non-strict degradation)
-3. **HIGH**: 3.3.5.f Persist malformed response metadata
-4. **HIGH**: 3.3.5.g Structured MalformedResponseError surface
-5. **HIGH**: 4.1.3 HTTP retry logic for transient endpoint failures
-6. **MEDIUM**: 4.2.4 Execution progress tracking
-7. **MEDIUM**: 4.2.5 Execution abort capabilities
-8. **MEDIUM**: 5.1.3 Enhanced error recovery (structured retry/backoff framework)
+1. **HIGH**: 4.1.3 HTTP retry logic for transient endpoint failures
+2. **HIGH**: 4.1.4 Implement circuit breaker for failing endpoints
+3. **HIGH**: 4.1.5 Add request/response logging
+4. **HIGH**: 4.2.4 Execution progress tracking
+5. **HIGH**: 4.2.5 Execution abort capabilities
+6. **MEDIUM**: 5.1.3 Enhanced error handling (categorize, retry policies, escalation)
+7. **MEDIUM**: 5.1.4 Graceful shutdown
+8. **MEDIUM**: 5.1.5 Startup & initialization logic
 9. **LOW**: 3.4.x fallback strategies (after semantic validation & retries)
 
 ### 📊 Progress Summary:
@@ -139,7 +139,7 @@ Each task below should follow this workflow, with tests committed alongside impl
   - [x] **3.3.5.d** Configurable multi-attempt repair (maxRepairAttempts)
   - [x] **3.3.5.e** Salvage partial structures (drop invalid endpoints / dependencies) when non-strict
   - [x] **3.3.5.f** Persist malformed response metadata (classification + attempts) for later analytics
-  - [ ] **3.3.5.g** Structured error surface (MalformedResponseError type) & propagation
+  - [x] **3.3.5.g** Structured error surface (MalformedResponseError type) & propagation
 
 ### 3.4 Fallback Strategies
 
@@ -306,6 +306,7 @@ Each task below should follow this workflow, with tests committed alongside impl
 - Multi-attempt repair implemented: plan & schedule cores now iterate up to maxRepairAttempts emitting attempt/failure events and final success.
 - Salvage logic added (3.3.5.e): non-strict semantic mode now attempts structural cleanup (dependency pruning, concurrency adjustment, confidence clamping, nextRunAt fallback) and annotates reasoning with [SemanticSalvage] notes instead of only warnings.
 - Malformed response metadata persistence hook added (3.3.5.f): configurable malformedPersistenceHook invoked on malformed & repair success events with attempts + repaired flag.
+- Structured MalformedResponseError introduced (3.3.5.g) replacing generic errors in plan/schedule phases.
 
 ## 🎯 Rationale for Next Task (3.2.5)
 Add prompt testing utilities to quantify optimization impact (token delta, reasoning retention) and guard against regressions before adding semantic validation.

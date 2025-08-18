@@ -7,6 +7,7 @@ import type { AIAgentMetricsEvent, AIAgentPlanResponse } from "./types.js";
 import { classifyPlanError } from "./classification.js";
 import { createPlanningSystemPrompt, formatContextForPlanning } from "./formatting.js";
 import { optimizeJobContext } from "./prompt-optimization.js";
+import { MalformedResponseError } from "./errors.js";
 import { executionPlanSchema } from "./schemas.js";
 import { salvagePlan, validatePlanSemantics } from "./semantics.js";
 
@@ -60,7 +61,7 @@ export async function planExecutionCore({ jobContext, config, model, emit }: Pla
     const errorMessage = error instanceof Error ? error.message : String(error);
     const category = classifyPlanError(errorMessage);
     emit({ type: "malformed", phase: "plan", category });
-    throw new Error(`Error in planExecution [${category}]: ${errorMessage}`);
+    throw new MalformedResponseError({ phase: "plan", category, attempts: (config.maxRepairAttempts ?? 1), repaired: false, message: `Error in planExecution [${category}]: ${errorMessage}` });
   }
 }
 

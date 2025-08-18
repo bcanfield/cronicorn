@@ -3,11 +3,12 @@ import { generateObject, type LanguageModel } from "ai";
 import type { AIAgentConfig } from "../../config.js";
 import type { ExecutionResults, JobContext } from "../../types.js";
 import type { AIAgentMetricsEvent, AIAgentScheduleResponse } from "./types.js";
+import { MalformedResponseError } from "./errors.js";
+import { salvageSchedule, validateScheduleSemantics } from "./semantics.js";
 
 import { classifyScheduleError } from "./classification.js";
 import { createSchedulingSystemPrompt, formatContextForScheduling } from "./formatting.js";
 import { schedulingResponseSchema } from "./schemas.js";
-import { salvageSchedule, validateScheduleSemantics } from "./semantics.js";
 
 /**
  * Core scheduling logic: derives nextRunAt from context + execution results,
@@ -57,7 +58,7 @@ export async function scheduleExecutionCore({ jobContext, executionResults, conf
     const errorMessage = error instanceof Error ? error.message : String(error);
     const category = classifyScheduleError(errorMessage);
     emit({ type: "malformed", phase: "schedule", category });
-    throw new Error(`Error in finalizeSchedule [${category}]: ${errorMessage}`);
+    throw new MalformedResponseError({ phase: "schedule", category, attempts: (config.maxRepairAttempts ?? 1), repaired: false, message: `Error in finalizeSchedule [${category}]: ${errorMessage}` });
   }
 }
 
