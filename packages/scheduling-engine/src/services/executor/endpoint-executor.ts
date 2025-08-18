@@ -1,15 +1,14 @@
 import NodeFetch from "node-fetch";
 import PQueue from "p-queue";
 
-/**
- * Endpoint executor service
- */
 import type { ExecutionConfig } from "../../config.js";
 import type { EndpointExecutionResult, EndpointResponseContent, JobContext } from "../../types.js";
 import type { AIAgentPlanResponse } from "../ai-agent/index.js";
 
+import { DefaultRetryPolicy, type RetryPolicy } from "./retry-policy.js";
+
 /**
- * Interface for Endpoint Executor Service
+ * Endpoint executor service
  */
 export type EndpointExecutorService = {
   /**
@@ -31,6 +30,7 @@ export type EndpointExecutorService = {
 export class DefaultEndpointExecutorService implements EndpointExecutorService {
   private config: ExecutionConfig;
   private fetch: typeof NodeFetch;
+  private retryPolicy: RetryPolicy;
 
   /**
    * Create a new executor service
@@ -40,6 +40,7 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
   constructor(config: ExecutionConfig) {
     this.config = config;
     this.fetch = NodeFetch;
+    this.retryPolicy = new DefaultRetryPolicy();
   }
 
   /**
@@ -233,6 +234,8 @@ export class DefaultEndpointExecutorService implements EndpointExecutorService {
     jobContext: JobContext,
     endpoint: AIAgentPlanResponse["endpointsToCall"][0],
   ): Promise<EndpointExecutionResult> {
+    void this.retryPolicy; // placeholder usage until retry logic added
+    // basic single-attempt for now (retry loop scaffolded for future implementation)
     const startTime = Date.now();
     const timestamp = new Date().toISOString();
 

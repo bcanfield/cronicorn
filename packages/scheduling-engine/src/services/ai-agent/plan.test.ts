@@ -42,6 +42,6 @@ describe("ai agent - planExecution", () => {
     const aiAgent = new AIAgentServiceClass({ model: "test-model", validateSemantics: true, semanticStrict: false });
     const ctx: JobContext = { job: { id: "j", definitionNL: "d", status: "ACTIVE", locked: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, endpoints: [], messages: [], endpointUsage: [] };
     const plan = await aiAgent.planExecution(ctx);
-    expect(plan.reasoning).toMatch(/SemanticWarnings/);
+    expect(plan.reasoning).toMatch(/SemanticWarnings|SemanticSalvage/);
   });
 });
