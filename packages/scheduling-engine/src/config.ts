@@ -58,6 +58,7 @@ export const ExecutionConfigSchema = z.object({
   responseContentLengthLimit: z.number().int().positive().default(10000).describe("Max stored response characters before truncation"),
   validateResponseSchemas: z.boolean().default(true).describe("Validate responses against endpoint schema where available"),
   executionPhaseTimeoutMs: z.number().int().positive().optional().describe("Optional global timeout for entire execution phase"),
+  logSamplingRate: z.number().min(0).max(1).default(1.0).describe("Sampling rate for verbose endpoint attempt logs (1.0 = all)"),
   circuitBreaker: z.object({
     enabled: z.boolean().default(true),
     failureThreshold: z.number().int().positive().default(5).describe("Failures within window to open circuit"),
@@ -102,6 +103,7 @@ export const EventsConfigSchema = z.object({
   onAbort: z.function().args(z.object({ jobId: z.string().optional(), reason: z.string().optional() })).returns(z.void()).optional(),
   onCircuitStateChange: z.function().args(z.object({ endpointId: z.string(), from: z.enum(["closed", "open", "half_open"]).optional(), to: z.enum(["closed", "open", "half_open"]), failures: z.number().int().nonnegative().optional() })).returns(z.void()).optional(),
   onEndpointProgress: z.function().args(z.object({ jobId: z.string().optional(), endpointId: z.string(), status: z.enum(["pending", "in_progress", "success", "failed"]), attempt: z.number().int().min(0), error: z.string().optional() })).returns(z.void()).optional(),
+  onEscalation: z.function().args(z.object({ jobId: z.string(), level: z.enum(['warn','critical']), failureCount: z.number().int().nonnegative(), abortedCount: z.number().int().nonnegative().optional() })).returns(z.void()).optional(),
 }).partial();
 
 /** Root engine config (input may be partial) */

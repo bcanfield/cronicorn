@@ -450,6 +450,9 @@ export class SchedulingEngine {
           })(),
         },
       };
+      if (executionSummary.summary.escalationLevel === 'warn' || executionSummary.summary.escalationLevel === 'critical') {
+        this.config.events?.onEscalation?.({ jobId, level: executionSummary.summary.escalationLevel, failureCount: executionSummary.summary.failureCount, abortedCount: executionSummary.summary.abortedCount });
+      }
       await this.database.recordExecutionSummary(jobId, executionSummary.summary);
       this.state.stats.totalEndpointCalls += endpointResults.length;
 
