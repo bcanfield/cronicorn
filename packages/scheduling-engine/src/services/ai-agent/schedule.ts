@@ -69,34 +69,36 @@ async function tryRepairSchedule(originalError: unknown, ctx: ScheduleCoreParams
   const category = classifyScheduleError(errMsg);
   if (!isRepairableScheduleCategory(category))
     return null;
-  ctx.emit({ type: "repairAttempt", phase: "schedule" });
   if (!/Semantic validation failed|Error parsing|schema/i.test(errMsg))
     return null;
-  try {
-    const rescuePrompt = `${createSchedulingSystemPrompt()}\n\nThe previous response was malformed or semantically invalid (reason: ${errMsg}). Produce a corrected JSON object strictly matching the required schema.`;
-    const userPrompt = formatContextForScheduling(ctx.jobContext, ctx.executionResults);
-    const result = await generateObject({
-      model: ctx.model,
-      system: rescuePrompt,
-      prompt: userPrompt,
-      temperature: 0,
-      maxRetries: 1,
-      schema: schedulingResponseSchema,
-    });
-    let schedule: AIAgentScheduleResponse = result.object;
-    if (ctx.config.validateSemantics) {
-      const issues = validateScheduleSemantics(schedule);
-      if (issues.length) {
-        if (ctx.config.semanticStrict)
-          throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
-        schedule = { ...schedule, reasoning: `${schedule.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+  const attempts = Math.max(1, ctx.config.maxRepairAttempts ?? 1);
+  for (let i = 0; i < attempts; i++) {
+    ctx.emit({ type: "repairAttempt", phase: "schedule" });
+    try {
+      const rescuePrompt = `${createSchedulingSystemPrompt()}\n\nThe previous response was malformed or semantically invalid (reason: ${errMsg}). Produce a corrected JSON object strictly matching the required schema.`;
+      const userPrompt = formatContextForScheduling(ctx.jobContext, ctx.executionResults);
+      const result = await generateObject({
+        model: ctx.model,
+        system: rescuePrompt,
+        prompt: userPrompt,
+        temperature: 0,
+        maxRetries: 1,
+        schema: schedulingResponseSchema,
+      });
+      let schedule: AIAgentScheduleResponse = result.object;
+      if (ctx.config.validateSemantics) {
+        const issues = validateScheduleSemantics(schedule);
+        if (issues.length) {
+          if (ctx.config.semanticStrict)
+            throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
+          schedule = { ...schedule, reasoning: `${schedule.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+        }
       }
+      return { ...schedule, usage: result.usage };
     }
-    ctx.emit({ type: "repairSuccess", phase: "schedule" });
-    return { ...schedule, usage: result.usage };
+    catch {
+      ctx.emit({ type: "repairFailure", phase: "schedule" });
+    }
   }
-  catch {
-    ctx.emit({ type: "repairFailure", phase: "schedule" });
-    return null;
-  }
+  return null;
 }

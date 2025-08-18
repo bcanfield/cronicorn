@@ -25,6 +25,7 @@ export const AIAgentConfigSchema = z.object({
   validateSemantics: z.boolean().default(true).describe("Enable semantic validation of AI responses"),
   semanticStrict: z.boolean().default(true).describe("Treat semantic issues as errors (true) or warnings (false)"),
   repairMalformedResponses: z.boolean().default(true).describe("Attempt automated repair when AI response is malformed or schema-invalid"),
+  maxRepairAttempts: z.number().int().min(1).default(1).describe("Maximum automated repair attempts when repairMalformedResponses is enabled"),
   metricsHook: z
     .function()
     .args(aiAgentMetricsEventSchema)

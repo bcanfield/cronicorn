@@ -70,35 +70,38 @@ async function tryRepairPlan(originalError: unknown, ctx: PlanCoreParams): Promi
   const category = classifyPlanError(errMsg);
   if (!isRepairablePlanCategory(category))
     return null;
-  ctx.emit({ type: "repairAttempt", phase: "plan" });
   if (!/Semantic validation failed|Error parsing|schema/i.test(errMsg))
     return null;
-  try {
-    const optimized = optimizeJobContext(ctx.jobContext, ctx.config.promptOptimization);
-    const rescuePrompt = `${createPlanningSystemPrompt()}\n\nThe previous response was malformed or semantically invalid (reason: ${errMsg}). Produce a corrected JSON object strictly matching the required schema.`;
-    const userPrompt = formatContextForPlanning(optimized);
-    const result = await generateObject({
-      model: ctx.model,
-      system: rescuePrompt,
-      prompt: userPrompt,
-      temperature: 0,
-      maxRetries: 1,
-      schema: executionPlanSchema,
-    });
-    let plan: AIAgentPlanResponse = result.object;
-    if (ctx.config.validateSemantics) {
-      const issues = validatePlanSemantics(plan);
-      if (issues.length) {
-        if (ctx.config.semanticStrict)
-          throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
-        plan = { ...plan, reasoning: `${plan.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+  const attempts = Math.max(1, ctx.config.maxRepairAttempts ?? 1);
+  for (let i = 0; i < attempts; i++) {
+    ctx.emit({ type: "repairAttempt", phase: "plan" });
+    try {
+      const optimized = optimizeJobContext(ctx.jobContext, ctx.config.promptOptimization);
+      const rescuePrompt = `${createPlanningSystemPrompt()}\n\nThe previous response was malformed or semantically invalid (reason: ${errMsg}). Produce a corrected JSON object strictly matching the required schema.`;
+      const userPrompt = formatContextForPlanning(optimized);
+      const result = await generateObject({
+        model: ctx.model,
+        system: rescuePrompt,
+        prompt: userPrompt,
+        temperature: 0,
+        maxRetries: 1,
+        schema: executionPlanSchema,
+      });
+      let plan: AIAgentPlanResponse = result.object;
+      if (ctx.config.validateSemantics) {
+        const issues = validatePlanSemantics(plan);
+        if (issues.length) {
+          if (ctx.config.semanticStrict)
+            throw new Error(`Semantic validation failed after repair: ${issues.join("; ")}`);
+          plan = { ...plan, reasoning: `${plan.reasoning}\n\n[SemanticWarnings] ${issues.join(" | ")}` };
+        }
       }
+      return { ...plan, usage: result.usage };
     }
-    ctx.emit({ type: "repairSuccess", phase: "plan" });
-    return { ...plan, usage: result.usage };
+    catch {
+      ctx.emit({ type: "repairFailure", phase: "plan" });
+      // continue loop
+    }
   }
-  catch {
-    ctx.emit({ type: "repairFailure", phase: "plan" });
-    return null;
-  }
+  return null;
 }
