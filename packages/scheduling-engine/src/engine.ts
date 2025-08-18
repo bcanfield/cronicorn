@@ -165,7 +165,15 @@ export class SchedulingEngine {
   async processCycle(): Promise<ProcessingResult> {
     const startTime = new Date();
     this.state.lastProcessingTime = startTime;
-
+    // progress scaffold
+    const abortController = new AbortController();
+    this.state.abortController = {
+      signal: abortController.signal,
+      abort: () => {
+        abortController.abort();
+      },
+    };
+    this.state.progress = { total: 0, completed: 0, startedAt: startTime.toISOString(), updatedAt: startTime.toISOString() };
     const result: ProcessingResult = {
       startTime,
       endTime: new Date(), // updated later
@@ -179,6 +187,7 @@ export class SchedulingEngine {
       const maxBatchSize = this.config.scheduler?.maxBatchSize ?? 20;
       const jobIds = await this.database.getJobsToProcess(maxBatchSize);
       result.jobsProcessed = jobIds.length;
+      this.state.progress.total = jobIds.length;
       if (jobIds.length === 0) {
         const logger = this.config.logger || console;
         logger.info("Processing cycle completed: 0/0 jobs successful");
@@ -197,6 +206,8 @@ export class SchedulingEngine {
           return;
         const jobId = jobIds[current];
         await this.processSingleJob(jobId, result).catch(() => { /* errors recorded inside */ });
+        this.state.progress!.completed++;
+        this.state.progress!.updatedAt = new Date().toISOString();
         return processNext();
       };
 
@@ -228,6 +239,8 @@ export class SchedulingEngine {
       (this.state.stats.totalProcessingTimeMs || 0) / (this.state.stats.totalCyclesProcessed || 1),
     );
 
+    this.state.progress = undefined;
+    this.state.abortController = undefined;
     return result;
   }
 

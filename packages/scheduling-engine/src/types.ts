@@ -68,6 +68,8 @@ export type EngineState = {
   startTime?: Date;
   stopTime?: Date;
   lastProcessingTime: Date | null;
+  progress?: ExecutionProgress; // aggregate per-cycle progress (optional)
+  abortController?: AbortCapability; // future use for graceful aborts
   stats: {
     totalJobsProcessed: number;
     successfulJobs: number;
@@ -142,4 +144,16 @@ export type ExecutionResults = {
     successCount: number;
     failureCount: number;
   };
+};
+
+export type ExecutionProgress = {
+  total: number;
+  completed: number;
+  startedAt: string;
+  updatedAt: string;
+};
+
+export type AbortCapability = {
+  signal: AbortSignal;
+  abort: (reason?: string) => void;
 };
